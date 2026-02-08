@@ -16,6 +16,8 @@
 
   <title>@mind — дневник самопрограммирования</title>
 </head>
+
+
   
 
   <style>
@@ -35,16 +37,31 @@
       --shadow2: 0 18px 50px rgba(109,94,252,.28);
       --radius:22px;
     }
-    html{
-         height:100%;
-         background: var(--bg);
-        }
-
-body{
-  min-height:100%;
-  background-color: var(--bg); /* чтобы iOS не рисовал белое */
-  overscroll-behavior: none;
+html, body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg); /* базовый фон, без белого */
 }
+
+body {
+  background-color: var(--bg);
+  overflow: hidden;
+}
+
+/* ВАЖНО: фон рисуем на фиксированном слое, который закрывает весь экран */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
+    radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
+    radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
 
     [data-theme="dark"]{
       --bg:#050816;
@@ -1119,7 +1136,10 @@ body{
 
         block.innerHTML = `
           <div class="entryTop">
-            <div class="entryTag">${e.segmentEmoji} ${e.segmentName}</div>
+            <div class="entryTag" title="${e.segmentName}">
+                <span style="font-size:16px">${e.segmentEmoji}</span>
+                </div>
+
             <div class="entryRight">
               <div class="progressPill" style="border-color:${pctColor}33;">
                 <span style="color:${pctColor};">${pct}%</span>
@@ -1252,4 +1272,3 @@ body{
   </script>
 </body>
 </html>
-
