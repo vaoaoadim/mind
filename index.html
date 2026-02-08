@@ -1,24 +1,29 @@
-
+<!doctype html> <html lang="ru"></html>
 <head>
-  <link rel="icon" type="image/png" href="logo-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="manifest" href="manifest.webmanifest">
+  <meta charset="UTF-8" />
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="@mind">
+  <!-- iOS: fullscreen (на экран домой) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="@mind" />
 
-  <meta name="theme-color" content="#050816" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+  <!-- Цвет строки статуса/браузера -->
+  <meta name="theme-color" content="#050816" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)" />
+
+  <!-- Иконки (ВАЖНО: переименуй файл чтобы сбросить кеш iOS) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-v3.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="logo-192-v3.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="logo-192-v3.png" />
+
+  <!-- manifest (Android/Chrome) -->
+  <link rel="manifest" href="manifest.webmanifest" />
 
   <title>@mind</title>
 </head>
 
-
-  
 
   <style>
     :root{
@@ -1272,4 +1277,3 @@ body::before{
   </script>
 </body>
 </html>
-
