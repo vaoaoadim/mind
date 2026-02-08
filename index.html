@@ -82,21 +82,15 @@ body::before{
     }
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
-        radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
-        radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
-      overflow:hidden;
-      touch-action: manipulation;
-    }
 
-    .app{ height:100vh; display:flex; flex-direction:column; }
+
+    .app{
+  height: calc(var(--vh, 1vh) * 100);
+  display:flex;
+  flex-direction:column;
+}
+
+
 
     .top{
         padding-left: 16px;
@@ -924,6 +918,7 @@ body::before{
       entryModalBg.classList.remove("show");
       activeSegment = null;
       editor.innerHTML = "";
+      setTimeout(setVh, 50);
     }
     function saveEntry(){
       if(!activeSegment) return;
@@ -1080,6 +1075,7 @@ body::before{
     function closeJournal(){
       journalModalBg.classList.remove("show");
       openProgressForId = null;
+      setTimeout(setVh, 50);
     }
 
     function togglePin(entryId){
@@ -1264,6 +1260,14 @@ body::before{
         layoutSphere();
       }
     }
+
+    function setVh(){
+  document.documentElement.style.setProperty("--vh", (window.innerHeight * 0.01) + "px");
+}
+setVh();
+window.addEventListener("resize", setVh);
+window.addEventListener("orientationchange", setVh);
+
 
     // --------- Boot ----------
     initTheme();
