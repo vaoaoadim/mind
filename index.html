@@ -1,28 +1,21 @@
-<!doctype html>
-<html lang="ru">
-<head>
-    <!-- Иконка во вкладке браузера -->
-<link rel="icon" type="image/png" href="logo-192.png">
+<meta charset="UTF-8">
 
-<!-- Иконка для iPhone (Добавить на экран домой) -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
-<!-- PWA / экран домой -->
-<link rel="manifest" href="manifest.webmanifest">
-
-<meta name="theme-color" content="#6d5efc">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="@mind">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>@mind — дневник самопрограммирования</title>
+<meta name="theme-color" content="#050816" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+
+<title>@mind — дневник самопрограммирования</title>
+
   
 
   <style>
     :root{
+    
       --bg:#f6f7fb;
       --bg2:#ffffff;
       --text:#0b1220;
@@ -37,6 +30,17 @@
       --shadow2: 0 18px 50px rgba(109,94,252,.28);
       --radius:22px;
     }
+    html{
+         height:100%;
+         background: var(--bg);
+        }
+
+body{
+  min-height:100%;
+  background-color: var(--bg); /* чтобы iOS не рисовал белое */
+  overscroll-behavior: none;
+}
+
     [data-theme="dark"]{
       --bg:#050816;
       --bg2:#070a1a;
@@ -67,7 +71,13 @@
 
     .app{ height:100vh; display:flex; flex-direction:column; }
 
-    .top{ padding: 16px 16px 10px; }
+    .top{
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 10px;
+        padding-top: calc(16px + env(safe-area-inset-top));
+    }
+
     .header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .brand{ display:flex; flex-direction:column; gap:2px; }
     .h-title{ font-weight:900; font-size:18px; letter-spacing:.2px; }
@@ -318,39 +328,66 @@
       position:relative;
     }
     .entryTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      font-size:12px;
-      color: var(--muted);
-    }
-    .entryTag{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-weight: 900;
-      color: var(--text);
-      min-width: 0;
-    }
-    .entryRight{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-shrink:0;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      text-align:right;
-    }
-    .miniBtn{
-      width:34px;height:32px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:transparent;
-      cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-      user-select:none;
-    }
+  display:grid;
+  grid-template-columns: 1fr auto; /* слева тег, справа панель */
+  align-items:start;
+  gap:10px;
+  font-size:12px;
+  color: var(--muted);
+}
+
+.entryTag{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  color: var(--text);
+  min-width:0;
+
+  /* чтобы длинные названия не ломали верстку */
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entryRight{
+  display:grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items:center;
+  gap:8px;
+}
+
+.entryDate{
+  font-size:11px;
+  color: var(--muted);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.progressPill{
+  padding: 5px 8px;
+  border-radius: 999px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.03);
+  font-weight: 900;
+  font-size: 11px;
+  min-width: 56px;
+  text-align:center;
+}
+
+.miniBtn{
+  width:32px;
+  height:32px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:transparent;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
     .pinBtn.pinned{
       background: rgba(109,94,252,.14);
       border-color: rgba(109,94,252,.24);
@@ -495,6 +532,25 @@
       user-select:none;
       -webkit-user-select:none;
     }
+    @media (max-width: 420px){
+  .h-title{ font-size: 17px; }
+  .h-sub{ font-size: 11px; }
+
+  .metric .v{ font-size: 15px; }
+  .chip{ font-size: 11px; padding: 8px 10px; border-radius: 16px; }
+  .chip .e{ font-size: 15px; }
+
+  .entryText{
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .modal{
+    border-radius: 22px;
+    padding: 12px;
+  }
+}
+
   </style>
 </head>
 
@@ -1066,7 +1122,8 @@
               <button class="miniBtn noSelect progressBtn" title="Прогресс">📈</button>
               <button class="miniBtn noSelect pinBtn ${e.pinned ? "pinned":""}" title="Закрепить">📌</button>
               <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
-              <div>${when}</div>
+              <span class="entryDate">${when}</span>
+
             </div>
           </div>
           <div class="entryText"></div>
