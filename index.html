@@ -68,18 +68,19 @@ body::before{
 }
 
 
-    [data-theme="dark"]{
-      --bg:#050816;
-      --bg2:#070a1a;
-      --text:#e9ecf3;
-      --muted:rgba(233,236,243,.55);
-      --card:rgba(7,10,26,.72);
-      --card2:rgba(7,10,26,.58);
-      --border:rgba(233,236,243,.12);
-      --border2:rgba(167,139,250,.25);
-      --shadow: 0 16px 44px rgba(0,0,0,.40);
-      --shadow2: 0 22px 58px rgba(167,139,250,.20);
-    }
+[data-theme="dark"]{
+  --bg:#050816;
+  --bg2:#070a1a;
+
+  --text:#e9ecf3;
+  --muted:rgba(233,236,243,.62);      /* было .55 — сделаем контрастнее */
+  --card:rgba(7,10,26,.74);
+  --card2:rgba(7,10,26,.62);
+
+  --border:rgba(233,236,243,.14);     /* чуть сильнее контур */
+  --border2:rgba(167,139,250,.28);
+}
+
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -128,6 +129,19 @@ body::before{
     }
     .metric .k{ font-size:11px; color:var(--muted); }
     .metric .v{ margin-top:2px; font-size:16px; font-weight:900; }
+    .metric .v{
+  color: var(--text);
+}
+.metric .k{
+  color: var(--muted);
+}
+.h-title{
+  color: var(--text);
+}
+.h-sub{
+  color: var(--muted);
+}
+
 
     .main{
       flex:1;
@@ -571,6 +585,20 @@ body::before{
     padding: 12px;
   }
 }
+/* Онбординг — принудительные цвета */
+.onbSheet .modalTitle{
+  color: var(--text);
+}
+.onbText{
+  color: var(--muted);
+}
+
+/* чуть ярче фон на тёмной теме */
+[data-theme="dark"] .onbSheet{
+  background: rgba(7,10,26,.82);
+  border-color: rgba(233,236,243,.14);
+}
+
 
   </style>
 </head>
