@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <!-- Иконка во вкладке браузера -->
+<link rel="icon" type="image/png" href="logo-192.png">
+
+<!-- Иконка для iPhone (Добавить на экран домой) -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+
+<!-- PWA / экран домой -->
+<link rel="manifest" href="manifest.webmanifest">
+
+<meta name="theme-color" content="#6d5efc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="@mind">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>@mind — дневник самопрограммирования</title>
+  
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --bg2:#ffffff;
+      --text:#0b1220;
+      --muted:rgba(11,18,32,.55);
+      --card:rgba(255,255,255,.78);
+      --card2:rgba(255,255,255,.62);
+      --border:rgba(11,18,32,.12);
+      --border2:rgba(109,94,252,.22);
+      --accent:#6d5efc;
+      --accent2:#a78bfa;
+      --shadow: 0 12px 34px rgba(2,6,23,.12);
+      --shadow2: 0 18px 50px rgba(109,94,252,.28);
+      --radius:22px;
+    }
+    [data-theme="dark"]{
+      --bg:#050816;
+      --bg2:#070a1a;
+      --text:#e9ecf3;
+      --muted:rgba(233,236,243,.55);
+      --card:rgba(7,10,26,.72);
+      --card2:rgba(7,10,26,.58);
+      --border:rgba(233,236,243,.12);
+      --border2:rgba(167,139,250,.25);
+      --shadow: 0 16px 44px rgba(0,0,0,.40);
+      --shadow2: 0 22px 58px rgba(167,139,250,.20);
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
+        radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+
+    .app{ height:100vh; display:flex; flex-direction:column; }
+
+    .top{ padding: 16px 16px 10px; }
+    .header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand{ display:flex; flex-direction:column; gap:2px; }
+    .h-title{ font-weight:900; font-size:18px; letter-spacing:.2px; }
+    .h-sub{ font-size:12px; color:var(--muted); }
+
+    .iconBtn{
+      width:44px;height:44px;border-radius:16px;
+      border:1px solid var(--border);
+      background:var(--card);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(12px);
+      cursor:pointer;
+      color:var(--text);
+      display:flex;align-items:center;justify-content:center;
+      user-select:none;
+    }
+
+    .metrics{ display:flex; gap:10px; margin-top:12px; }
+    .metric{
+      flex:1;min-width:0;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:10px 12px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .metric .k{ font-size:11px; color:var(--muted); }
+    .metric .v{ margin-top:2px; font-size:16px; font-weight:900; }
+
+    .main{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding: 0 16px;
+      overflow:hidden;
+    }
+
+    .sphereSection{
+      width:100%;
+      max-width:430px;
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding-bottom: 22px;
+    }
+
+    .sphereWrap{
+      position:relative;
+      width: min(420px, 92vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      overflow: hidden;
+      background:
+        radial-gradient(closest-side at 50% 44%, rgba(109,94,252,.14), transparent 68%),
+        radial-gradient(closest-side at 60% 60%, rgba(167,139,250,.10), transparent 70%);
+      touch-action:none;
+    }
+
+    .softGlow{
+      position:absolute; inset:-40px;
+      background: radial-gradient(closest-side, rgba(167,139,250,.18), transparent 70%);
+      filter: blur(18px);
+      opacity:.75;
+      pointer-events:none;
+      animation: breathe 4.6s ease-in-out infinite;
+    }
+    @keyframes breathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
+
+    .sphere{ position:absolute; inset:0; transform-style:preserve-3d; will-change:transform; }
+    .node{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; will-change:transform; }
+
+    .chip{
+      display:flex; align-items:center; gap:8px;
+      padding: 9px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border2);
+      background: var(--card2);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 26px rgba(2,6,23,.10);
+      color:var(--text);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .15s ease, opacity .15s ease, filter .15s ease;
+    }
+    .chip:active{ transform: scale(.98); }
+    .chip .e{ font-size:16px; }
+
+    .bottomBar{
+      position:fixed;
+      left:0; right:0;
+      bottom:0;
+      padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display:flex;
+      justify-content:center;
+      z-index:20;
+    }
+    [data-theme="dark"] .bottomBar{
+      background: linear-gradient(180deg, rgba(0,0,0,0), var(--card));
+    }
+
+    .primaryBtn{
+      width: min(430px, 100%);
+      height: 52px;
+      border-radius: 999px;
+      border: 1px solid rgba(109,94,252,.25);
+      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.85));
+      color:#fff;
+      font-weight: 950;
+      letter-spacing:.2px;
+      box-shadow: var(--shadow2);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      user-select:none;
+    }
+
+    .modalBg{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.42);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+      backdrop-filter: blur(10px);
+      z-index:50;
+    }
+    .modalBg.show{ display:flex; }
+
+    .modal{
+      width: min(560px, 100%);
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      backdrop-filter: blur(14px);
+      max-height: 86vh;
+      overflow:auto;
+    }
+
+    .modalTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .modalTitle{ font-weight: 950; font-size: 14px; }
+    .modalHint{
+      margin-top:6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:8px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .tbtn{
+      border:1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      user-select:none;
+      font-weight: 900;
+      font-size: 12px;
+      min-width: 42px;
+      text-align:center;
+    }
+    .tbtn.active{
+      background: rgba(109,94,252,.16);
+      border-color: rgba(109,94,252,.28);
+      box-shadow: 0 10px 22px rgba(109,94,252,.10);
+    }
+
+    .editor{
+      margin-top:10px;
+      min-height: 220px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      outline:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+      overflow:auto;
+      -webkit-user-select:text;
+      user-select:text;
+    }
+    .editor:empty:before{ content: attr(data-placeholder); color: var(--muted); }
+
+    .saveBtn{
+      margin-top:12px;
+      width: 100%;
+      height: 48px;
+      border-radius: 18px;
+      border: 1px solid rgba(109,94,252,.25);
+      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.80));
+      color:#fff;
+      font-weight: 950;
+      cursor:pointer;
+    }
+
+    .journalHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .journalTitle{ font-weight: 950; font-size: 14px; }
+
+    .emptyBox{
+      margin-top:10px;
+      border:1px dashed var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.35;
+      background: rgba(255,255,255,.03);
+    }
+
+    .entry{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 12px;
+      margin-top: 10px;
+      position:relative;
+    }
+    .entryTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .entryTag{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 900;
+      color: var(--text);
+      min-width: 0;
+    }
+    .entryRight{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      text-align:right;
+    }
+    .miniBtn{
+      width:34px;height:32px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+      cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      user-select:none;
+    }
+    .pinBtn.pinned{
+      background: rgba(109,94,252,.14);
+      border-color: rgba(109,94,252,.24);
+    }
+    .progressPill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      font-weight: 900;
+      font-size: 12px;
+      color: var(--text);
+      min-width: 62px;
+      text-align:center;
+      user-select:none;
+    }
+
+    .entryText{
+      margin-top:8px;
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .pop{
+      margin-top:10px;
+      border:1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.04);
+    }
+    .popTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .popVal{ font-weight: 950; color: var(--text); }
+
+    .rangeWrap{ margin-top:10px; }
+
+    input[type="range"]{
+      -webkit-appearance:none;
+      width:100%;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(11,18,32,.10);
+      outline:none;
+    }
+    [data-theme="dark"] input[type="range"]{
+      background: rgba(233,236,243,.12);
+    }
+
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid rgba(255,255,255,.85);
+      box-shadow: 0 10px 22px rgba(2,6,23,.20);
+      cursor:pointer;
+    }
+    input[type="range"]::-moz-range-thumb{
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid rgba(255,255,255,.85);
+      box-shadow: 0 10px 22px rgba(2,6,23,.20);
+      cursor:pointer;
+    }
+
+    /* Onboarding */
+    .onbSheet{
+      width:min(560px, 100%);
+      border-radius: 26px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.70);
+      box-shadow: 0 18px 60px rgba(2,6,23,.22);
+      backdrop-filter: blur(16px);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    [data-theme="dark"] .onbSheet{
+      background: rgba(7,10,26,.72);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    .onbGlow{
+      position:absolute; inset:-80px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(109,94,252,.20),
+        rgba(167,139,250,.18),
+        rgba(109,94,252,.20),
+        rgba(167,139,250,.18),
+        rgba(109,94,252,.20)
+      );
+      filter: blur(24px);
+      opacity:.75;
+      animation: shimmer 4.6s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%{ transform: rotate(0deg); }
+      100%{ transform: rotate(360deg); }
+    }
+    .onbContent{
+      position:relative;
+      z-index:1;
+      text-align:center;
+      padding: 10px 6px 6px;
+    }
+    .onbHeart{
+      font-size: 28px;
+      margin-top: 4px;
+    }
+    .onbText{
+      margin-top:8px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height:1.4;
+    }
+    .onbBtn{
+      margin-top:12px;
+      width:100%;
+      height: 48px;
+      border-radius: 18px;
+      border: 1px solid rgba(109,94,252,.25);
+      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.85));
+      color:#fff;
+      font-weight: 950;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .noSelect{
+      user-select:none;
+      -webkit-user-select:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="header">
+        <div class="brand">
+          <div class="h-title">@mind</div>
+          <div class="h-sub">Дневник самопрограммирования</div>
+        </div>
+        <button class="iconBtn noSelect" id="themeBtn" aria-label="Тема" title="Тема">🌓</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="k">Серия дней</div>
+          <div class="v" id="mStreak">0 🔥</div>
+        </div>
+        <div class="metric">
+          <div class="k">Сегодня</div>
+          <div class="v" id="mToday">0 📝</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="sphereSection">
+        <div class="sphereWrap" id="sphereWrap">
+          <div class="softGlow"></div>
+          <div class="sphere" id="sphere"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottomBar">
+      <button class="primaryBtn noSelect" id="openJournalBtn">
+        <span style="font-size:18px">📓</span>
+        <span>Открыть дневник</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Onboarding modal (always on open) -->
+  <div class="modalBg" id="onbModalBg">
+    <div class="onbSheet" role="dialog" aria-modal="true">
+      <div class="onbGlow"></div>
+      <div class="onbContent">
+        <div class="onbHeart">💗</div>
+        <div class="modalTitle" style="margin-top:8px;">Как пользоваться</div>
+        <div class="onbText">
+          1) Крути сферу вбок и выбери сектор.<br>
+          2) Запиши мысль и оформи текст (жирный, курсив, список, цвет).<br>
+          3) Открой дневник снизу: закрепляй важное 📌 и отмечай прогресс 📈.<br>
+          Всё сохраняется на устройстве.
+        </div>
+        <button class="onbBtn noSelect" id="onbContinue">Продолжить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry editor modal -->
+  <div class="modalBg" id="entryModalBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div class="modalTitle" id="entryTitle">📝 Запись</div>
+        <button class="iconBtn noSelect" id="entryClose" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modalHint" id="entryHint"></div>
+
+      <div class="toolbar noSelect">
+        <button class="tbtn" id="tbBold" title="Жирный"><b>B</b></button>
+        <button class="tbtn" id="tbItalic" title="Курсив"><i>I</i></button>
+        <button class="tbtn" id="tbList" title="Список">•</button>
+        <button class="tbtn" id="tbUndo" title="Отмена">↺</button>
+        <button class="tbtn" id="tbColor" title="Цвет">A</button>
+      </div>
+
+      <div class="editor" id="editor" contenteditable="true"
+        data-placeholder="Пиши как в личный дневник. Здесь можно быть настоящим."></div>
+
+      <button class="saveBtn noSelect" id="saveEntryBtn">Сохранить</button>
+    </div>
+  </div>
+
+  <!-- Journal modal -->
+  <div class="modalBg" id="journalModalBg">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="journalHeader">
+        <div class="journalTitle">📓 Дневник</div>
+        <button class="iconBtn noSelect" id="journalClose" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div id="journalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // --------- Data ----------
+    const segments = [
+      { id: 1,  name: "Мысли",           emoji: "💭" },
+      { id: 2,  name: "Чувства",         emoji: "😔" },
+      { id: 3,  name: "Самооценка",      emoji: "✨" },
+      { id: 4,  name: "Мышление",        emoji: "🧠" },
+      { id: 5,  name: "Тревога",         emoji: "🌙" },
+      { id: 6,  name: "Мотивация",       emoji: "🔥" },
+      { id: 7,  name: "Рост",            emoji: "🦋" },
+      { id: 8,  name: "Интуиция",        emoji: "🧿" },
+      { id: 9,  name: "Страхи",          emoji: "💔" },
+      { id: 10, name: "Любовь к себе",   emoji: "💖" },
+      { id: 11, name: "Энергия",         emoji: "🛌" },
+      { id: 12, name: "Мечта",           emoji: "💼" },
+      { id: 13, name: "Деньги",          emoji: "💸" },
+      { id: 14, name: "Благодарность",   emoji: "🌸" },
+      { id: 15, name: "Ясность",         emoji: "🧩" },
+      { id: 16, name: "Эмоции",          emoji: "🌊" },
+      { id: 17, name: "Видение",         emoji: "🔮" },
+      { id: 18, name: "Спокойствие",     emoji: "🕊" },
+      { id: 19, name: "Сила",            emoji: "⚡️" },
+      { id: 20, name: "Свободный текст", emoji: "📝" },
+    ];
+
+    const LS = {
+      theme: "mind_theme",
+      entries: "mind_entries_v4",
+    };
+
+    function loadJSON(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        if(!raw) return fallback;
+        return JSON.parse(raw);
+      }catch{
+        return fallback;
+      }
+    }
+    function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    function dayKey(iso){ return new Date(iso).toISOString().slice(0,10); }
+    function nowISO(){ return new Date().toISOString(); }
+
+    // Progress color: red (0) -> green (100)
+    function progressColor(percent){
+      const p = Math.max(0, Math.min(100, percent));
+      const hue = 0 + (120 * (p / 100)); // 0..120
+      return `hsl(${hue} 85% 45%)`;
+    }
+    function setRangeGradient(rangeEl, percent){
+      const c = progressColor(percent);
+      const neutralLight = "rgba(11,18,32,.12)";
+      const neutralDark  = "rgba(233,236,243,.14)";
+      const neutral = (document.body.dataset.theme === "dark") ? neutralDark : neutralLight;
+      rangeEl.style.background =
+        `linear-gradient(90deg, ${c} 0%, ${c} ${percent}%, ${neutral} ${percent}%, ${neutral} 100%)`;
+    }
+
+    // --------- State ----------
+    let entries = loadJSON(LS.entries, []).map(e => ({
+      ...e,
+      pinned: !!e.pinned,
+      progress: typeof e.progress === "number" ? e.progress : 0,
+    }));
+
+    let activeSegment = null;
+
+    // Sphere rotation: sideways only
+    const fixedTiltX = -12;
+    let rotY = 18;
+    let dragging = false;
+    let lastX = 0;
+
+    // Journal popover
+    let openProgressForId = null;
+
+    // --------- Elements ----------
+    const themeBtn = document.getElementById("themeBtn");
+    const mStreak = document.getElementById("mStreak");
+    const mToday  = document.getElementById("mToday");
+
+    const sphereWrap = document.getElementById("sphereWrap");
+    const sphereEl   = document.getElementById("sphere");
+
+    const onbModalBg = document.getElementById("onbModalBg");
+    const onbContinue= document.getElementById("onbContinue");
+
+    const entryModalBg = document.getElementById("entryModalBg");
+    const entryTitle   = document.getElementById("entryTitle");
+    const entryHint    = document.getElementById("entryHint");
+    const entryClose   = document.getElementById("entryClose");
+    const editor       = document.getElementById("editor");
+    const saveEntryBtn = document.getElementById("saveEntryBtn");
+
+    const journalModalBg = document.getElementById("journalModalBg");
+    const journalClose   = document.getElementById("journalClose");
+    const journalBody    = document.getElementById("journalBody");
+    const openJournalBtn = document.getElementById("openJournalBtn");
+
+    const tbBold  = document.getElementById("tbBold");
+    const tbItalic= document.getElementById("tbItalic");
+    const tbList  = document.getElementById("tbList");
+    const tbUndo  = document.getElementById("tbUndo");
+    const tbColor = document.getElementById("tbColor");
+
+    // --------- Theme ----------
+    function initTheme(){
+      const t = localStorage.getItem(LS.theme);
+      document.body.dataset.theme = (t === "dark") ? "dark" : "light";
+    }
+    function toggleTheme(){
+      const cur = document.body.dataset.theme === "dark" ? "dark" : "light";
+      const next = cur === "dark" ? "light" : "dark";
+      document.body.dataset.theme = next;
+      localStorage.setItem(LS.theme, next);
+
+      const openRange = document.querySelector('input[type="range"][data-open="1"]');
+      if(openRange){
+        setRangeGradient(openRange, Number(openRange.value));
+      }
+    }
+
+    // --------- Metrics ----------
+    function computeMetrics(){
+      const today = dayKey(nowISO());
+      const todayCount = entries.filter(e => dayKey(e.createdAt) === today).length;
+
+      const daysSet = new Set(entries.map(e => dayKey(e.createdAt)));
+      let streak = 0;
+      let cur = today;
+      while(daysSet.has(cur)){
+        streak++;
+        const d = new Date(cur);
+        d.setDate(d.getDate() - 1);
+        cur = d.toISOString().slice(0,10);
+      }
+      return { streak, todayCount };
+    }
+    function renderMetrics(){
+      const m = computeMetrics();
+      mStreak.textContent = `${m.streak} 🔥`;
+      mToday.textContent  = `${m.todayCount} 📝`;
+    }
+
+    // --------- Sphere ----------
+    const nodes = [];
+    function buildSphere(){
+      sphereEl.innerHTML = "";
+      nodes.length = 0;
+
+      for(let i=0;i<segments.length;i++){
+        const seg = segments[i];
+        const node = document.createElement("div");
+        node.className = "node";
+
+        const chip = document.createElement("div");
+        chip.className = "chip noSelect";
+        chip.innerHTML = `<span class="e">${seg.emoji}</span><span>${seg.name}</span>`;
+        chip.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          openEntry(seg);
+        });
+
+        node.appendChild(chip);
+        sphereEl.appendChild(node);
+        nodes.push({ node, chip, seg });
+      }
+      layoutSphere();
+    }
+
+    function layoutSphere(){
+      const rect = sphereWrap.getBoundingClientRect();
+      const radius = Math.min(rect.width, rect.height) * 0.36;
+
+      sphereEl.style.transform = `rotateX(${fixedTiltX}deg) rotateY(${rotY}deg)`;
+
+      const N = nodes.length;
+      for(let i=0;i<N;i++){
+        const t = (i + 0.5) / N;
+        const phi = Math.acos(1 - 2*t);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+
+        const x = radius * Math.sin(phi) * Math.cos(theta);
+        const y = radius * Math.cos(phi);
+        const z = radius * Math.sin(phi) * Math.sin(theta);
+
+        const depth = (z / radius + 1) / 2;
+        const uiScale = 0.82 + depth * 0.36;
+        const uiAlpha = 0.35 + depth * 0.65;
+
+        const item = nodes[i];
+        item.node.style.transform =
+          `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), ${z}px)
+           rotateX(${-fixedTiltX}deg) rotateY(${-rotY}deg)`;
+
+        item.chip.style.opacity = uiAlpha.toFixed(3);
+        item.chip.style.transform = `scale(${uiScale.toFixed(3)})`;
+        item.chip.style.filter = uiAlpha < 0.45 ? "blur(0.25px)" : "none";
+        item.chip.style.pointerEvents = "auto";
+      }
+    }
+
+    let raf = 0;
+    function tick(){
+      raf = requestAnimationFrame(tick);
+      if(!dragging){
+        rotY += 0.12;
+        layoutSphere();
+      }
+    }
+
+    function onDown(e){ dragging = true; lastX = e.clientX; }
+    function onMove(e){
+      if(!dragging) return;
+      const dx = e.clientX - lastX;
+      rotY += dx * 0.22;
+      lastX = e.clientX;
+      layoutSphere();
+    }
+    function onUp(){ dragging = false; }
+
+    
+
+    // --------- Entry modal ----------
+    function pickHint(){
+      const hints = [
+        "Сформулируй мысль максимально честно. Здесь можно быть настоящим.",
+        "Что именно ты хочешь переписать в мышлении прямо сейчас?",
+        "Одна фраза, которая сделает тебя сильнее в ближайшие сутки.",
+        "Напиши это как мягкую команду себе на завтра.",
+        "Что ты выбираешь думать вместо старого сценария?",
+      ];
+      return hints[Math.floor(Math.random() * hints.length)];
+    }
+
+    function openEntry(seg){
+      activeSegment = seg;
+      entryTitle.textContent = `${seg.emoji} ${seg.name}`;
+      entryHint.textContent = pickHint();
+      editor.innerHTML = "";
+      entryModalBg.classList.add("show");
+      setTimeout(() => editor.focus(), 0);
+      updateToolbarState();
+    }
+    function closeEntry(){
+      entryModalBg.classList.remove("show");
+      activeSegment = null;
+      editor.innerHTML = "";
+    }
+    function saveEntry(){
+      if(!activeSegment) return;
+      const html = editor.innerHTML.trim();
+      const textOnly = editor.textContent.trim();
+      if(!html || !textOnly) return;
+
+      const entry = {
+        id: crypto.randomUUID(),
+        segmentId: activeSegment.id,
+        segmentName: activeSegment.name,
+        segmentEmoji: activeSegment.emoji,
+        html,
+        createdAt: nowISO(),
+        pinned: false,
+        progress: 0,
+      };
+
+      entries.push(entry);
+      saveJSON(LS.entries, entries);
+      renderMetrics();
+      closeEntry();
+    }
+
+    // --------- Toolbar toggle/active ----------
+    function execCmd(cmd){
+      document.execCommand(cmd, false, null);
+      editor.focus();
+      updateToolbarState();
+    }
+
+    function isInColoredSpan(){
+      const sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0) return false;
+      let node = sel.anchorNode;
+      if(!node) return false;
+      if(node.nodeType === 3) node = node.parentNode;
+      while(node && node !== editor){
+        if(node.nodeType === 1 && node.tagName === "SPAN" && node.dataset && node.dataset.mindColor === "accent"){
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    }
+
+    function unwrapAccentInRange(range){
+      const spans = editor.querySelectorAll('span[data-mind-color="accent"]');
+      spans.forEach(sp => {
+        const spRange = document.createRange();
+        spRange.selectNodeContents(sp);
+        const intersects =
+          range.compareBoundaryPoints(Range.END_TO_START, spRange) < 0 &&
+          range.compareBoundaryPoints(Range.START_TO_END, spRange) > 0;
+        if(intersects){
+          const parent = sp.parentNode;
+          while(sp.firstChild){
+            parent.insertBefore(sp.firstChild, sp);
+          }
+          parent.removeChild(sp);
+        }
+      });
+    }
+
+    function toggleAccentColor(){
+      const sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0) return;
+
+      const range = sel.getRangeAt(0);
+
+      if(range.collapsed){
+        const already = isInColoredSpan();
+        if(already){
+          // move caret out
+          const node = sel.anchorNode && sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentNode : sel.anchorNode;
+          let span = node;
+          while(span && span !== editor && !(span.tagName === "SPAN" && span.dataset && span.dataset.mindColor === "accent")){
+            span = span.parentNode;
+          }
+          if(span && span !== editor){
+            const after = document.createTextNode("");
+            span.parentNode.insertBefore(after, span.nextSibling);
+            const r = document.createRange();
+            r.setStart(after, 0);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+          }
+        }else{
+          const span = document.createElement("span");
+          span.dataset.mindColor = "accent";
+          span.style.color = "#6d5efc";
+          span.appendChild(document.createTextNode("\u200B"));
+          range.insertNode(span);
+
+          const r = document.createRange();
+          r.setStart(span.firstChild, 1);
+          r.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(r);
+        }
+        editor.focus();
+        updateToolbarState();
+        return;
+      }
+
+      const already = isInColoredSpan();
+      if(already){
+        unwrapAccentInRange(range);
+      }else{
+        const span = document.createElement("span");
+        span.dataset.mindColor = "accent";
+        span.style.color = "#6d5efc";
+        try{
+          range.surroundContents(span);
+        }catch{
+          document.execCommand("foreColor", false, "#6d5efc");
+        }
+      }
+      editor.focus();
+      updateToolbarState();
+    }
+
+    function updateToolbarState(){
+      try{
+        tbBold.classList.toggle("active", document.queryCommandState("bold"));
+        tbItalic.classList.toggle("active", document.queryCommandState("italic"));
+        tbList.classList.toggle("active", document.queryCommandState("insertUnorderedList"));
+      }catch{}
+      tbColor.classList.toggle("active", isInColoredSpan());
+      tbUndo.classList.remove("active");
+    }
+
+    document.addEventListener("selectionchange", () => {
+      if(!entryModalBg.classList.contains("show")) return;
+      const sel = window.getSelection();
+      if(!sel || !sel.anchorNode) return;
+      let n = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentNode : sel.anchorNode;
+      while(n){
+        if(n === editor){
+          updateToolbarState();
+          return;
+        }
+        n = n.parentNode;
+      }
+    });
+
+    // --------- Journal (pin/progress/delete) ----------
+    function openJournal(){
+      openProgressForId = null;
+      renderJournal();
+      journalModalBg.classList.add("show");
+    }
+    function closeJournal(){
+      journalModalBg.classList.remove("show");
+      openProgressForId = null;
+    }
+
+    function togglePin(entryId){
+      const idx = entries.findIndex(e => e.id === entryId);
+      if(idx === -1) return;
+      entries[idx].pinned = !entries[idx].pinned;
+      saveJSON(LS.entries, entries);
+      renderJournal();
+    }
+
+    function toggleProgressMenu(entryId){
+      openProgressForId = (openProgressForId === entryId) ? null : entryId;
+      renderJournal();
+    }
+
+    function setProgress(entryId, value){
+      const idx = entries.findIndex(e => e.id === entryId);
+      if(idx === -1) return;
+      entries[idx].progress = value;
+      saveJSON(LS.entries, entries);
+      renderJournal();
+    }
+
+    function deleteEntry(entryId){
+      const ok = confirm("Удалить запись? Это действие нельзя отменить.");
+      if(!ok) return;
+      entries = entries.filter(e => e.id !== entryId);
+      saveJSON(LS.entries, entries);
+      renderMetrics();
+      renderJournal();
+    }
+
+    function renderJournal(){
+      journalBody.innerHTML = "";
+
+      if(entries.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "emptyBox";
+        empty.innerHTML =
+          `<div style="font-weight:900; color:var(--text); margin-bottom:6px;">Пока нет записей</div>
+           <div>Нажми на любой сектор на сфере и сделай первую запись. Все записи сохраняются на устройстве и остаются с тобой.</div>`;
+        journalBody.appendChild(empty);
+        return;
+      }
+
+      const pinned = entries.filter(e => e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const normal = entries.filter(e => !e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const sorted = [...pinned, ...normal];
+
+      for(const e of sorted){
+        const block = document.createElement("div");
+        block.className = "entry";
+
+        const dt = new Date(e.createdAt);
+        const when = dt.toLocaleString();
+
+        const pct = Math.max(0, Math.min(100, Number(e.progress || 0)));
+        const pctColor = progressColor(pct);
+
+        block.innerHTML = `
+          <div class="entryTop">
+            <div class="entryTag">${e.segmentEmoji} ${e.segmentName}</div>
+            <div class="entryRight">
+              <div class="progressPill" style="border-color:${pctColor}33;">
+                <span style="color:${pctColor};">${pct}%</span>
+              </div>
+              <button class="miniBtn noSelect progressBtn" title="Прогресс">📈</button>
+              <button class="miniBtn noSelect pinBtn ${e.pinned ? "pinned":""}" title="Закрепить">📌</button>
+              <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
+              <div>${when}</div>
+            </div>
+          </div>
+          <div class="entryText"></div>
+          <div class="pop" style="display:${openProgressForId === e.id ? "block" : "none"};">
+            <div class="popTop">
+              <div>Прогресс</div>
+              <div class="popVal"><span style="color:${pctColor};">${pct}%</span></div>
+            </div>
+            <div class="rangeWrap">
+              <input type="range" min="0" max="100" step="1" value="${pct}" data-open="${openProgressForId === e.id ? "1":"0"}">
+            </div>
+          </div>
+        `;
+
+        const textEl = block.querySelector(".entryText");
+        textEl.innerHTML = e.html;
+
+        const pinBtn = block.querySelector(".pinBtn");
+        const progBtn = block.querySelector(".progressBtn");
+        const delBtn  = block.querySelector(".delBtn");
+        const range   = block.querySelector('input[type="range"]');
+
+        pinBtn.addEventListener("click", () => togglePin(e.id));
+        progBtn.addEventListener("click", () => toggleProgressMenu(e.id));
+        delBtn.addEventListener("click", () => deleteEntry(e.id));
+
+        if(range){
+          setRangeGradient(range, pct);
+
+          range.addEventListener("input", () => {
+            const v = Number(range.value);
+            setRangeGradient(range, v);
+
+            const valEl = block.querySelector(".popVal");
+            const pill  = block.querySelector(".progressPill");
+            const c = progressColor(v);
+
+            valEl.innerHTML = `<span style="color:${c};">${v}%</span>`;
+            pill.innerHTML  = `<span style="color:${c};">${v}%</span>`;
+            pill.style.borderColor = `${c}33`;
+          });
+
+          range.addEventListener("change", () => {
+            const v = Number(range.value);
+            setProgress(e.id, v);
+          });
+        }
+
+        journalBody.appendChild(block);
+      }
+    }
+
+    // --------- Onboarding ----------
+    function showOnboarding(){
+      onbModalBg.classList.add("show");
+    }
+    function closeOnboarding(){
+      onbModalBg.classList.remove("show");
+    }
+
+    // --------- Events ----------
+    themeBtn.addEventListener("click", toggleTheme);
+
+    sphereWrap.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; });
+    window.addEventListener("pointermove", (e) => {
+      if(!dragging) return;
+      const dx = e.clientX - lastX;
+      rotY += dx * 0.22;
+      lastX = e.clientX;
+      layoutSphere();
+    });
+    window.addEventListener("pointerup", () => { dragging = false; });
+
+    entryClose.addEventListener("click", closeEntry);
+    entryModalBg.addEventListener("click", (e) => { if(e.target === entryModalBg) closeEntry(); });
+    saveEntryBtn.addEventListener("click", saveEntry);
+
+    openJournalBtn.addEventListener("click", openJournal);
+    journalClose.addEventListener("click", closeJournal);
+    journalModalBg.addEventListener("click", (e) => { if(e.target === journalModalBg) closeJournal(); });
+
+    tbBold.addEventListener("click", () => execCmd("bold"));
+    tbItalic.addEventListener("click", () => execCmd("italic"));
+    tbList.addEventListener("click", () => execCmd("insertUnorderedList"));
+    tbUndo.addEventListener("click", () => execCmd("undo"));
+    tbColor.addEventListener("click", () => toggleAccentColor());
+
+    editor.addEventListener("keyup", updateToolbarState);
+    editor.addEventListener("mouseup", updateToolbarState);
+    editor.addEventListener("focus", updateToolbarState);
+
+    onbContinue.addEventListener("click", closeOnboarding);
+    onbModalBg.addEventListener("click", (e) => { if(e.target === onbModalBg) closeOnboarding(); });
+
+    // Prevent pinch zoom on iOS Safari (extra)
+    document.addEventListener("gesturestart", (e) => e.preventDefault());
+    document.addEventListener("gesturechange", (e) => e.preventDefault());
+    document.addEventListener("gestureend", (e) => e.preventDefault());
+
+    // Resize
+    const ro = new ResizeObserver(() => layoutSphere());
+
+    // Auto rotation
+    function tick(){
+      raf = requestAnimationFrame(tick);
+      if(!dragging){
+        rotY += 0.12;
+        layoutSphere();
+      }
+    }
+
+    // --------- Boot ----------
+    initTheme();
+    renderMetrics();
+    buildSphere();
+    ro.observe(sphereWrap);
+    tick();
+
+    // Always show onboarding on app open
+    showOnboarding();
+  </script>
+</body>
+</html>
