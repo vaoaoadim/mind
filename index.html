@@ -207,8 +207,15 @@
       background: linear-gradient(180deg, rgba(0,0,0,0), var(--card));
     }
 
-    .primaryBtn{
+    .bottomStack{
       width: min(430px, 100%);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .primaryBtn{
+      width: 100%;
       height: 52px;
       border-radius: 999px;
       border: 1px solid rgba(109,94,252,.25);
@@ -223,6 +230,31 @@
       justify-content:center;
       gap:10px;
       user-select:none;
+    }
+
+    .secondaryBtn{
+      width:100%;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(109,94,252,.18);
+      background: linear-gradient(135deg, rgba(255,255,255,.72), rgba(255,255,255,.52));
+      color: var(--text);
+      font-weight: 950;
+      letter-spacing:.15px;
+      box-shadow: 0 14px 42px rgba(2,6,23,.10);
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      user-select:none;
+      backdrop-filter: blur(14px);
+    }
+    [data-theme="dark"] .secondaryBtn{
+      background: linear-gradient(135deg, rgba(7,10,26,.70), rgba(7,10,26,.52));
+      border-color: rgba(167,139,250,.20);
+      box-shadow: 0 18px 55px rgba(0,0,0,.40);
+      color: var(--text);
     }
 
     .modalBg{
@@ -248,6 +280,8 @@
       backdrop-filter: blur(14px);
       max-height: 86vh;
       overflow:auto;
+      /* чтобы нижние элементы не прятались за скруглением/границами */
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
     }
 
     .modalTop{
@@ -264,7 +298,6 @@
       line-height:1.35;
     }
 
-    /* editor: без форматирования */
     .editor{
       margin-top:12px;
       min-height: 220px;
@@ -447,69 +480,39 @@
       cursor:pointer;
     }
 
-    /* Onboarding */
-    .onbSheet{
-      width:min(560px, 100%);
-      border-radius: 26px;
+    /* Affirmations */
+    .affTopRow{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+    }
+    .affInput{
+      flex:1;
+      min-height: 44px;
+      max-height: 120px;
       border:1px solid var(--border);
-      background: rgba(255,255,255,.70);
-      box-shadow: 0 18px 60px rgba(2,6,23,.22);
-      backdrop-filter: blur(16px);
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.35;
+      outline:none;
+      resize:none;
     }
-    [data-theme="dark"] .onbSheet{
-      background: rgba(7,10,26,.82);
-      border-color: rgba(233,236,243,.14);
-      box-shadow: 0 18px 60px rgba(0,0,0,.55);
-    }
-
-    .onbGlow{
-      position:absolute; inset:-80px;
-      background: conic-gradient(
-        from 0deg,
-        rgba(109,94,252,.20),
-        rgba(167,139,250,.18),
-        rgba(109,94,252,.20),
-        rgba(167,139,250,.18),
-        rgba(109,94,252,.20)
-      );
-      filter: blur(24px);
-      opacity:.75;
-      animation: shimmer 4.6s linear infinite;
-      pointer-events:none;
-    }
-    @keyframes shimmer{
-      0%{ transform: rotate(0deg); }
-      100%{ transform: rotate(360deg); }
-    }
-    .onbContent{
-      position:relative;
-      z-index:1;
-      text-align:center;
-      padding: 10px 6px 6px;
-    }
-    .onbHeart{
-      font-size: 28px;
-      margin-top: 4px;
-    }
-    .onbText{
-      margin-top:8px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height:1.4;
-    }
-    .onbBtn{
-      margin-top:12px;
-      width:100%;
-      height: 48px;
-      border-radius: 18px;
+    .affAddBtn{
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       border: 1px solid rgba(109,94,252,.25);
-      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.85));
+      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.80));
       color:#fff;
       font-weight: 950;
       cursor:pointer;
+      box-shadow: var(--shadow2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
       user-select:none;
     }
 
@@ -525,114 +528,14 @@
       .chip{ font-size: 11px; padding: 8px 10px; border-radius: 16px; }
       .chip .e{ font-size: 15px; }
       .entryText{ font-size: 13px; line-height: 1.35; }
-      .modal{ border-radius: 22px; padding: 12px; }
-    }
-
-    /* Splash */
-    #splash{
-      position:fixed;
-      inset:0;
-      z-index:9999;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 24px;
-      opacity:1;
-      transition: opacity .45s ease, transform .45s ease;
-      transform: translateY(0);
-      pointer-events:auto;
-    }
-    #splash.hide{
-      opacity:0;
-      transform: translateY(-6px);
-      pointer-events:none;
-    }
-    #splash .sheet{
-      width: min(520px, 100%);
-      border-radius: 26px;
-      border:1px solid var(--border);
-      background: var(--card);
-      box-shadow: 0 18px 60px rgba(2,6,23,.22);
-      backdrop-filter: blur(16px);
-      overflow:hidden;
-      position:relative;
-      padding: 18px 16px 16px;
-      text-align:center;
-    }
-    [data-theme="dark"] #splash .sheet{
-      box-shadow: 0 18px 60px rgba(0,0,0,.55);
-    }
-    #splash .glow{
-      position:absolute;
-      inset:-90px;
-      background: conic-gradient(
-        from 0deg,
-        rgba(109,94,252,.22),
-        rgba(167,139,250,.18),
-        rgba(109,94,252,.22),
-        rgba(167,139,250,.18),
-        rgba(109,94,252,.22)
-      );
-      filter: blur(26px);
-      opacity:.75;
-      animation: shimmer 3.8s linear infinite;
-      pointer-events:none;
-    }
-    #splash .content{ position:relative; z-index:1; }
-    #splash .logoMark{
-      font-size: 34px;
-      margin-top: 4px;
-    }
-    #splash .title{
-      margin-top: 10px;
-      font-weight: 950;
-      font-size: 16px;
-      color: var(--text);
-      letter-spacing:.2px;
-    }
-    #splash .sub{
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height:1.35;
-    }
-    #splash .dots{
-      margin-top: 12px;
-      display:flex;
-      justify-content:center;
-      gap:8px;
-    }
-    #splash .dot{
-      width:8px; height:8px;
-      border-radius: 999px;
-      background: rgba(109,94,252,.55);
-      animation: pulse 1.2s ease-in-out infinite;
-    }
-    #splash .dot:nth-child(2){ animation-delay:.15s; }
-    #splash .dot:nth-child(3){ animation-delay:.30s; }
-    @keyframes pulse{
-      0%,100%{ transform: translateY(0); opacity:.45; }
-      50%{ transform: translateY(-3px); opacity:1; }
+      .modal{ border-radius: 22px; padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+      .secondaryBtn{ height: 42px; }
+      .primaryBtn{ height: 50px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- Splash -->
-  <div id="splash" aria-hidden="true">
-    <div class="sheet">
-      <div class="glow"></div>
-      <div class="content">
-        <div class="logoMark">&lt;💙&gt;</div>
-        <div class="title">@mind</div>
-        <div class="sub">Дневник самопрограммирования</div>
-        <div class="dots" aria-hidden="true">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="app">
     <div class="top">
       <div class="header">
@@ -665,27 +568,16 @@
     </div>
 
     <div class="bottomBar">
-      <button class="primaryBtn noSelect" id="openJournalBtn">
-        <span style="font-size:18px">📓</span>
-        <span>Открыть дневник</span>
-      </button>
-    </div>
-  </div>
+      <div class="bottomStack">
+        <button class="secondaryBtn noSelect" id="openAffBtn">
+          <span style="font-size:16px">📚</span>
+          <span>Библиотека аффирмаций</span>
+        </button>
 
-  <!-- Onboarding modal (always on open) -->
-  <div class="modalBg" id="onbModalBg">
-    <div class="onbSheet" role="dialog" aria-modal="true">
-      <div class="onbGlow"></div>
-      <div class="onbContent">
-        <div class="onbHeart">💗</div>
-        <div class="modalTitle" style="margin-top:8px;">Как пользоваться</div>
-        <div class="onbText">
-          1) Крути сферу вбок и выбери сектор.<br>
-          2) Запиши мысль обычным текстом.<br>
-          3) Открой дневник снизу: закрепляй важное 📌 и отмечай прогресс 📈.<br>
-          Всё сохраняется на устройстве.
-        </div>
-        <button class="onbBtn noSelect" id="onbContinue">Продолжить</button>
+        <button class="primaryBtn noSelect" id="openJournalBtn">
+          <span style="font-size:18px">📓</span>
+          <span>Открыть дневник</span>
+        </button>
       </div>
     </div>
   </div>
@@ -708,13 +600,32 @@
 
   <!-- Journal modal -->
   <div class="modalBg" id="journalModalBg">
-    <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal" id="journalModal" role="dialog" aria-modal="true">
       <div class="journalHeader">
         <div class="journalTitle">📓 Дневник</div>
         <button class="iconBtn noSelect" id="journalClose" aria-label="Закрыть">✕</button>
       </div>
 
       <div id="journalBody"></div>
+    </div>
+  </div>
+
+  <!-- Affirmations modal -->
+  <div class="modalBg" id="affModalBg">
+    <div class="modal" id="affModal" role="dialog" aria-modal="true">
+      <div class="journalHeader">
+        <div class="journalTitle">📚 Библиотека аффирмаций</div>
+        <button class="iconBtn noSelect" id="affClose" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div class="modalHint">Добавляй фразы, которые хочешь повторять. Они сохраняются на устройстве и всегда отображаются в кавычках.</div>
+
+      <div class="affTopRow">
+        <textarea class="affInput" id="affInput" rows="2" placeholder="Например: Я выбираю действовать спокойно и уверенно."></textarea>
+        <button class="affAddBtn noSelect" id="affAddBtn" title="Добавить">＋</button>
+      </div>
+
+      <div id="affBody"></div>
     </div>
   </div>
 
@@ -743,10 +654,154 @@
       { id: 20, name: "Свободный текст", emoji: "📝" },
     ];
 
+    const hintsBySegment = {
+      1: [
+        "Какая мысль сейчас управляет твоим днём — и подходит ли она тебе?",
+        "Если бы ты думал мягче, как бы звучала эта мысль?",
+        "Одна новая мысль, которая делает тебя спокойнее прямо сейчас.",
+        "Что ты решаешь считать правдой о себе сегодня?",
+        "Сформулируй мысль так, как будто поддерживаешь себя."
+      ],
+      2: [
+        "Что ты чувствуешь телом прямо сейчас? Назови это точно.",
+        "Какая эмоция просит внимания, а не борьбы?",
+        "Если эмоция могла бы говорить — что бы она сказала?",
+        "Что тебе нужно, чтобы почувствовать облегчение на 10%?",
+        "Какое чувство ты выбираешь бережно прожить сегодня?"
+      ],
+      3: [
+        "За что ты можешь уважать себя уже сейчас?",
+        "Какая маленькая победа сегодня была настоящей?",
+        "Как бы звучала твоя самооценка без критика?",
+        "Сформулируй одно качество, которое в тебе стабильно сильное.",
+        "Что ты выбираешь ценить в себе сегодня?"
+      ],
+      4: [
+        "Какой старый сценарий ты готов заменить новым правилом?",
+        "Какое убеждение ты выбираешь усилить на этой неделе?",
+        "Какая мысль делает тебя сильнее в ближайшие 24 часа?",
+        "Сформулируй внутреннюю установку в одном коротком предложении.",
+        "Как бы звучало мышление человека, которым ты становишься?"
+      ],
+      5: [
+        "Что именно тревожит: факт, неопределённость или ожидания?",
+        "Назови самый маленький следующий шаг, который снижает тревогу.",
+        "Какая поддерживающая мысль успокаивает прямо сейчас?",
+        "Что ты можешь контролировать сегодня, а что — отпустить?",
+        "Сформулируй фразу: «Даже если…, я всё равно…»"
+      ],
+      6: [
+        "Какая цель сегодня важнее всего на 1%?",
+        "Какой один шаг даст ощущение прогресса уже сегодня?",
+        "Что ты сделаешь, даже если нет настроения?",
+        "Назови действие, которое превращает мечту в реальность.",
+        "Как ты поддержишь свою дисциплину мягко, без давления?"
+      ],
+      7: [
+        "В чём ты стал лучше за последний месяц?",
+        "Какая привычка даёт рост быстрее всего?",
+        "Что ты выбираешь улучшать без спешки, но стабильно?",
+        "Один навык, который стоит усилить на этой неделе.",
+        "Какой рост ты увидишь через 30 дней, если продолжишь?"
+      ],
+      8: [
+        "Какое тихое внутреннее знание ты игнорировал?",
+        "Если бы интуиция давала совет — какой?",
+        "Что кажется «правильным», даже если страшно?",
+        "Какая идея возвращается снова и снова — и почему?",
+        "Запиши решение, которое ощущается честным."
+      ],
+      9: [
+        "Какой страх на самом деле защищает тебя?",
+        "Что будет, если сделать шаг несмотря на страх?",
+        "Чего ты боишься потерять — и что можешь сохранить?",
+        "Сформулируй страх одной фразой. Потом — ответ сильной версией себя.",
+        "Какой страх ты готов уменьшить на 1% сегодня?"
+      ],
+      10: [
+        "Что ты можешь сделать для себя с заботой сегодня?",
+        "Какая фраза звучит как любовь к себе без пафоса?",
+        "Как бы ты поддержал близкого человека в такой ситуации?",
+        "Одна вещь, за которую ты благодарен себе.",
+        "Что ты выбираешь уважать в себе прямо сейчас?"
+      ],
+      11: [
+        "Что возвращает тебе энергию быстрее всего?",
+        "Какая мелочь сегодня улучшит самочувствие?",
+        "Где ты теряешь энергию и как сократить потери?",
+        "Что ты выбираешь восстановить сегодня: сон, питание, спокойствие?",
+        "Сформулируй план восстановления на ближайшие 12 часов."
+      ],
+      12: [
+        "Как выглядит мечта в одном конкретном кадре?",
+        "Какая часть мечты уже начинается сегодня?",
+        "Что ты готов сделать ради мечты в ближайшие 7 дней?",
+        "Запиши цель так, чтобы она вдохновляла, а не давила.",
+        "Какое чувство будет, когда мечта станет реальностью?"
+      ],
+      13: [
+        "Какая финансовая привычка поможет тебе больше всего?",
+        "Что ты можешь монетизировать прямо из текущих навыков?",
+        "Один шаг к деньгам, который ты сделаешь сегодня.",
+        "Какое решение улучшит твой доход в перспективе 30 дней?",
+        "Сформулируй спокойную установку про деньги без напряжения."
+      ],
+      14: [
+        "Три вещи, за которые ты благодарен прямо сейчас.",
+        "Что хорошего уже есть, даже если день сложный?",
+        "Какая мелочь сегодня была тёплой и настоящей?",
+        "Кому или чему ты хочешь сказать «спасибо»?",
+        "Что ты выбираешь замечать чаще?"
+      ],
+      15: [
+        "Что сейчас самое важное — в одном предложении.",
+        "Какая ясность пришла бы, если убрать лишнее?",
+        "Что ты точно знаешь, даже если сомневаешься?",
+        "Один приоритет на сегодня, который снимает хаос.",
+        "Сформулируй решение максимально просто."
+      ],
+      16: [
+        "Какая эмоция сегодня самая сильная и почему?",
+        "Что ты чувствуешь — и что тебе нужно?",
+        "Если бы эмоции были погодой — какая сегодня?",
+        "Назови чувство и дай ему место, не оценивая.",
+        "Как ты хочешь себя поддержать эмоционально?"
+      ],
+      17: [
+        "Какая картинка будущего мотивирует тебя больше всего?",
+        "Как выглядит твоя жизнь через год в деталях?",
+        "Что ты хочешь видеть в себе через 3 месяца?",
+        "Одна привычка, которая ведёт к этому видению.",
+        "Запиши видение как будто оно уже становится реальностью."
+      ],
+      18: [
+        "Что даст тебе спокойствие прямо сегодня?",
+        "Как выглядит «спокойный план» на ближайшие 6 часов?",
+        "Какая мысль снижает внутренний шум?",
+        "Что ты можешь отпустить без потерь?",
+        "Сформулируй фразу для внутренней тишины."
+      ],
+      19: [
+        "Где тебе нужно проявить силу сегодня?",
+        "Какое решение требует смелости и честности?",
+        "Что ты выбираешь сделать, даже если страшно?",
+        "Одна граница, которую ты укрепишь.",
+        "Запиши фразу, которая включает твою силу."
+      ],
+      20: [
+        "Пиши свободно. Одна мысль — и достаточно.",
+        "Что хочется сказать самому себе без фильтра?",
+        "Какая фраза станет опорой сегодня?",
+        "Запиши всё, что нужно выгрузить из головы.",
+        "Что ты выбираешь оставить на странице, чтобы стало легче?"
+      ],
+    };
+
     const LS = {
       theme: "mind_theme",
       entries: "mind_entries_v4",
-      streak: "mind_streak_v1" // { streak:number, lastActiveAt:number(ms), lastActiveDay:"YYYY-MM-DD" }
+      streak: "mind_streak_v1",
+      affs: "mind_affs_v1"
     };
 
     function loadJSON(key, fallback){
@@ -793,13 +848,16 @@
       saveJSON(LS.streak, streakState);
     }
 
+    let affs = loadJSON(LS.affs, []).map(a => ({ ...a, pinned: !!a.pinned }));
+
     let activeSegment = null;
 
-    // Sphere rotation: sideways only
-    const fixedTiltX = -12;
+    // Sphere rotation: free XY, buttons always face camera
+    let rotX = -10;
     let rotY = 18;
     let dragging = false;
     let lastX = 0;
+    let lastY = 0;
 
     // Journal popover
     let openProgressForId = null;
@@ -812,11 +870,6 @@
     const sphereWrap = document.getElementById("sphereWrap");
     const sphereEl   = document.getElementById("sphere");
 
-    const splash = document.getElementById("splash");
-
-    const onbModalBg = document.getElementById("onbModalBg");
-    const onbContinue= document.getElementById("onbContinue");
-
     const entryModalBg = document.getElementById("entryModalBg");
     const entryTitle   = document.getElementById("entryTitle");
     const entryHint    = document.getElementById("entryHint");
@@ -825,9 +878,18 @@
     const saveEntryBtn = document.getElementById("saveEntryBtn");
 
     const journalModalBg = document.getElementById("journalModalBg");
+    const journalModal   = document.getElementById("journalModal");
     const journalClose   = document.getElementById("journalClose");
     const journalBody    = document.getElementById("journalBody");
     const openJournalBtn = document.getElementById("openJournalBtn");
+
+    const openAffBtn = document.getElementById("openAffBtn");
+    const affModalBg = document.getElementById("affModalBg");
+    const affModal   = document.getElementById("affModal");
+    const affClose   = document.getElementById("affClose");
+    const affBody    = document.getElementById("affBody");
+    const affInput   = document.getElementById("affInput");
+    const affAddBtn  = document.getElementById("affAddBtn");
 
     // --------- Theme ----------
     function initTheme(){
@@ -840,6 +902,7 @@
       document.body.dataset.theme = next;
       localStorage.setItem(LS.theme, next);
 
+      // обновить градиент в открытом range, если есть
       const openRange = document.querySelector('input[type="range"][data-open="1"]');
       if(openRange){
         setRangeGradient(openRange, Number(openRange.value));
@@ -855,18 +918,13 @@
     function normalizeStreakOnBoot(){
       const now = nowMs();
       const last = Number(streakState.lastActiveAt || 0);
-
-      if(!last){
-        // нет активности — streak держим как есть (0)
-        return;
-      }
+      if(!last) return;
 
       const diff = now - last;
       const dayNow = dayKeyFromMs(now);
-      // обнуляем только если > 24 часа бездействия
       if(diff > 24 * 60 * 60 * 1000){
         streakState.streak = 0;
-        streakState.lastActiveDay = dayNow; // чтобы не прыгало
+        streakState.lastActiveDay = dayNow;
         saveJSON(LS.streak, streakState);
       }
     }
@@ -875,18 +933,13 @@
       const now = nowMs();
       const dayNow = dayKeyFromMs(now);
 
-      // если предыдущая активность была > 24ч назад — streak уже должен быть 0
-      // но на всякий случай:
       if(streakState.lastActiveAt && (now - streakState.lastActiveAt) > 24*60*60*1000){
         streakState.streak = 0;
       }
-
-      // увеличиваем streak только если это новый календарный день относительно последней активности
       if(streakState.lastActiveDay !== dayNow){
         streakState.streak = (Number(streakState.streak) || 0) + 1;
         streakState.lastActiveDay = dayNow;
       }
-
       streakState.lastActiveAt = now;
       saveJSON(LS.streak, streakState);
     }
@@ -895,10 +948,7 @@
     function computeMetrics(){
       const today = dayKeyFromMs(nowMs());
       const todayCount = entries.filter(e => dayKeyFromISO(e.createdAt) === today).length;
-
-      // streak — только из streakState (не из daysSet)
       const streak = Number(streakState.streak || 0);
-
       return { streak, todayCount };
     }
     function renderMetrics(){
@@ -938,7 +988,7 @@
       const rect = sphereWrap.getBoundingClientRect();
       const radius = Math.min(rect.width, rect.height) * 0.36;
 
-      sphereEl.style.transform = `rotateX(${fixedTiltX}deg) rotateY(${rotY}deg)`;
+      sphereEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
 
       const N = nodes.length;
       for(let i=0;i<N;i++){
@@ -955,9 +1005,10 @@
         const uiAlpha = 0.35 + depth * 0.65;
 
         const item = nodes[i];
+        // КЛЮЧ: контр-поворот, чтобы чипы всегда смотрели на камеру (не зеркалятся)
         item.node.style.transform =
           `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), ${z}px)
-           rotateX(${-fixedTiltX}deg) rotateY(${-rotY}deg)`;
+           rotateX(${-rotX}deg) rotateY(${-rotY}deg)`;
 
         item.chip.style.opacity = uiAlpha.toFixed(3);
         item.chip.style.transform = `scale(${uiScale.toFixed(3)})`;
@@ -970,27 +1021,29 @@
     function tick(){
       raf = requestAnimationFrame(tick);
       if(!dragging){
-        rotY += 0.12;
+        rotY += 0.10;
+        // лёгкая “живость” по X, но не дергающая
+        rotX = clamp(rotX + Math.sin(Date.now()/1800)*0.002, -70, 70);
         layoutSphere();
       }
     }
 
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
     // --------- Entry modal ----------
-    function pickHint(){
-      const hints = [
-        "Сформулируй мысль максимально честно. Здесь можно быть настоящим.",
-        "Что именно ты хочешь переписать в мышлении прямо сейчас?",
-        "Одна фраза, которая сделает тебя сильнее в ближайшие сутки.",
-        "Напиши это как мягкую команду себе на завтра.",
-        "Что ты выбираешь думать вместо старого сценария?",
+    function pickHint(segId){
+      const arr = hintsBySegment[segId] || [
+        "Запиши одну мысль коротко и честно.",
+        "Что ты выбираешь думать сегодня?",
+        "Одна фраза, которая поддержит тебя."
       ];
-      return hints[Math.floor(Math.random() * hints.length)];
+      return arr[Math.floor(Math.random() * arr.length)];
     }
 
     function openEntry(seg){
       activeSegment = seg;
       entryTitle.textContent = `${seg.emoji} ${seg.name}`;
-      entryHint.textContent = pickHint();
+      entryHint.textContent = pickHint(seg.id);
       editor.textContent = "";
       entryModalBg.classList.add("show");
       setTimeout(() => editor.focus(), 0);
@@ -1014,7 +1067,6 @@
         segmentId: activeSegment.id,
         segmentName: activeSegment.name,
         segmentEmoji: activeSegment.emoji,
-        // сохраняем как простой текст (без форматирования)
         html: escapeHtmlToParagraphs(text),
         createdAt: nowISO(),
         pinned: false,
@@ -1024,15 +1076,12 @@
       entries.push(entry);
       saveJSON(LS.entries, entries);
 
-      // streak activity
       registerActivityForStreak();
-
       renderMetrics();
       closeEntry();
     }
 
     function escapeHtmlToParagraphs(text){
-      // безопасно: превращаем в <div> с <br> по строкам, без html-инъекций
       const safe = text
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
@@ -1063,6 +1112,34 @@
     function toggleProgressMenu(entryId){
       openProgressForId = (openProgressForId === entryId) ? null : entryId;
       renderJournal();
+
+      if(openProgressForId){
+        requestAnimationFrame(() => {
+          const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
+          if(!entryEl) return;
+          ensureEntryPopoverVisible(journalModal, entryEl);
+        });
+      }
+    }
+
+    function ensureEntryPopoverVisible(modalEl, entryEl){
+      // докручиваем scrollTop так, чтобы pop не прятался под низ
+      const pop = entryEl.querySelector(".pop");
+      if(!pop || pop.style.display === "none") return;
+
+      const mRect = modalEl.getBoundingClientRect();
+      const pRect = pop.getBoundingClientRect();
+
+      const topSafe = mRect.top + 72; // немного воздуха сверху
+      const bottomSafe = mRect.bottom - 24; // немного воздуха снизу
+
+      if(pRect.bottom > bottomSafe){
+        const delta = pRect.bottom - bottomSafe + 8;
+        modalEl.scrollTop += delta;
+      } else if(pRect.top < topSafe){
+        const delta = topSafe - pRect.top + 8;
+        modalEl.scrollTop -= delta;
+      }
     }
 
     function setProgress(entryId, value){
@@ -1102,6 +1179,7 @@
       for(const e of sorted){
         const block = document.createElement("div");
         block.className = "entry";
+        block.dataset.id = e.id;
 
         const dt = new Date(e.createdAt);
         const when = dt.toLocaleString();
@@ -1177,21 +1255,133 @@
       }
     }
 
-    // --------- Onboarding ----------
-    function showOnboarding(){ onbModalBg.classList.add("show"); }
-    function closeOnboarding(){ onbModalBg.classList.remove("show"); }
+    // --------- Affirmations ----------
+    function openAff(){
+      renderAffs();
+      affModalBg.classList.add("show");
+      setTimeout(() => affInput.focus(), 0);
+    }
+    function closeAff(){
+      affModalBg.classList.remove("show");
+      setTimeout(setVh, 50);
+    }
+
+    function addAff(){
+      const raw = (affInput.value || "").trim();
+      if(!raw) return;
+
+      const item = {
+        id: crypto.randomUUID(),
+        text: raw,
+        createdAt: nowISO(),
+        pinned: false
+      };
+      affs.push(item);
+      saveJSON(LS.affs, affs);
+      affInput.value = "";
+      renderAffs();
+    }
+
+    function toggleAffPin(id){
+      const idx = affs.findIndex(a => a.id === id);
+      if(idx === -1) return;
+      affs[idx].pinned = !affs[idx].pinned;
+      saveJSON(LS.affs, affs);
+      renderAffs();
+    }
+
+    function deleteAff(id){
+      const ok = confirm("Удалить аффирмацию?");
+      if(!ok) return;
+      affs = affs.filter(a => a.id !== id);
+      saveJSON(LS.affs, affs);
+      renderAffs();
+    }
+
+    function renderAffs(){
+      affBody.innerHTML = "";
+
+      if(affs.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "emptyBox";
+        empty.innerHTML =
+          `<div style="font-weight:900; color:var(--text); margin-bottom:6px;">Пока нет аффирмаций</div>
+           <div>Добавь одну фразу выше — короткую, ясную и поддерживающую. Она сохранится на устройстве.</div>`;
+        affBody.appendChild(empty);
+        return;
+      }
+
+      const pinned = affs.filter(a => a.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const normal = affs.filter(a => !a.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const sorted = [...pinned, ...normal];
+
+      for(const a of sorted){
+        const block = document.createElement("div");
+        block.className = "entry";
+        block.dataset.id = a.id;
+
+        const dt = new Date(a.createdAt);
+        const when = dt.toLocaleString();
+
+        const quoted = `«${escapeText(a.text)}»`;
+
+        block.innerHTML = `
+          <div class="entryTop">
+            <div class="entryTag" title="Аффирмация">
+              <span style="font-size:16px">✨</span>
+            </div>
+
+            <div class="entryRight">
+              <button class="miniBtn noSelect pinBtn ${a.pinned ? "pinned":""}" title="Закрепить">📌</button>
+              <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
+              <span class="entryDate">${when}</span>
+            </div>
+          </div>
+
+          <div class="entryText" style="font-weight:900;">${quoted}</div>
+        `;
+
+        const pinBtn = block.querySelector(".pinBtn");
+        const delBtn = block.querySelector(".delBtn");
+        pinBtn.addEventListener("click", () => toggleAffPin(a.id));
+        delBtn.addEventListener("click", () => deleteAff(a.id));
+
+        affBody.appendChild(block);
+      }
+    }
+
+    function escapeText(t){
+      return (t || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+    }
 
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
 
-    sphereWrap.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; });
+    sphereWrap.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
     window.addEventListener("pointermove", (e) => {
       if(!dragging) return;
       const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+
+      // Y — горизонталь, X — вертикаль (инверсия для ощущений “как трекбол”)
       rotY += dx * 0.22;
+      rotX -= dy * 0.18;
+
+      rotX = clamp(rotX, -75, 75);
+
       lastX = e.clientX;
+      lastY = e.clientY;
       layoutSphere();
     });
+
     window.addEventListener("pointerup", () => { dragging = false; });
 
     entryClose.addEventListener("click", closeEntry);
@@ -1202,8 +1392,16 @@
     journalClose.addEventListener("click", closeJournal);
     journalModalBg.addEventListener("click", (e) => { if(e.target === journalModalBg) closeJournal(); });
 
-    onbContinue.addEventListener("click", closeOnboarding);
-    onbModalBg.addEventListener("click", (e) => { if(e.target === onbModalBg) closeOnboarding(); });
+    openAffBtn.addEventListener("click", openAff);
+    affClose.addEventListener("click", closeAff);
+    affModalBg.addEventListener("click", (e) => { if(e.target === affModalBg) closeAff(); });
+    affAddBtn.addEventListener("click", addAff);
+    affInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        addAff();
+      }
+    });
 
     // Prevent pinch zoom on iOS Safari (extra)
     document.addEventListener("gesturestart", (e) => e.preventDefault());
@@ -1216,34 +1414,15 @@
     // --------- Boot ----------
     initTheme();
 
-    // apply vh fix early
     setVh();
     window.addEventListener("resize", setVh);
     window.addEventListener("orientationchange", setVh);
 
-    // streak normalize on boot (only reset if >24h inactivity)
     normalizeStreakOnBoot();
-
     renderMetrics();
     buildSphere();
     ro.observe(sphereWrap);
     tick();
-
-    // Always show onboarding on app open
-    showOnboarding();
-
-    // Splash: use last theme already applied by initTheme()
-    // Show short, then fade
-    window.addEventListener("load", () => {
-      // дополнительный setVh после загрузки
-      setTimeout(setVh, 50);
-
-      // скрыть splash
-      setTimeout(() => {
-        splash.classList.add("hide");
-        setTimeout(() => splash.remove(), 650);
-      }, 700);
-    });
   </script>
 </body>
 </html>
