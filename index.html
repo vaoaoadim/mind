@@ -1,4 +1,5 @@
-<!doctype html> <lang="ru">
+<!doctype html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
 
@@ -13,7 +14,7 @@
   <meta name="theme-color" content="#050816" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)" />
 
-  <!-- Иконки (ВАЖНО: переименуй файл чтобы сбросить кеш iOS) -->
+  <!-- Иконки -->
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-v3.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="logo-192-v3.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="logo-192-v3.png" />
@@ -22,12 +23,9 @@
   <link rel="manifest" href="manifest.webmanifest" />
 
   <title>@mind</title>
-</head>
-
 
   <style>
     :root{
-    
       --bg:#f6f7fb;
       --bg2:#ffffff;
       --text:#0b1220;
@@ -42,67 +40,66 @@
       --shadow2: 0 18px 50px rgba(109,94,252,.28);
       --radius:22px;
     }
-html, body {
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  background: var(--bg); /* базовый фон, без белого */
-}
 
-body {
-  background-color: var(--bg);
-  overflow: hidden;
-}
+    [data-theme="dark"]{
+      --bg:#050816;
+      --bg2:#070a1a;
 
-/* ВАЖНО: фон рисуем на фиксированном слое, который закрывает весь экран */
-body::before{
-  content:"";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
-    radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
-    radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
-    linear-gradient(180deg, var(--bg), var(--bg2));
-}
+      --text:#e9ecf3;
+      --muted:rgba(233,236,243,.62);
+      --card:rgba(7,10,26,.74);
+      --card2:rgba(7,10,26,.62);
 
-
-[data-theme="dark"]{
-  --bg:#050816;
-  --bg2:#070a1a;
-
-  --text:#e9ecf3;
-  --muted:rgba(233,236,243,.62);      /* было .55 — сделаем контрастнее */
-  --card:rgba(7,10,26,.74);
-  --card2:rgba(7,10,26,.62);
-
-  --border:rgba(233,236,243,.14);     /* чуть сильнее контур */
-  --border2:rgba(167,139,250,.28);
-}
-
+      --border:rgba(233,236,243,.14);
+      --border2:rgba(167,139,250,.28);
+    }
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 
+    html, body {
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg);
+    }
+
+    body {
+      background-color: var(--bg);
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      touch-action: manipulation;
+    }
+
+    /* фон всегда на весь экран */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
+        radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
 
     .app{
-  height: calc(var(--vh, 1vh) * 100);
-  display:flex;
-  flex-direction:column;
-}
-
-
+      height: calc(var(--vh, 1vh) * 100);
+      display:flex;
+      flex-direction:column;
+    }
 
     .top{
-        padding-left: 16px;
-        padding-right: 16px;
-        padding-bottom: 10px;
-        padding-top: calc(16px + env(safe-area-inset-top));
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 10px;
+      padding-top: calc(16px + env(safe-area-inset-top));
     }
 
     .header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .brand{ display:flex; flex-direction:column; gap:2px; }
-    .h-title{ font-weight:900; font-size:18px; letter-spacing:.2px; }
+    .h-title{ font-weight:900; font-size:18px; letter-spacing:.2px; color:var(--text); }
     .h-sub{ font-size:12px; color:var(--muted); }
 
     .iconBtn{
@@ -128,20 +125,7 @@ body::before{
       backdrop-filter: blur(12px);
     }
     .metric .k{ font-size:11px; color:var(--muted); }
-    .metric .v{ margin-top:2px; font-size:16px; font-weight:900; }
-    .metric .v{
-  color: var(--text);
-}
-.metric .k{
-  color: var(--muted);
-}
-.h-title{
-  color: var(--text);
-}
-.h-sub{
-  color: var(--muted);
-}
-
+    .metric .v{ margin-top:2px; font-size:16px; font-weight:900; color:var(--text); }
 
     .main{
       flex:1;
@@ -272,7 +256,7 @@ body::before{
       justify-content:space-between;
       gap:10px;
     }
-    .modalTitle{ font-weight: 950; font-size: 14px; }
+    .modalTitle{ font-weight: 950; font-size: 14px; color: var(--text); }
     .modalHint{
       margin-top:6px;
       font-size: 12px;
@@ -280,33 +264,9 @@ body::before{
       line-height:1.35;
     }
 
-    .toolbar{
-      display:flex;
-      gap:8px;
-      margin-top:12px;
-      flex-wrap:wrap;
-    }
-    .tbtn{
-      border:1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      border-radius: 12px;
-      padding: 8px 10px;
-      cursor:pointer;
-      user-select:none;
-      font-weight: 900;
-      font-size: 12px;
-      min-width: 42px;
-      text-align:center;
-    }
-    .tbtn.active{
-      background: rgba(109,94,252,.16);
-      border-color: rgba(109,94,252,.28);
-      box-shadow: 0 10px 22px rgba(109,94,252,.10);
-    }
-
+    /* editor: без форматирования */
     .editor{
-      margin-top:10px;
+      margin-top:12px;
       min-height: 220px;
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -341,7 +301,7 @@ body::before{
       gap:10px;
       margin-bottom:10px;
     }
-    .journalTitle{ font-weight: 950; font-size: 14px; }
+    .journalTitle{ font-weight: 950; font-size: 14px; color: var(--text); }
 
     .emptyBox{
       margin-top:10px;
@@ -362,82 +322,70 @@ body::before{
       margin-top: 10px;
       position:relative;
     }
+
     .entryTop{
-  display:grid;
-  grid-template-columns: 1fr auto; /* слева тег, справа панель */
-  align-items:start;
-  gap:10px;
-  font-size:12px;
-  color: var(--muted);
-}
-
-.entryTag{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:900;
-  color: var(--text);
-  min-width:0;
-
-  /* чтобы длинные названия не ломали верстку */
-  overflow:hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.entryRight{
-  display:grid;
-  grid-auto-flow: column;
-  grid-auto-columns: max-content;
-  align-items:center;
-  gap:8px;
-}
-
-.entryDate{
-  font-size:11px;
-  color: var(--muted);
-  margin-left: 6px;
-  white-space: nowrap;
-}
-
-.progressPill{
-  padding: 5px 8px;
-  border-radius: 999px;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,.03);
-  font-weight: 900;
-  font-size: 11px;
-  min-width: 56px;
-  text-align:center;
-}
-
-.miniBtn{
-  width:32px;
-  height:32px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:transparent;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-    .pinBtn.pinned{
-      background: rgba(109,94,252,.14);
-      border-color: rgba(109,94,252,.24);
+      display:grid;
+      grid-template-columns: 1fr auto;
+      align-items:start;
+      gap:10px;
+      font-size:12px;
+      color: var(--muted);
     }
+
+    .entryTag{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      color: var(--text);
+      min-width:0;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .entryRight{
+      display:grid;
+      grid-auto-flow: column;
+      grid-auto-columns: max-content;
+      align-items:center;
+      gap:8px;
+    }
+
+    .entryDate{
+      font-size:11px;
+      color: var(--muted);
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+
     .progressPill{
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 999px;
       border:1px solid var(--border);
       background: rgba(255,255,255,.03);
       font-weight: 900;
-      font-size: 12px;
-      color: var(--text);
-      min-width: 62px;
+      font-size: 11px;
+      min-width: 56px;
       text-align:center;
       user-select:none;
+    }
+
+    .miniBtn{
+      width:32px;
+      height:32px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .pinBtn.pinned{
+      background: rgba(109,94,252,.14);
+      border-color: rgba(109,94,252,.24);
     }
 
     .entryText{
@@ -512,9 +460,11 @@ body::before{
       overflow:hidden;
     }
     [data-theme="dark"] .onbSheet{
-      background: rgba(7,10,26,.72);
+      background: rgba(7,10,26,.82);
+      border-color: rgba(233,236,243,.14);
       box-shadow: 0 18px 60px rgba(0,0,0,.55);
     }
+
     .onbGlow{
       position:absolute; inset:-80px;
       background: conic-gradient(
@@ -567,53 +517,122 @@ body::before{
       user-select:none;
       -webkit-user-select:none;
     }
+
     @media (max-width: 420px){
-  .h-title{ font-size: 17px; }
-  .h-sub{ font-size: 11px; }
+      .h-title{ font-size: 17px; }
+      .h-sub{ font-size: 11px; }
+      .metric .v{ font-size: 15px; }
+      .chip{ font-size: 11px; padding: 8px 10px; border-radius: 16px; }
+      .chip .e{ font-size: 15px; }
+      .entryText{ font-size: 13px; line-height: 1.35; }
+      .modal{ border-radius: 22px; padding: 12px; }
+    }
 
-  .metric .v{ font-size: 15px; }
-  .chip{ font-size: 11px; padding: 8px 10px; border-radius: 16px; }
-  .chip .e{ font-size: 15px; }
-
-  .entryText{
-    font-size: 13px;
-    line-height: 1.35;
-  }
-
-  .modal{
-    border-radius: 22px;
-    padding: 12px;
-  }
-}
-/* Онбординг — принудительные цвета */
-.onbSheet .modalTitle{
-  color: var(--text);
-}
-.onbText{
-  color: var(--muted);
-}
-
-/* чуть ярче фон на тёмной теме */
-[data-theme="dark"] .onbSheet{
-  background: rgba(7,10,26,.82);
-  border-color: rgba(233,236,243,.14);
-}
-
-/* Заголовок "Дневник" — читаемый в тёмной теме */
-[data-theme="dark"] .journalTitle,
-[data-theme="dark"] .modalTitle,
-[data-theme="dark"] .journalHeader,
-[data-theme="dark"] h2,
-[data-theme="dark"] h3 {
-  color: #ffffff !important;
-}
-
-
-
+    /* Splash */
+    #splash{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      opacity:1;
+      transition: opacity .45s ease, transform .45s ease;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
+    #splash.hide{
+      opacity:0;
+      transform: translateY(-6px);
+      pointer-events:none;
+    }
+    #splash .sheet{
+      width: min(520px, 100%);
+      border-radius: 26px;
+      border:1px solid var(--border);
+      background: var(--card);
+      box-shadow: 0 18px 60px rgba(2,6,23,.22);
+      backdrop-filter: blur(16px);
+      overflow:hidden;
+      position:relative;
+      padding: 18px 16px 16px;
+      text-align:center;
+    }
+    [data-theme="dark"] #splash .sheet{
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    #splash .glow{
+      position:absolute;
+      inset:-90px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(109,94,252,.22),
+        rgba(167,139,250,.18),
+        rgba(109,94,252,.22),
+        rgba(167,139,250,.18),
+        rgba(109,94,252,.22)
+      );
+      filter: blur(26px);
+      opacity:.75;
+      animation: shimmer 3.8s linear infinite;
+      pointer-events:none;
+    }
+    #splash .content{ position:relative; z-index:1; }
+    #splash .logoMark{
+      font-size: 34px;
+      margin-top: 4px;
+    }
+    #splash .title{
+      margin-top: 10px;
+      font-weight: 950;
+      font-size: 16px;
+      color: var(--text);
+      letter-spacing:.2px;
+    }
+    #splash .sub{
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+    #splash .dots{
+      margin-top: 12px;
+      display:flex;
+      justify-content:center;
+      gap:8px;
+    }
+    #splash .dot{
+      width:8px; height:8px;
+      border-radius: 999px;
+      background: rgba(109,94,252,.55);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    #splash .dot:nth-child(2){ animation-delay:.15s; }
+    #splash .dot:nth-child(3){ animation-delay:.30s; }
+    @keyframes pulse{
+      0%,100%{ transform: translateY(0); opacity:.45; }
+      50%{ transform: translateY(-3px); opacity:1; }
+    }
   </style>
 </head>
 
 <body>
+  <!-- Splash -->
+  <div id="splash" aria-hidden="true">
+    <div class="sheet">
+      <div class="glow"></div>
+      <div class="content">
+        <div class="logoMark">&lt;💙&gt;</div>
+        <div class="title">@mind</div>
+        <div class="sub">Дневник самопрограммирования</div>
+        <div class="dots" aria-hidden="true">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
     <div class="top">
       <div class="header">
@@ -662,7 +681,7 @@ body::before{
         <div class="modalTitle" style="margin-top:8px;">Как пользоваться</div>
         <div class="onbText">
           1) Крути сферу вбок и выбери сектор.<br>
-          2) Запиши мысль и оформи текст (жирный, курсив, список, цвет).<br>
+          2) Запиши мысль обычным текстом.<br>
           3) Открой дневник снизу: закрепляй важное 📌 и отмечай прогресс 📈.<br>
           Всё сохраняется на устройстве.
         </div>
@@ -679,14 +698,6 @@ body::before{
         <button class="iconBtn noSelect" id="entryClose" aria-label="Закрыть">✕</button>
       </div>
       <div class="modalHint" id="entryHint"></div>
-
-      <div class="toolbar noSelect">
-        <button class="tbtn" id="tbBold" title="Жирный"><b>B</b></button>
-        <button class="tbtn" id="tbItalic" title="Курсив"><i>I</i></button>
-        <button class="tbtn" id="tbList" title="Список">•</button>
-        <button class="tbtn" id="tbUndo" title="Отмена">↺</button>
-        <button class="tbtn" id="tbColor" title="Цвет">A</button>
-      </div>
 
       <div class="editor" id="editor" contenteditable="true"
         data-placeholder="Пиши как в личный дневник. Здесь можно быть настоящим."></div>
@@ -735,6 +746,7 @@ body::before{
     const LS = {
       theme: "mind_theme",
       entries: "mind_entries_v4",
+      streak: "mind_streak_v1" // { streak:number, lastActiveAt:number(ms), lastActiveDay:"YYYY-MM-DD" }
     };
 
     function loadJSON(key, fallback){
@@ -747,13 +759,16 @@ body::before{
       }
     }
     function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
-    function dayKey(iso){ return new Date(iso).toISOString().slice(0,10); }
+
+    function nowMs(){ return Date.now(); }
     function nowISO(){ return new Date().toISOString(); }
+    function dayKeyFromMs(ms){ return new Date(ms).toISOString().slice(0,10); }
+    function dayKeyFromISO(iso){ return new Date(iso).toISOString().slice(0,10); }
 
     // Progress color: red (0) -> green (100)
     function progressColor(percent){
       const p = Math.max(0, Math.min(100, percent));
-      const hue = 0 + (120 * (p / 100)); // 0..120
+      const hue = 0 + (120 * (p / 100));
       return `hsl(${hue} 85% 45%)`;
     }
     function setRangeGradient(rangeEl, percent){
@@ -771,6 +786,12 @@ body::before{
       pinned: !!e.pinned,
       progress: typeof e.progress === "number" ? e.progress : 0,
     }));
+
+    let streakState = loadJSON(LS.streak, null);
+    if(!streakState || typeof streakState !== "object"){
+      streakState = { streak: 0, lastActiveAt: 0, lastActiveDay: "" };
+      saveJSON(LS.streak, streakState);
+    }
 
     let activeSegment = null;
 
@@ -791,6 +812,8 @@ body::before{
     const sphereWrap = document.getElementById("sphereWrap");
     const sphereEl   = document.getElementById("sphere");
 
+    const splash = document.getElementById("splash");
+
     const onbModalBg = document.getElementById("onbModalBg");
     const onbContinue= document.getElementById("onbContinue");
 
@@ -805,12 +828,6 @@ body::before{
     const journalClose   = document.getElementById("journalClose");
     const journalBody    = document.getElementById("journalBody");
     const openJournalBtn = document.getElementById("openJournalBtn");
-
-    const tbBold  = document.getElementById("tbBold");
-    const tbItalic= document.getElementById("tbItalic");
-    const tbList  = document.getElementById("tbList");
-    const tbUndo  = document.getElementById("tbUndo");
-    const tbColor = document.getElementById("tbColor");
 
     // --------- Theme ----------
     function initTheme(){
@@ -829,20 +846,59 @@ body::before{
       }
     }
 
+    // --------- VH for iOS ----------
+    function setVh(){
+      document.documentElement.style.setProperty("--vh", (window.innerHeight * 0.01) + "px");
+    }
+
+    // --------- Streak ----------
+    function normalizeStreakOnBoot(){
+      const now = nowMs();
+      const last = Number(streakState.lastActiveAt || 0);
+
+      if(!last){
+        // нет активности — streak держим как есть (0)
+        return;
+      }
+
+      const diff = now - last;
+      const dayNow = dayKeyFromMs(now);
+      // обнуляем только если > 24 часа бездействия
+      if(diff > 24 * 60 * 60 * 1000){
+        streakState.streak = 0;
+        streakState.lastActiveDay = dayNow; // чтобы не прыгало
+        saveJSON(LS.streak, streakState);
+      }
+    }
+
+    function registerActivityForStreak(){
+      const now = nowMs();
+      const dayNow = dayKeyFromMs(now);
+
+      // если предыдущая активность была > 24ч назад — streak уже должен быть 0
+      // но на всякий случай:
+      if(streakState.lastActiveAt && (now - streakState.lastActiveAt) > 24*60*60*1000){
+        streakState.streak = 0;
+      }
+
+      // увеличиваем streak только если это новый календарный день относительно последней активности
+      if(streakState.lastActiveDay !== dayNow){
+        streakState.streak = (Number(streakState.streak) || 0) + 1;
+        streakState.lastActiveDay = dayNow;
+      }
+
+      streakState.lastActiveAt = now;
+      saveJSON(LS.streak, streakState);
+    }
+
     // --------- Metrics ----------
     function computeMetrics(){
-      const today = dayKey(nowISO());
-      const todayCount = entries.filter(e => dayKey(e.createdAt) === today).length;
+      const today = dayKeyFromMs(nowMs());
+      const todayCount = entries.filter(e => dayKeyFromISO(e.createdAt) === today).length;
 
-      const daysSet = new Set(entries.map(e => dayKey(e.createdAt)));
-      let streak = 0;
-      let cur = today;
-      while(daysSet.has(cur)){
-        streak++;
-        const d = new Date(cur);
-        d.setDate(d.getDate() - 1);
-        cur = d.toISOString().slice(0,10);
-      }
+      // streak — только из streakState (не из daysSet)
+      const streak = Number(streakState.streak || 0);
+
       return { streak, todayCount };
     }
     function renderMetrics(){
@@ -919,18 +975,6 @@ body::before{
       }
     }
 
-    function onDown(e){ dragging = true; lastX = e.clientX; }
-    function onMove(e){
-      if(!dragging) return;
-      const dx = e.clientX - lastX;
-      rotY += dx * 0.22;
-      lastX = e.clientX;
-      layoutSphere();
-    }
-    function onUp(){ dragging = false; }
-
-    
-
     // --------- Entry modal ----------
     function pickHint(){
       const hints = [
@@ -947,29 +991,31 @@ body::before{
       activeSegment = seg;
       entryTitle.textContent = `${seg.emoji} ${seg.name}`;
       entryHint.textContent = pickHint();
-      editor.innerHTML = "";
+      editor.textContent = "";
       entryModalBg.classList.add("show");
       setTimeout(() => editor.focus(), 0);
-      updateToolbarState();
     }
+
     function closeEntry(){
       entryModalBg.classList.remove("show");
       activeSegment = null;
-      editor.innerHTML = "";
+      editor.textContent = "";
       setTimeout(setVh, 50);
     }
+
     function saveEntry(){
       if(!activeSegment) return;
-      const html = editor.innerHTML.trim();
-      const textOnly = editor.textContent.trim();
-      if(!html || !textOnly) return;
+
+      const text = (editor.textContent || "").trim();
+      if(!text) return;
 
       const entry = {
         id: crypto.randomUUID(),
         segmentId: activeSegment.id,
         segmentName: activeSegment.name,
         segmentEmoji: activeSegment.emoji,
-        html,
+        // сохраняем как простой текст (без форматирования)
+        html: escapeHtmlToParagraphs(text),
         createdAt: nowISO(),
         pinned: false,
         progress: 0,
@@ -977,132 +1023,22 @@ body::before{
 
       entries.push(entry);
       saveJSON(LS.entries, entries);
+
+      // streak activity
+      registerActivityForStreak();
+
       renderMetrics();
       closeEntry();
     }
 
-    // --------- Toolbar toggle/active ----------
-    function execCmd(cmd){
-      document.execCommand(cmd, false, null);
-      editor.focus();
-      updateToolbarState();
+    function escapeHtmlToParagraphs(text){
+      // безопасно: превращаем в <div> с <br> по строкам, без html-инъекций
+      const safe = text
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+      return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
     }
-
-    function isInColoredSpan(){
-      const sel = window.getSelection();
-      if(!sel || sel.rangeCount === 0) return false;
-      let node = sel.anchorNode;
-      if(!node) return false;
-      if(node.nodeType === 3) node = node.parentNode;
-      while(node && node !== editor){
-        if(node.nodeType === 1 && node.tagName === "SPAN" && node.dataset && node.dataset.mindColor === "accent"){
-          return true;
-        }
-        node = node.parentNode;
-      }
-      return false;
-    }
-
-    function unwrapAccentInRange(range){
-      const spans = editor.querySelectorAll('span[data-mind-color="accent"]');
-      spans.forEach(sp => {
-        const spRange = document.createRange();
-        spRange.selectNodeContents(sp);
-        const intersects =
-          range.compareBoundaryPoints(Range.END_TO_START, spRange) < 0 &&
-          range.compareBoundaryPoints(Range.START_TO_END, spRange) > 0;
-        if(intersects){
-          const parent = sp.parentNode;
-          while(sp.firstChild){
-            parent.insertBefore(sp.firstChild, sp);
-          }
-          parent.removeChild(sp);
-        }
-      });
-    }
-
-    function toggleAccentColor(){
-      const sel = window.getSelection();
-      if(!sel || sel.rangeCount === 0) return;
-
-      const range = sel.getRangeAt(0);
-
-      if(range.collapsed){
-        const already = isInColoredSpan();
-        if(already){
-          // move caret out
-          const node = sel.anchorNode && sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentNode : sel.anchorNode;
-          let span = node;
-          while(span && span !== editor && !(span.tagName === "SPAN" && span.dataset && span.dataset.mindColor === "accent")){
-            span = span.parentNode;
-          }
-          if(span && span !== editor){
-            const after = document.createTextNode("");
-            span.parentNode.insertBefore(after, span.nextSibling);
-            const r = document.createRange();
-            r.setStart(after, 0);
-            r.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(r);
-          }
-        }else{
-          const span = document.createElement("span");
-          span.dataset.mindColor = "accent";
-          span.style.color = "#6d5efc";
-          span.appendChild(document.createTextNode("\u200B"));
-          range.insertNode(span);
-
-          const r = document.createRange();
-          r.setStart(span.firstChild, 1);
-          r.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(r);
-        }
-        editor.focus();
-        updateToolbarState();
-        return;
-      }
-
-      const already = isInColoredSpan();
-      if(already){
-        unwrapAccentInRange(range);
-      }else{
-        const span = document.createElement("span");
-        span.dataset.mindColor = "accent";
-        span.style.color = "#6d5efc";
-        try{
-          range.surroundContents(span);
-        }catch{
-          document.execCommand("foreColor", false, "#6d5efc");
-        }
-      }
-      editor.focus();
-      updateToolbarState();
-    }
-
-    function updateToolbarState(){
-      try{
-        tbBold.classList.toggle("active", document.queryCommandState("bold"));
-        tbItalic.classList.toggle("active", document.queryCommandState("italic"));
-        tbList.classList.toggle("active", document.queryCommandState("insertUnorderedList"));
-      }catch{}
-      tbColor.classList.toggle("active", isInColoredSpan());
-      tbUndo.classList.remove("active");
-    }
-
-    document.addEventListener("selectionchange", () => {
-      if(!entryModalBg.classList.contains("show")) return;
-      const sel = window.getSelection();
-      if(!sel || !sel.anchorNode) return;
-      let n = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentNode : sel.anchorNode;
-      while(n){
-        if(n === editor){
-          updateToolbarState();
-          return;
-        }
-        n = n.parentNode;
-      }
-    });
 
     // --------- Journal (pin/progress/delete) ----------
     function openJournal(){
@@ -1176,8 +1112,8 @@ body::before{
         block.innerHTML = `
           <div class="entryTop">
             <div class="entryTag" title="${e.segmentName}">
-                <span style="font-size:16px">${e.segmentEmoji}</span>
-                </div>
+              <span style="font-size:16px">${e.segmentEmoji}</span>
+            </div>
 
             <div class="entryRight">
               <div class="progressPill" style="border-color:${pctColor}33;">
@@ -1187,10 +1123,11 @@ body::before{
               <button class="miniBtn noSelect pinBtn ${e.pinned ? "pinned":""}" title="Закрепить">📌</button>
               <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
               <span class="entryDate">${when}</span>
-
             </div>
           </div>
+
           <div class="entryText"></div>
+
           <div class="pop" style="display:${openProgressForId === e.id ? "block" : "none"};">
             <div class="popTop">
               <div>Прогресс</div>
@@ -1241,12 +1178,8 @@ body::before{
     }
 
     // --------- Onboarding ----------
-    function showOnboarding(){
-      onbModalBg.classList.add("show");
-    }
-    function closeOnboarding(){
-      onbModalBg.classList.remove("show");
-    }
+    function showOnboarding(){ onbModalBg.classList.add("show"); }
+    function closeOnboarding(){ onbModalBg.classList.remove("show"); }
 
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
@@ -1269,16 +1202,6 @@ body::before{
     journalClose.addEventListener("click", closeJournal);
     journalModalBg.addEventListener("click", (e) => { if(e.target === journalModalBg) closeJournal(); });
 
-    tbBold.addEventListener("click", () => execCmd("bold"));
-    tbItalic.addEventListener("click", () => execCmd("italic"));
-    tbList.addEventListener("click", () => execCmd("insertUnorderedList"));
-    tbUndo.addEventListener("click", () => execCmd("undo"));
-    tbColor.addEventListener("click", () => toggleAccentColor());
-
-    editor.addEventListener("keyup", updateToolbarState);
-    editor.addEventListener("mouseup", updateToolbarState);
-    editor.addEventListener("focus", updateToolbarState);
-
     onbContinue.addEventListener("click", closeOnboarding);
     onbModalBg.addEventListener("click", (e) => { if(e.target === onbModalBg) closeOnboarding(); });
 
@@ -1287,28 +1210,20 @@ body::before{
     document.addEventListener("gesturechange", (e) => e.preventDefault());
     document.addEventListener("gestureend", (e) => e.preventDefault());
 
-    // Resize
+    // Resize observer
     const ro = new ResizeObserver(() => layoutSphere());
-
-    // Auto rotation
-    function tick(){
-      raf = requestAnimationFrame(tick);
-      if(!dragging){
-        rotY += 0.12;
-        layoutSphere();
-      }
-    }
-
-    function setVh(){
-  document.documentElement.style.setProperty("--vh", (window.innerHeight * 0.01) + "px");
-}
-setVh();
-window.addEventListener("resize", setVh);
-window.addEventListener("orientationchange", setVh);
-
 
     // --------- Boot ----------
     initTheme();
+
+    // apply vh fix early
+    setVh();
+    window.addEventListener("resize", setVh);
+    window.addEventListener("orientationchange", setVh);
+
+    // streak normalize on boot (only reset if >24h inactivity)
+    normalizeStreakOnBoot();
+
     renderMetrics();
     buildSphere();
     ro.observe(sphereWrap);
@@ -1316,6 +1231,19 @@ window.addEventListener("orientationchange", setVh);
 
     // Always show onboarding on app open
     showOnboarding();
+
+    // Splash: use last theme already applied by initTheme()
+    // Show short, then fade
+    window.addEventListener("load", () => {
+      // дополнительный setVh после загрузки
+      setTimeout(setVh, 50);
+
+      // скрыть splash
+      setTimeout(() => {
+        splash.classList.add("hide");
+        setTimeout(() => splash.remove(), 650);
+      }, 700);
+    });
   </script>
 </body>
 </html>
