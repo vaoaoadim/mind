@@ -128,24 +128,35 @@
     .metric .v{ margin-top:2px; font-size:16px; font-weight:900; color:var(--text); }
 
     .main{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      padding: 0 16px;
-      overflow:hidden;
-    }
+  flex: 1 1 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  /* центрируем сферу по высоте так, чтобы низ занимали кнопки */
+  justify-content:center;
+
+  padding: 0 16px;
+  overflow:hidden;
+
+  /* гарантируем, что контент не залезет под нижнюю панель */
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
+}
 
     .sphereSection{
-      width:100%;
-      max-width:430px;
-      flex:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding-bottom: 22px;
-    }
+  width:100%;
+  max-width:430px;
+
+  /* вместо flex:1 — пусть секция не “съедает” лишнюю высоту */
+  flex: 0 0 auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  /* меньше отступ снизу, чтобы кнопки были ниже и не было “пустоты” */
+  padding-bottom: 8px;
+}
     
 
     .sphereWrap{
@@ -377,6 +388,24 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    .entryTag{
+  align-items: center;
+  min-height: 28px;            /* чтобы эмодзи всегда помещался */
+}
+
+/* отдельный класс для эмодзи-иконки */
+.segEmoji{
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;             /* можно 17–18 для разных телефонов */
+  line-height: 1;              /* ключ: убирает вертикальное “обрезание” */
+  flex: 0 0 22px;
+}
 
     .entryRight{
       display:grid;
@@ -1191,8 +1220,8 @@
         block.innerHTML = `
           <div class="entryTop">
             <div class="entryTag" title="${e.segmentName}">
-              <span style="font-size:16px">${e.segmentEmoji}</span>
-            </div>
+  <span class="segEmoji">${e.segmentEmoji}</span>
+</div>
 
             <div class="entryRight">
               <div class="progressPill" style="border-color:${pctColor}33;">
