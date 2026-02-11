@@ -126,37 +126,37 @@
     }
     .metric .k{ font-size:11px; color:var(--muted); }
     .metric .v{ margin-top:2px; font-size:16px; font-weight:900; color:var(--text); }
-
+    
     .main{
-  flex: 1 1 auto;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+      flex: 1 1 auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
 
   /* центрируем сферу по высоте так, чтобы низ занимали кнопки */
-  justify-content:center;
-
-  padding: 0 16px;
-  overflow:hidden;
+      justify-content:center;
+      
+      padding: 0 16px;
+      overflow:hidden;
 
   /* гарантируем, что контент не залезет под нижнюю панель */
-  padding-bottom: calc(110px + env(safe-area-inset-bottom));
-}
-
+      padding-bottom: calc(110px + env(safe-area-inset-bottom));
+    }
+    
     .sphereSection{
-  width:100%;
-  max-width:430px;
+      width:100%;
+      max-width:430px;
 
   /* вместо flex:1 — пусть секция не “съедает” лишнюю высоту */
-  flex: 0 0 auto;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
+      flex: 0 0 auto;
+      
+      display:flex;
+      align-items:center;
+      justify-content:center;
 
   /* меньше отступ снизу, чтобы кнопки были ниже и не было “пустоты” */
-  padding-bottom: 8px;
-}
+      padding-bottom: 8px;
+    }
     
 
     .sphereWrap{
@@ -390,22 +390,22 @@
     }
 
     .entryTag{
-  align-items: center;
-  min-height: 28px;            /* чтобы эмодзи всегда помещался */
-}
+      align-items: center;
+      min-height: 28px;            /* чтобы эмодзи всегда помещался */
+    }
 
 /* отдельный класс для эмодзи-иконки */
-.segEmoji{
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 18px;             /* можно 17–18 для разных телефонов */
-  line-height: 1;              /* ключ: убирает вертикальное “обрезание” */
-  flex: 0 0 22px;
-}
+    .segEmoji{
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      
+      font-size: 18px;             /* можно 17–18 для разных телефонов */
+      line-height: 1;              /* ключ: убирает вертикальное “обрезание” */
+      flex: 0 0 22px;
+    }
 
     .entryRight{
       display:grid;
@@ -490,6 +490,7 @@
       background: rgba(233,236,243,.12);
     }
 
+    
     input[type="range"]::-webkit-slider-thumb{
       -webkit-appearance:none;
       width: 22px;
@@ -571,7 +572,7 @@
       <div class="header">
         <div class="brand">
           <div class="h-title">@mind</div>
-          <div class="h-sub">Дневник самопрограммирования</div>
+          <div class="h-sub">Дневник самопрограммирования.</div>
         </div>
         <button class="iconBtn noSelect" id="themeBtn" aria-label="Тема" title="Тема">🌓</button>
       </div>
@@ -1219,9 +1220,9 @@
 
         block.innerHTML = `
           <div class="entryTop">
-            <div class="entryTag" title="${e.segmentName}">
-  <span class="segEmoji">${e.segmentEmoji}</span>
-</div>
+          <div class="entryTag" title="${e.segmentName}">
+          <span class="segEmoji">${e.segmentEmoji}</span>
+          </div>
 
             <div class="entryRight">
               <div class="progressPill" style="border-color:${pctColor}33;">
