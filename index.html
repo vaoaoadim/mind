@@ -39,6 +39,9 @@
       --shadow: 0 12px 34px rgba(2,6,23,.12);
       --shadow2: 0 18px 50px rgba(109,94,252,.28);
       --radius:22px;
+
+      /* Динамическая высота нижней панели — задаётся из JS */
+      --bottomBarH: 92px;
     }
 
     [data-theme="dark"]{
@@ -126,49 +129,47 @@
     }
     .metric .k{ font-size:11px; color:var(--muted); }
     .metric .v{ margin-top:2px; font-size:16px; font-weight:900; color:var(--text); }
-    
+
     .main{
       flex: 1 1 auto;
       display:flex;
       flex-direction:column;
       align-items:center;
 
-  /* центрируем сферу по высоте так, чтобы низ занимали кнопки */
+      /* Важно: не держим сферу строго по центру с огромным "низом".
+         Реально место снизу занимает bottomBar, поэтому padding-bottom динамический. */
       justify-content:center;
-      
+
       padding: 0 16px;
       overflow:hidden;
 
-  /* гарантируем, что контент не залезет под нижнюю панель */
-      padding-bottom: calc(110px + env(safe-area-inset-bottom));
+      /* вместо фиксированных 110px — реальная высота bottomBar */
+      padding-bottom: calc(var(--bottomBarH) + env(safe-area-inset-bottom));
     }
-    
+
     .sphereSection{
       width:100%;
       max-width:430px;
 
-  /* вместо flex:1 — пусть секция не “съедает” лишнюю высоту */
       flex: 0 0 auto;
-      
+
       display:flex;
       align-items:center;
       justify-content:center;
 
-  /* меньше отступ снизу, чтобы кнопки были ниже и не было “пустоты” */
       padding-bottom: 8px;
     }
-    
 
     .sphereWrap{
       position:relative;
       width: min(420px, 92vw);
       aspect-ratio: 1 / 1;
       border-radius: 28px;
-      overflow: hidden; 
+      overflow: hidden;
       background:
         radial-gradient(closest-side at 50% 44%, rgba(109,94,252,.14), transparent 68%),
         radial-gradient(closest-side at 60% 60%, rgba(167,139,250,.10), transparent 70%);
-      touch-action:none;
+      touch-action:none; /* ключ для webview */
     }
 
     .softGlow{
@@ -198,7 +199,10 @@
       white-space:nowrap;
       cursor:pointer;
       user-select:none;
-      transition: transform .15s ease, opacity .15s ease, filter .15s ease;
+      transition: transform .12s ease, opacity .12s ease, filter .12s ease;
+      /* чуть четче на мобилках */
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
     .chip:active{ transform: scale(.98); }
     .chip .e{ font-size:16px; }
@@ -292,7 +296,6 @@
       backdrop-filter: blur(14px);
       max-height: 86vh;
       overflow:auto;
-      /* чтобы нижние элементы не прятались за скруглением/границами */
       padding-bottom: calc(14px + env(safe-area-inset-bottom));
     }
 
@@ -348,6 +351,34 @@
     }
     .journalTitle{ font-weight: 950; font-size: 14px; color: var(--text); }
 
+    /* Фильтр дневника */
+    .journalRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .filterSelect{
+      height: 40px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      color: var(--text);
+      font-weight: 900;
+      font-size: 12px;
+      padding: 0 10px;
+      outline: none;
+      max-width: 220px;
+      cursor: pointer;
+    }
+    .filterSelect option{
+      color: #111;
+    }
+    [data-theme="dark"] .filterSelect option{
+      color: #111; /* options в большинстве браузеров системные */
+    }
+
     .emptyBox{
       margin-top:10px;
       border:1px dashed var(--border);
@@ -387,23 +418,18 @@
       overflow:hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-
-    .entryTag{
       align-items: center;
-      min-height: 28px;            /* чтобы эмодзи всегда помещался */
+      min-height: 28px;
     }
 
-/* отдельный класс для эмодзи-иконки */
     .segEmoji{
       width: 22px;
       height: 22px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      
-      font-size: 18px;             /* можно 17–18 для разных телефонов */
-      line-height: 1;              /* ключ: убирает вертикальное “обрезание” */
+      font-size: 18px;
+      line-height: 1;
       flex: 0 0 22px;
     }
 
@@ -490,7 +516,6 @@
       background: rgba(233,236,243,.12);
     }
 
-    
     input[type="range"]::-webkit-slider-thumb{
       -webkit-appearance:none;
       width: 22px;
@@ -562,6 +587,7 @@
       .modal{ border-radius: 22px; padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
       .secondaryBtn{ height: 42px; }
       .primaryBtn{ height: 50px; }
+      .filterSelect{ max-width: 160px; }
     }
   </style>
 </head>
@@ -598,7 +624,7 @@
       </div>
     </div>
 
-    <div class="bottomBar">
+    <div class="bottomBar" id="bottomBar">
       <div class="bottomStack">
         <button class="secondaryBtn noSelect" id="openAffBtn">
           <span style="font-size:16px">📚</span>
@@ -634,7 +660,14 @@
     <div class="modal" id="journalModal" role="dialog" aria-modal="true">
       <div class="journalHeader">
         <div class="journalTitle">📓 Дневник</div>
-        <button class="iconBtn noSelect" id="journalClose" aria-label="Закрыть">✕</button>
+
+        <div class="journalRight">
+          <select class="filterSelect" id="journalFilter" aria-label="Фильтр записей">
+            <option value="">Все записи</option>
+          </select>
+
+          <button class="iconBtn noSelect" id="journalClose" aria-label="Закрыть">✕</button>
+        </div>
       </div>
 
       <div id="journalBody"></div>
@@ -883,15 +916,19 @@
 
     let activeSegment = null;
 
-    // Sphere rotation: free XY, buttons always face camera
-    let rotX = -10;
-    let rotY = 18;
-    let dragging = false;
-    let lastX = 0;
-    let lastY = 0;
+    // --- Sphere rotation/inertia (как в примере) ---
+    let rotationX = -0.22;   // radians
+    let rotationY =  0.36;   // radians
+    let velocityX = 0;
+    let velocityY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let sphereScale = 1.0;
 
-    // Journal popover
+    // Journal popover + filter
     let openProgressForId = null;
+    let journalFilterSegId = ""; // "" => all
 
     // --------- Elements ----------
     const themeBtn = document.getElementById("themeBtn");
@@ -900,6 +937,8 @@
 
     const sphereWrap = document.getElementById("sphereWrap");
     const sphereEl   = document.getElementById("sphere");
+
+    const bottomBar = document.getElementById("bottomBar");
 
     const entryModalBg = document.getElementById("entryModalBg");
     const entryTitle   = document.getElementById("entryTitle");
@@ -913,6 +952,7 @@
     const journalClose   = document.getElementById("journalClose");
     const journalBody    = document.getElementById("journalBody");
     const openJournalBtn = document.getElementById("openJournalBtn");
+    const journalFilter  = document.getElementById("journalFilter");
 
     const openAffBtn = document.getElementById("openAffBtn");
     const affModalBg = document.getElementById("affModalBg");
@@ -933,7 +973,6 @@
       document.body.dataset.theme = next;
       localStorage.setItem(LS.theme, next);
 
-      // обновить градиент в открытом range, если есть
       const openRange = document.querySelector('input[type="range"][data-open="1"]');
       if(openRange){
         setRangeGradient(openRange, Number(openRange.value));
@@ -943,6 +982,15 @@
     // --------- VH for iOS ----------
     function setVh(){
       document.documentElement.style.setProperty("--vh", (window.innerHeight * 0.01) + "px");
+    }
+
+    // --------- Bottom bar height -> remove empty space ----------
+    function updateBottomBarHeight(){
+      if(!bottomBar) return;
+      const rect = bottomBar.getBoundingClientRect();
+      // +4 как маленький запас, чтобы ничего не "липло" впритык
+      const h = Math.max(76, Math.round(rect.height) + 4);
+      document.documentElement.style.setProperty("--bottomBarH", h + "px");
     }
 
     // --------- Streak ----------
@@ -1012,54 +1060,140 @@
         sphereEl.appendChild(node);
         nodes.push({ node, chip, seg });
       }
+
+      // заполнить фильтр дневника
+      fillJournalFilterOptions();
+
       layoutSphere();
     }
 
+    function fillJournalFilterOptions(){
+      if(!journalFilter) return;
+      // очистить и собрать заново (вдруг менялись сегменты)
+      journalFilter.innerHTML = `<option value="">Все записи</option>`;
+      for(const s of segments){
+        const opt = document.createElement("option");
+        opt.value = String(s.id);
+        opt.textContent = `${s.emoji} ${s.name}`;
+        journalFilter.appendChild(opt);
+      }
+      // восстановить выбранное
+      journalFilter.value = journalFilterSegId;
+    }
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    // Позиции на сфере + вращение/масштаб/прозрачность (как в примере)
     function layoutSphere(){
       const rect = sphereWrap.getBoundingClientRect();
       const radius = Math.min(rect.width, rect.height) * 0.36;
 
-      sphereEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      const len = nodes.length || 1;
 
-      const N = nodes.length;
-      for(let i=0;i<N;i++){
-        const t = (i + 0.5) / N;
-        const phi = Math.acos(1 - 2*t);
-        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.cos(phi);
-        const z = radius * Math.sin(phi) * Math.sin(theta);
-
-        const depth = (z / radius + 1) / 2;
-        const uiScale = 0.82 + depth * 0.36;
-        const uiAlpha = 0.35 + depth * 0.65;
-
+      for(let i=0;i<len;i++){
         const item = nodes[i];
-        // КЛЮЧ: контр-поворот, чтобы чипы всегда смотрели на камеру (не зеркалятся)
-        item.node.style.transform =
-          `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), ${z}px)
-           rotateX(${-rotX}deg) rotateY(${-rotY}deg)`;
 
-        item.chip.style.opacity = uiAlpha.toFixed(3);
-        item.chip.style.transform = `scale(${uiScale.toFixed(3)})`;
-        item.chip.style.filter = uiAlpha < 0.45 ? "blur(0.25px)" : "none";
-        item.chip.style.pointerEvents = "auto";
+        // Расстановка мыслей на поверхности сферы
+        const phi = Math.acos(-1 + (2*i)/len);
+        const theta = Math.sqrt(len * Math.PI) * phi;
+
+        let x = radius * Math.sin(phi) * Math.cos(theta);
+        let y = radius * Math.sin(phi) * Math.sin(theta);
+        let z = radius * Math.cos(phi);
+
+        // Вращение (XY)
+        const cosY = Math.cos(rotationY), sinY = Math.sin(rotationY);
+        const cosX = Math.cos(rotationX), sinX = Math.sin(rotationX);
+
+        const x1 = x*cosY - z*sinY;
+        const z1 = x*sinY + z*cosY;
+        const y1 = y*cosX - z1*sinX;
+        const z2 = y*sinX + z1*cosX;
+
+        // Масштаб и прозрачность по глубине
+        const depth = (z2 + radius) / (2*radius); // 0..1
+        const scale = 0.55 + depth * 0.55;        // 0.55..1.10
+        const opacity = 0.28 + depth * 0.72;      // 0.28..1.0
+
+        item.node.style.transform = `translate3d(calc(-50% + ${x1}px), calc(-50% + ${y1}px), 0)`;
+        item.node.style.zIndex = String(Math.floor(scale * 1000));
+
+        // Чипы "всегда лицом" (мы не крутим их 3D-матрицами, поэтому зеркала нет)
+        item.chip.style.transform = `scale(${(scale * sphereScale).toFixed(4)})`;
+        item.chip.style.opacity = opacity.toFixed(3);
+
+        // легкая глубина: дальние чуть мягче, но без "рябей"
+        item.chip.style.filter = opacity < 0.42 ? "blur(0.2px)" : "none";
       }
     }
 
-    let raf = 0;
-    function tick(){
-      raf = requestAnimationFrame(tick);
-      if(!dragging){
-        rotY += 0.10;
-        // лёгкая “живость” по X, но не дергающая
-        rotX = clamp(rotX + Math.sin(Date.now()/1800)*0.002, -70, 70);
+    // --- Drag / inertia ---
+    function onDragStart(clientX, clientY){
+      isDragging = true;
+      startX = clientX;
+      startY = clientY;
+      velocityX = 0;
+      velocityY = 0;
+    }
+
+    function onDragMove(clientX, clientY){
+      if(!isDragging) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+
+      rotationY += dx * 0.005;
+      rotationX -= dy * 0.005;
+
+      // ограничение по X, чтобы не "переворачивало"
+      rotationX = clamp(rotationX, -1.25, 1.25);
+
+      velocityX = dy * 0.002;
+      velocityY = dx * 0.002;
+
+      startX = clientX;
+      startY = clientY;
+
+      layoutSphere();
+    }
+
+    function onDragEnd(){
+      isDragging = false;
+    }
+
+    function animate(){
+      if(!isDragging){
+        rotationX += velocityX;
+        rotationY += velocityY;
+
+        velocityX *= 0.95;
+        velocityY *= 0.95;
+
+        // если почти остановилось — лёгкий автоспин, чтобы "жила"
+        if(Math.abs(velocityX) < 0.00002 && Math.abs(velocityY) < 0.00002){
+          rotationY += 0.00135;
+        }
+
         layoutSphere();
       }
+      requestAnimationFrame(animate);
     }
 
-    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    // Wheel zoom (desktop)
+    sphereWrap.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      sphereScale += e.deltaY * -0.001;
+      sphereScale = Math.min(Math.max(0.6, sphereScale), 1.5);
+      layoutSphere();
+    }, { passive:false });
+
+    // Pointer events (mobile webview friendly)
+    sphereWrap.addEventListener("pointerdown", (e) => {
+      sphereWrap.setPointerCapture?.(e.pointerId);
+      onDragStart(e.clientX, e.clientY);
+    });
+    sphereWrap.addEventListener("pointermove", (e) => onDragMove(e.clientX, e.clientY));
+    sphereWrap.addEventListener("pointerup", () => onDragEnd());
+    sphereWrap.addEventListener("pointercancel", () => onDragEnd());
 
     // --------- Entry modal ----------
     function pickHint(segId){
@@ -1084,7 +1218,7 @@
       entryModalBg.classList.remove("show");
       activeSegment = null;
       editor.textContent = "";
-      setTimeout(setVh, 50);
+      setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
     function saveEntry(){
@@ -1120,7 +1254,7 @@
       return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
     }
 
-    // --------- Journal (pin/progress/delete) ----------
+    // --------- Journal (pin/progress/delete/filter) ----------
     function openJournal(){
       openProgressForId = null;
       renderJournal();
@@ -1129,7 +1263,7 @@
     function closeJournal(){
       journalModalBg.classList.remove("show");
       openProgressForId = null;
-      setTimeout(setVh, 50);
+      setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
     function togglePin(entryId){
@@ -1154,15 +1288,14 @@
     }
 
     function ensureEntryPopoverVisible(modalEl, entryEl){
-      // докручиваем scrollTop так, чтобы pop не прятался под низ
       const pop = entryEl.querySelector(".pop");
       if(!pop || pop.style.display === "none") return;
 
       const mRect = modalEl.getBoundingClientRect();
       const pRect = pop.getBoundingClientRect();
 
-      const topSafe = mRect.top + 72; // немного воздуха сверху
-      const bottomSafe = mRect.bottom - 24; // немного воздуха снизу
+      const topSafe = mRect.top + 72;
+      const bottomSafe = mRect.bottom - 24;
 
       if(pRect.bottom > bottomSafe){
         const delta = pRect.bottom - bottomSafe + 8;
@@ -1193,7 +1326,14 @@
     function renderJournal(){
       journalBody.innerHTML = "";
 
-      if(entries.length === 0){
+      // фильтр
+      const filterId = journalFilterSegId ? Number(journalFilterSegId) : null;
+
+      const filteredEntries = filterId
+        ? entries.filter(e => Number(e.segmentId) === filterId)
+        : entries.slice();
+
+      if(filteredEntries.length === 0){
         const empty = document.createElement("div");
         empty.className = "emptyBox";
         empty.innerHTML =
@@ -1203,8 +1343,8 @@
         return;
       }
 
-      const pinned = entries.filter(e => e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
-      const normal = entries.filter(e => !e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const pinned = filteredEntries.filter(e => e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
+      const normal = filteredEntries.filter(e => !e.pinned).sort((a,b) => a.createdAt < b.createdAt ? 1 : -1);
       const sorted = [...pinned, ...normal];
 
       for(const e of sorted){
@@ -1220,9 +1360,9 @@
 
         block.innerHTML = `
           <div class="entryTop">
-          <div class="entryTag" title="${e.segmentName}">
-          <span class="segEmoji">${e.segmentEmoji}</span>
-          </div>
+            <div class="entryTag" title="${e.segmentName}">
+              <span class="segEmoji">${e.segmentEmoji}</span>
+            </div>
 
             <div class="entryRight">
               <div class="progressPill" style="border-color:${pctColor}33;">
@@ -1294,7 +1434,7 @@
     }
     function closeAff(){
       affModalBg.classList.remove("show");
-      setTimeout(setVh, 50);
+      setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
     function addAff(){
@@ -1391,30 +1531,6 @@
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
 
-    sphereWrap.addEventListener("pointerdown", (e) => {
-      dragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-    });
-
-    window.addEventListener("pointermove", (e) => {
-      if(!dragging) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-
-      // Y — горизонталь, X — вертикаль (инверсия для ощущений “как трекбол”)
-      rotY += dx * 0.22;
-      rotX -= dy * 0.18;
-
-      rotX = clamp(rotX, -75, 75);
-
-      lastX = e.clientX;
-      lastY = e.clientY;
-      layoutSphere();
-    });
-
-    window.addEventListener("pointerup", () => { dragging = false; });
-
     entryClose.addEventListener("click", closeEntry);
     entryModalBg.addEventListener("click", (e) => { if(e.target === entryModalBg) closeEntry(); });
     saveEntryBtn.addEventListener("click", saveEntry);
@@ -1422,6 +1538,12 @@
     openJournalBtn.addEventListener("click", openJournal);
     journalClose.addEventListener("click", closeJournal);
     journalModalBg.addEventListener("click", (e) => { if(e.target === journalModalBg) closeJournal(); });
+
+    journalFilter.addEventListener("change", () => {
+      journalFilterSegId = journalFilter.value || "";
+      openProgressForId = null;
+      renderJournal();
+    });
 
     openAffBtn.addEventListener("click", openAff);
     affClose.addEventListener("click", closeAff);
@@ -1440,20 +1562,31 @@
     document.addEventListener("gestureend", (e) => e.preventDefault());
 
     // Resize observer
-    const ro = new ResizeObserver(() => layoutSphere());
+    const ro = new ResizeObserver(() => {
+      updateBottomBarHeight();
+      layoutSphere();
+    });
 
     // --------- Boot ----------
     initTheme();
 
     setVh();
-    window.addEventListener("resize", setVh);
-    window.addEventListener("orientationchange", setVh);
+    window.addEventListener("resize", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
+    window.addEventListener("orientationchange", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
 
     normalizeStreakOnBoot();
     renderMetrics();
     buildSphere();
     ro.observe(sphereWrap);
-    tick();
+
+    // меряем низ после отрисовки
+    requestAnimationFrame(() => {
+      updateBottomBarHeight();
+      layoutSphere();
+    });
+
+    // запускаем анимацию инерции
+    animate();
   </script>
 </body>
 </html>
