@@ -1190,8 +1190,11 @@
       journalModalBg.classList.add("show");
     }
     function closeJournal(){
+      let journalScrollBeforeProgress = 0;
       journalModalBg.classList.remove("show");
       openProgressForId = null;
+      journalScrollBeforeProgress = 0;
+      setTimeout(setVh, 50);
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
@@ -1204,16 +1207,33 @@
     }
 
     function toggleProgressMenu(entryId){
-      openProgressForId = (openProgressForId === entryId) ? null : entryId;
-      renderJournal();
-      if(openProgressForId){
-        requestAnimationFrame(() => {
-          const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
-          if(!entryEl) return;
-          ensureEntryPopoverVisible(journalModal, entryEl);
-        });
-      }
+  const wasOpen = openProgressForId;
+  const next = (wasOpen === entryId) ? null : entryId;
+
+  // ✅ если “Прогресс” был закрыт и мы сейчас открываем — запомним scrollTop ДО автодокрутки
+  if(!wasOpen && next){
+    journalScrollBeforeProgress = journalModal.scrollTop;
+  }
+
+  openProgressForId = next;
+  renderJournal();
+
+  // ✅ если открываем — аккуратно докручиваем, как и раньше
+  if(openProgressForId){
+    requestAnimationFrame(() => {
+      const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
+      if(!entryEl) return;
+      ensureEntryPopoverVisible(journalModal, entryEl);
+    });
+    return;
+  }
+
+  // ✅ если закрываем — возвращаем scrollTop обратно, чтобы модалка не “уезжала” вниз каждый раз
+  requestAnimationFrame(() => {
+    journalModal.scrollTop = journalScrollBeforeProgress;
+  });
     }
+    
 
     function ensureEntryPopoverVisible(modalEl, entryEl){
       const pop = entryEl.querySelector(".pop");
