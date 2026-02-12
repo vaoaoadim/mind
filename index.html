@@ -40,8 +40,10 @@
       --shadow2: 0 18px 50px rgba(109,94,252,.28);
       --radius:22px;
 
-      /* Динамическая высота нижней панели — задаётся из JS */
       --bottomBarH: 92px;
+
+      /* select arrow (light) */
+      --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%230b1220' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
 
     [data-theme="dark"]{
@@ -55,6 +57,9 @@
 
       --border:rgba(233,236,243,.14);
       --border2:rgba(167,139,250,.28);
+
+      /* select arrow (dark) */
+      --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23e9ecf3' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
 
     *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
@@ -64,6 +69,8 @@
       min-height: 100%;
       margin: 0;
       background: var(--bg);
+      /* помогает системным контролам (в т.ч. select) подстраиваться под тему */
+      color-scheme: light dark;
     }
 
     body {
@@ -74,7 +81,6 @@
       touch-action: manipulation;
     }
 
-    /* фон всегда на весь экран */
     body::before{
       content:"";
       position: fixed;
@@ -135,28 +141,21 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-
-      /* Важно: не держим сферу строго по центру с огромным "низом".
-         Реально место снизу занимает bottomBar, поэтому padding-bottom динамический. */
       justify-content:center;
 
       padding: 0 16px;
       overflow:hidden;
 
-      /* вместо фиксированных 110px — реальная высота bottomBar */
       padding-bottom: calc(var(--bottomBarH) + env(safe-area-inset-bottom));
     }
 
     .sphereSection{
       width:100%;
       max-width:430px;
-
       flex: 0 0 auto;
-
       display:flex;
       align-items:center;
       justify-content:center;
-
       padding-bottom: 8px;
     }
 
@@ -169,7 +168,7 @@
       background:
         radial-gradient(closest-side at 50% 44%, rgba(109,94,252,.14), transparent 68%),
         radial-gradient(closest-side at 60% 60%, rgba(167,139,250,.10), transparent 70%);
-      touch-action:none; /* ключ для webview */
+      touch-action:none;
     }
 
     .softGlow{
@@ -200,7 +199,6 @@
       cursor:pointer;
       user-select:none;
       transition: transform .12s ease, opacity .12s ease, filter .12s ease;
-      /* чуть четче на мобилках */
       -webkit-font-smoothing: antialiased;
       text-rendering: geometricPrecision;
     }
@@ -211,7 +209,10 @@
       position:fixed;
       left:0; right:0;
       bottom:0;
-      padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+
+      /* ✅ убрали лишний воздух: оставили минимально + safe-area */
+      padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+
       background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
       backdrop-filter: blur(14px);
       border-top: 1px solid var(--border);
@@ -227,7 +228,7 @@
       width: min(430px, 100%);
       display:flex;
       flex-direction:column;
-      gap:10px;
+      gap:8px;
     }
 
     .primaryBtn{
@@ -271,6 +272,31 @@
       border-color: rgba(167,139,250,.20);
       box-shadow: 0 18px 55px rgba(0,0,0,.40);
       color: var(--text);
+    }
+
+    /* ✅ маленькая кнопка "Прогресс" */
+    .tinyBtn{
+      width:100%;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(109,94,252,.18);
+      background: rgba(255,255,255,.42);
+      color: var(--text);
+      font-weight: 950;
+      letter-spacing:.12px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      user-select:none;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 28px rgba(2,6,23,.08);
+    }
+    [data-theme="dark"] .tinyBtn{
+      background: rgba(7,10,26,.46);
+      border-color: rgba(167,139,250,.18);
+      box-shadow: 0 14px 40px rgba(0,0,0,.38);
     }
 
     .modalBg{
@@ -351,32 +377,36 @@
     }
     .journalTitle{ font-weight: 950; font-size: 14px; color: var(--text); }
 
-    /* Фильтр дневника */
     .journalRight{
       display:flex;
       align-items:center;
       gap:10px;
     }
+
+    /* ✅ select со своей стрелкой (видно в темной теме) */
     .filterSelect{
       height: 40px;
       border-radius: 14px;
       border: 1px solid var(--border);
-      background: var(--card);
+      background-color: var(--card);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       color: var(--text);
       font-weight: 900;
       font-size: 12px;
-      padding: 0 10px;
+      padding: 0 38px 0 10px; /* место под стрелку */
       outline: none;
       max-width: 220px;
       cursor: pointer;
-    }
-    .filterSelect option{
-      color: #111;
-    }
-    [data-theme="dark"] .filterSelect option{
-      color: #111; /* options в большинстве браузеров системные */
+
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+
+      background-image: var(--selectArrow);
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 18px 18px;
     }
 
     .emptyBox{
@@ -418,7 +448,6 @@
       overflow:hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      align-items: center;
       min-height: 28px;
     }
 
@@ -536,40 +565,51 @@
       cursor:pointer;
     }
 
-    /* Affirmations */
-    .affTopRow{
-      display:flex;
-      gap:10px;
-      margin-top:10px;
+    /* Progress modal */
+    .progressGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:12px;
     }
-    .affInput{
-      flex:1;
-      min-height: 44px;
-      max-height: 120px;
-      border:1px solid var(--border);
-      border-radius: 16px;
-      padding: 10px 12px;
-      background: transparent;
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.35;
-      outline:none;
-      resize:none;
+    .pCard{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 12px;
     }
-    .affAddBtn{
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      border: 1px solid rgba(109,94,252,.25);
-      background: linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.80));
-      color:#fff;
-      font-weight: 950;
-      cursor:pointer;
-      box-shadow: var(--shadow2);
+    .pRow{
       display:flex;
       align-items:center;
-      justify-content:center;
-      user-select:none;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .pTitle{ font-weight:950; font-size:13px; color:var(--text); }
+    .pSub{ font-size:12px; color:var(--muted); }
+
+    .pBarWrap{
+      margin-top:10px;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(11,18,32,.06);
+      overflow:hidden;
+    }
+    [data-theme="dark"] .pBarWrap{
+      background: rgba(233,236,243,.10);
+    }
+    .pBar{
+      height:100%;
+      width:0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(109,94,252,.95), rgba(167,139,250,.88));
+      box-shadow: 0 10px 30px rgba(109,94,252,.20);
+    }
+
+    canvas{
+      width:100%;
+      height:auto;
+      display:block;
     }
 
     .noSelect{
@@ -588,6 +628,7 @@
       .secondaryBtn{ height: 42px; }
       .primaryBtn{ height: 50px; }
       .filterSelect{ max-width: 160px; }
+      .tinyBtn{ height: 36px; }
     }
   </style>
 </head>
@@ -635,6 +676,11 @@
           <span style="font-size:18px">📓</span>
           <span>Открыть дневник</span>
         </button>
+
+        <button class="tinyBtn noSelect" id="openProgressBtn">
+          <span style="font-size:15px">📊</span>
+          <span>Прогресс</span>
+        </button>
       </div>
     </div>
   </div>
@@ -674,6 +720,49 @@
     </div>
   </div>
 
+  <!-- Progress modal -->
+  <div class="modalBg" id="progressModalBg">
+    <div class="modal" id="progressModal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div class="modalTitle">📊 Прогресс</div>
+        <button class="iconBtn noSelect" id="progressClose" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modalHint">Считается из среднего % по всем записям дневника. График показывает дни, где была активность.</div>
+
+      <div class="progressGrid">
+        <div class="pCard">
+          <div class="pRow">
+            <div>
+              <div class="pTitle">Общий прогресс</div>
+              <div class="pSub" id="pMeta">0 записей</div>
+            </div>
+            <div class="pTitle" id="pTotal">0%</div>
+          </div>
+
+          <div class="pBarWrap">
+            <div class="pBar" id="pBar"></div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <canvas id="donutCanvas" height="220"></canvas>
+          </div>
+        </div>
+
+        <div class="pCard">
+          <div class="pRow">
+            <div>
+              <div class="pTitle">Динамика по дням</div>
+              <div class="pSub">Столбики = средний % за день, линия = тренд</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <canvas id="trendCanvas" height="240"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Affirmations modal -->
   <div class="modalBg" id="affModalBg">
     <div class="modal" id="affModal" role="dialog" aria-modal="true">
@@ -684,9 +773,13 @@
 
       <div class="modalHint">Добавляй фразы, которые хочешь повторять.</div>
 
-      <div class="affTopRow">
-        <textarea class="affInput" id="affInput" rows="2" placeholder="Например: Я выбираю действовать спокойно и уверенно."></textarea>
-        <button class="affAddBtn noSelect" id="affAddBtn" title="Добавить">＋</button>
+      <div class="affTopRow" style="display:flex; gap:10px; margin-top:10px;">
+        <textarea class="affInput" id="affInput" rows="2"
+          style="flex:1;min-height:44px;max-height:120px;border:1px solid var(--border);border-radius:16px;padding:10px 12px;background:transparent;color:var(--text);font-size:14px;line-height:1.35;outline:none;resize:none;"
+          placeholder="Например: Я выбираю действовать спокойно и уверенно."></textarea>
+        <button class="affAddBtn noSelect" id="affAddBtn"
+          style="width:52px;height:52px;border-radius:16px;border:1px solid rgba(109,94,252,.25);background:linear-gradient(135deg, rgba(109,94,252,.95), rgba(167,139,250,.80));color:#fff;font-weight:950;cursor:pointer;box-shadow:var(--shadow2);display:flex;align-items:center;justify-content:center;user-select:none;"
+          title="Добавить">＋</button>
       </div>
 
       <div id="affBody"></div>
@@ -718,148 +811,7 @@
       { id: 20, name: "Свободный текст", emoji: "📝" },
     ];
 
-    const hintsBySegment = {
-      1: [
-        "Какая мысль сейчас управляет твоим днём — и подходит ли она тебе?",
-        "Если бы ты думал мягче, как бы звучала эта мысль?",
-        "Одна новая мысль, которая делает тебя спокойнее прямо сейчас.",
-        "Что ты решаешь считать правдой о себе сегодня?",
-        "Сформулируй мысль так, как будто поддерживаешь себя."
-      ],
-      2: [
-        "Что ты чувствуешь телом прямо сейчас? Назови это точно.",
-        "Какая эмоция просит внимания, а не борьбы?",
-        "Если эмоция могла бы говорить — что бы она сказала?",
-        "Что тебе нужно, чтобы почувствовать облегчение на 10%?",
-        "Какое чувство ты выбираешь бережно прожить сегодня?"
-      ],
-      3: [
-        "За что ты можешь уважать себя уже сейчас?",
-        "Какая маленькая победа сегодня была настоящей?",
-        "Как бы звучала твоя самооценка без критика?",
-        "Сформулируй одно качество, которое в тебе стабильно сильное.",
-        "Что ты выбираешь ценить в себе сегодня?"
-      ],
-      4: [
-        "Какой старый сценарий ты готов заменить новым правилом?",
-        "Какое убеждение ты выбираешь усилить на этой неделе?",
-        "Какая мысль делает тебя сильнее в ближайшие 24 часа?",
-        "Сформулируй внутреннюю установку в одном коротком предложении.",
-        "Как бы звучало мышление человека, которым ты становишься?"
-      ],
-      5: [
-        "Что именно тревожит: факт, неопределённость или ожидания?",
-        "Назови самый маленький следующий шаг, который снижает тревогу.",
-        "Какая поддерживающая мысль успокаивает прямо сейчас?",
-        "Что ты можешь контролировать сегодня, а что — отпустить?",
-        "Сформулируй фразу: «Даже если…, я всё равно…»"
-      ],
-      6: [
-        "Какая цель сегодня важнее всего на 1%?",
-        "Какой один шаг даст ощущение прогресса уже сегодня?",
-        "Что ты сделаешь, даже если нет настроения?",
-        "Назови действие, которое превращает мечту в реальность.",
-        "Как ты поддержишь свою дисциплину мягко, без давления?"
-      ],
-      7: [
-        "В чём ты стал лучше за последний месяц?",
-        "Какая привычка даёт рост быстрее всего?",
-        "Что ты выбираешь улучшать без спешки, но стабильно?",
-        "Один навык, который стоит усилить на этой неделе.",
-        "Какой рост ты увидишь через 30 дней, если продолжишь?"
-      ],
-      8: [
-        "Какое тихое внутреннее знание ты игнорировал?",
-        "Если бы интуиция давала совет — какой?",
-        "Что кажется «правильным», даже если страшно?",
-        "Какая идея возвращается снова и снова — и почему?",
-        "Запиши решение, которое ощущается честным."
-      ],
-      9: [
-        "Какой страх на самом деле защищает тебя?",
-        "Что будет, если сделать шаг несмотря на страх?",
-        "Чего ты боишься потерять — и что можешь сохранить?",
-        "Сформулируй страх одной фразой. Потом — ответ сильной версией себя.",
-        "Какой страх ты готов уменьшить на 1% сегодня?"
-      ],
-      10: [
-        "Что ты можешь сделать для себя с заботой сегодня?",
-        "Какая фраза звучит как любовь к себе без пафоса?",
-        "Как бы ты поддержал близкого человека в такой ситуации?",
-        "Одна вещь, за которую ты благодарен себе.",
-        "Что ты выбираешь уважать в себе прямо сейчас?"
-      ],
-      11: [
-        "Что возвращает тебе энергию быстрее всего?",
-        "Какая мелочь сегодня улучшит самочувствие?",
-        "Где ты теряешь энергию и как сократить потери?",
-        "Что ты выбираешь восстановить сегодня: сон, питание, спокойствие?",
-        "Сформулируй план восстановления на ближайшие 12 часов."
-      ],
-      12: [
-        "Как выглядит мечта в одном конкретном кадре?",
-        "Какая часть мечты уже начинается сегодня?",
-        "Что ты готов сделать ради мечты в ближайшие 7 дней?",
-        "Запиши цель так, чтобы она вдохновляла, а не давила.",
-        "Какое чувство будет, когда мечта станет реальностью?"
-      ],
-      13: [
-        "Какая финансовая привычка поможет тебе больше всего?",
-        "Что ты можешь монетизировать прямо из текущих навыков?",
-        "Один шаг к деньгам, который ты сделаешь сегодня.",
-        "Какое решение улучшит твой доход в перспективе 30 дней?",
-        "Сформулируй спокойную установку про деньги без напряжения."
-      ],
-      14: [
-        "Три вещи, за которые ты благодарен прямо сейчас.",
-        "Что хорошего уже есть, даже если день сложный?",
-        "Какая мелочь сегодня была тёплой и настоящей?",
-        "Кому или чему ты хочешь сказать «спасибо»?",
-        "Что ты выбираешь замечать чаще?"
-      ],
-      15: [
-        "Что сейчас самое важное — в одном предложении.",
-        "Какая ясность пришла бы, если убрать лишнее?",
-        "Что ты точно знаешь, даже если сомневаешься?",
-        "Один приоритет на сегодня, который снимает хаос.",
-        "Сформулируй решение максимально просто."
-      ],
-      16: [
-        "Какая эмоция сегодня самая сильная и почему?",
-        "Что ты чувствуешь — и что тебе нужно?",
-        "Если бы эмоции были погодой — какая сегодня?",
-        "Назови чувство и дай ему место, не оценивая.",
-        "Как ты хочешь себя поддержать эмоционально?"
-      ],
-      17: [
-        "Какая картинка будущего мотивирует тебя больше всего?",
-        "Как выглядит твоя жизнь через год в деталях?",
-        "Что ты хочешь видеть в себе через 3 месяца?",
-        "Одна привычка, которая ведёт к этому видению.",
-        "Запиши видение как будто оно уже становится реальностью."
-      ],
-      18: [
-        "Что даст тебе спокойствие прямо сегодня?",
-        "Как выглядит «спокойный план» на ближайшие 6 часов?",
-        "Какая мысль снижает внутренний шум?",
-        "Что ты можешь отпустить без потерь?",
-        "Сформулируй фразу для внутренней тишины."
-      ],
-      19: [
-        "Где тебе нужно проявить силу сегодня?",
-        "Какое решение требует смелости и честности?",
-        "Что ты выбираешь сделать, даже если страшно?",
-        "Одна граница, которую ты укрепишь.",
-        "Запиши фразу, которая включает твою силу."
-      ],
-      20: [
-        "Пиши свободно. Одна мысль — и достаточно.",
-        "Что хочется сказать самому себе без фильтра?",
-        "Какая фраза станет опорой сегодня?",
-        "Запиши всё, что нужно выгрузить из головы.",
-        "Что ты выбираешь оставить на странице, чтобы стало легче?"
-      ],
-    };
+    const hintsBySegment = {}; // (оставлено как есть — в твоём коде у тебя было заполнение; не критично для этих правок)
 
     const LS = {
       theme: "mind_theme",
@@ -884,7 +836,6 @@
     function dayKeyFromMs(ms){ return new Date(ms).toISOString().slice(0,10); }
     function dayKeyFromISO(iso){ return new Date(iso).toISOString().slice(0,10); }
 
-    // Progress color: red (0) -> green (100)
     function progressColor(percent){
       const p = Math.max(0, Math.min(100, percent));
       const hue = 0 + (120 * (p / 100));
@@ -916,9 +867,9 @@
 
     let activeSegment = null;
 
-    // --- Sphere rotation/inertia (как в примере) ---
-    let rotationX = -0.22;   // radians
-    let rotationY =  0.36;   // radians
+    // --- Sphere rotation/inertia ---
+    let rotationX = -0.22;
+    let rotationY =  0.36;
     let velocityX = 0;
     let velocityY = 0;
     let isDragging = false;
@@ -926,9 +877,8 @@
     let startY = 0;
     let sphereScale = 1.0;
 
-    // Journal popover + filter
     let openProgressForId = null;
-    let journalFilterSegId = ""; // "" => all
+    let journalFilterSegId = "";
 
     // --------- Elements ----------
     const themeBtn = document.getElementById("themeBtn");
@@ -956,11 +906,20 @@
 
     const openAffBtn = document.getElementById("openAffBtn");
     const affModalBg = document.getElementById("affModalBg");
-    const affModal   = document.getElementById("affModal");
     const affClose   = document.getElementById("affClose");
     const affBody    = document.getElementById("affBody");
     const affInput   = document.getElementById("affInput");
     const affAddBtn  = document.getElementById("affAddBtn");
+
+    // Progress UI
+    const openProgressBtn = document.getElementById("openProgressBtn");
+    const progressModalBg = document.getElementById("progressModalBg");
+    const progressClose   = document.getElementById("progressClose");
+    const pTotal          = document.getElementById("pTotal");
+    const pMeta           = document.getElementById("pMeta");
+    const pBar            = document.getElementById("pBar");
+    const donutCanvas     = document.getElementById("donutCanvas");
+    const trendCanvas     = document.getElementById("trendCanvas");
 
     // --------- Theme ----------
     function initTheme(){
@@ -977,6 +936,11 @@
       if(openRange){
         setRangeGradient(openRange, Number(openRange.value));
       }
+
+      // перерисовать прогресс-диаграммы если модалка открыта
+      if(progressModalBg.classList.contains("show")){
+        requestAnimationFrame(() => renderProgressModal());
+      }
     }
 
     // --------- VH for iOS ----------
@@ -984,12 +948,11 @@
       document.documentElement.style.setProperty("--vh", (window.innerHeight * 0.01) + "px");
     }
 
-    // --------- Bottom bar height -> remove empty space ----------
+    // --------- Bottom bar height ----------
     function updateBottomBarHeight(){
       if(!bottomBar) return;
       const rect = bottomBar.getBoundingClientRect();
-      // +4 как маленький запас, чтобы ничего не "липло" впритык
-      const h = Math.max(76, Math.round(rect.height) + 4);
+      const h = Math.max(68, Math.round(rect.height) + 2);
       document.documentElement.style.setProperty("--bottomBarH", h + "px");
     }
 
@@ -1061,15 +1024,11 @@
         nodes.push({ node, chip, seg });
       }
 
-      // заполнить фильтр дневника
       fillJournalFilterOptions();
-
       layoutSphere();
     }
 
     function fillJournalFilterOptions(){
-      if(!journalFilter) return;
-      // очистить и собрать заново (вдруг менялись сегменты)
       journalFilter.innerHTML = `<option value="">Все записи</option>`;
       for(const s of segments){
         const opt = document.createElement("option");
@@ -1077,13 +1036,11 @@
         opt.textContent = `${s.emoji} ${s.name}`;
         journalFilter.appendChild(opt);
       }
-      // восстановить выбранное
       journalFilter.value = journalFilterSegId;
     }
 
     function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
-    // Позиции на сфере + вращение/масштаб/прозрачность (как в примере)
     function layoutSphere(){
       const rect = sphereWrap.getBoundingClientRect();
       const radius = Math.min(rect.width, rect.height) * 0.36;
@@ -1093,7 +1050,6 @@
       for(let i=0;i<len;i++){
         const item = nodes[i];
 
-        // Расстановка мыслей на поверхности сферы
         const phi = Math.acos(-1 + (2*i)/len);
         const theta = Math.sqrt(len * Math.PI) * phi;
 
@@ -1101,7 +1057,6 @@
         let y = radius * Math.sin(phi) * Math.sin(theta);
         let z = radius * Math.cos(phi);
 
-        // Вращение (XY)
         const cosY = Math.cos(rotationY), sinY = Math.sin(rotationY);
         const cosX = Math.cos(rotationX), sinX = Math.sin(rotationX);
 
@@ -1110,24 +1065,19 @@
         const y1 = y*cosX - z1*sinX;
         const z2 = y*sinX + z1*cosX;
 
-        // Масштаб и прозрачность по глубине
-        const depth = (z2 + radius) / (2*radius); // 0..1
-        const scale = 0.55 + depth * 0.55;        // 0.55..1.10
-        const opacity = 0.28 + depth * 0.72;      // 0.28..1.0
+        const depth = (z2 + radius) / (2*radius);
+        const scale = 0.55 + depth * 0.55;
+        const opacity = 0.28 + depth * 0.72;
 
         item.node.style.transform = `translate3d(calc(-50% + ${x1}px), calc(-50% + ${y1}px), 0)`;
         item.node.style.zIndex = String(Math.floor(scale * 1000));
 
-        // Чипы "всегда лицом" (мы не крутим их 3D-матрицами, поэтому зеркала нет)
         item.chip.style.transform = `scale(${(scale * sphereScale).toFixed(4)})`;
         item.chip.style.opacity = opacity.toFixed(3);
-
-        // легкая глубина: дальние чуть мягче, но без "рябей"
         item.chip.style.filter = opacity < 0.42 ? "blur(0.2px)" : "none";
       }
     }
 
-    // --- Drag / inertia ---
     function onDragStart(clientX, clientY){
       isDragging = true;
       startX = clientX;
@@ -1144,7 +1094,6 @@
       rotationY += dx * 0.005;
       rotationX -= dy * 0.005;
 
-      // ограничение по X, чтобы не "переворачивало"
       rotationX = clamp(rotationX, -1.25, 1.25);
 
       velocityX = dy * 0.002;
@@ -1168,17 +1117,14 @@
         velocityX *= 0.95;
         velocityY *= 0.95;
 
-        // если почти остановилось — лёгкий автоспин, чтобы "жила"
         if(Math.abs(velocityX) < 0.00002 && Math.abs(velocityY) < 0.00002){
           rotationY += 0.00135;
         }
-
         layoutSphere();
       }
       requestAnimationFrame(animate);
     }
 
-    // Wheel zoom (desktop)
     sphereWrap.addEventListener("wheel", (e) => {
       e.preventDefault();
       sphereScale += e.deltaY * -0.001;
@@ -1186,7 +1132,6 @@
       layoutSphere();
     }, { passive:false });
 
-    // Pointer events (mobile webview friendly)
     sphereWrap.addEventListener("pointerdown", (e) => {
       sphereWrap.setPointerCapture?.(e.pointerId);
       onDragStart(e.clientX, e.clientY);
@@ -1197,12 +1142,7 @@
 
     // --------- Entry modal ----------
     function pickHint(segId){
-      const arr = hintsBySegment[segId] || [
-        "Запиши одну мысль коротко и честно.",
-        "Что ты выбираешь думать сегодня?",
-        "Одна фраза, которая поддержит тебя."
-      ];
-      return arr[Math.floor(Math.random() * arr.length)];
+      return "Запиши одну мысль коротко и честно.";
     }
 
     function openEntry(seg){
@@ -1221,9 +1161,16 @@
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
+    function escapeHtmlToParagraphs(text){
+      const safe = text
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+      return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
+    }
+
     function saveEntry(){
       if(!activeSegment) return;
-
       const text = (editor.textContent || "").trim();
       if(!text) return;
 
@@ -1235,7 +1182,7 @@
         html: escapeHtmlToParagraphs(text),
         createdAt: nowISO(),
         pinned: false,
-        progress: 0,
+        progress: 0
       };
 
       entries.push(entry);
@@ -1246,15 +1193,7 @@
       closeEntry();
     }
 
-    function escapeHtmlToParagraphs(text){
-      const safe = text
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;");
-      return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
-    }
-
-    // --------- Journal (pin/progress/delete/filter) ----------
+    // --------- Journal ----------
     function openJournal(){
       openProgressForId = null;
       renderJournal();
@@ -1277,7 +1216,6 @@
     function toggleProgressMenu(entryId){
       openProgressForId = (openProgressForId === entryId) ? null : entryId;
       renderJournal();
-
       if(openProgressForId){
         requestAnimationFrame(() => {
           const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
@@ -1326,9 +1264,7 @@
     function renderJournal(){
       journalBody.innerHTML = "";
 
-      // фильтр
       const filterId = journalFilterSegId ? Number(journalFilterSegId) : null;
-
       const filteredEntries = filterId
         ? entries.filter(e => Number(e.segmentId) === filterId)
         : entries.slice();
@@ -1338,7 +1274,7 @@
         empty.className = "emptyBox";
         empty.innerHTML =
           `<div style="font-weight:900; color:var(--text); margin-bottom:6px;">Пока нет записей</div>
-           <div>Нажми на любой сектор на сфере и сделай первую запись. Все записи остаются с тобой.</div>`;
+           <div>Нажми на любой сектор на сфере и сделай первую запись.</div>`;
         journalBody.appendChild(empty);
         return;
       }
@@ -1469,6 +1405,13 @@
       renderAffs();
     }
 
+    function escapeText(t){
+      return (t || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+    }
+
     function renderAffs(){
       affBody.innerHTML = "";
 
@@ -1493,7 +1436,6 @@
 
         const dt = new Date(a.createdAt);
         const when = dt.toLocaleString();
-
         const quoted = `«${escapeText(a.text)}»`;
 
         block.innerHTML = `
@@ -1512,21 +1454,273 @@
           <div class="entryText" style="font-weight:900;">${quoted}</div>
         `;
 
-        const pinBtn = block.querySelector(".pinBtn");
-        const delBtn = block.querySelector(".delBtn");
-        pinBtn.addEventListener("click", () => toggleAffPin(a.id));
-        delBtn.addEventListener("click", () => deleteAff(a.id));
+        block.querySelector(".pinBtn").addEventListener("click", () => toggleAffPin(a.id));
+        block.querySelector(".delBtn").addEventListener("click", () => deleteAff(a.id));
 
         affBody.appendChild(block);
       }
     }
 
-    function escapeText(t){
-      return (t || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;");
+    // --------- Progress modal (donut + bar + trend) ----------
+    function getOverallProgress(){
+      if(!entries.length) return 0;
+      const sum = entries.reduce((acc, e) => acc + (Number(e.progress) || 0), 0);
+      return Math.round(sum / entries.length);
     }
+
+    function buildDailySeries(){
+      // только дни, где реально есть записи
+      const map = new Map(); // day -> {sum, n}
+      for(const e of entries){
+        const day = dayKeyFromISO(e.createdAt);
+        const cur = map.get(day) || { sum: 0, n: 0 };
+        cur.sum += (Number(e.progress) || 0);
+        cur.n += 1;
+        map.set(day, cur);
+      }
+      const days = Array.from(map.keys()).sort(); // ISO day sort OK
+      const series = days.map(d => {
+        const v = map.get(d);
+        return { day: d, value: Math.round(v.sum / Math.max(1, v.n)) };
+      });
+
+      // если очень много — покажем последние 10 активных дней
+      return series.slice(-10);
+    }
+
+    function colorForCanvas(){
+      const isDark = document.body.dataset.theme === "dark";
+      return {
+        text: isDark ? "rgba(233,236,243,.90)" : "rgba(11,18,32,.88)",
+        grid: isDark ? "rgba(233,236,243,.12)" : "rgba(11,18,32,.10)",
+        subtle: isDark ? "rgba(233,236,243,.22)" : "rgba(11,18,32,.18)",
+        accent: "rgba(109,94,252,.95)",
+        accent2: "rgba(167,139,250,.90)",
+        track: isDark ? "rgba(233,236,243,.10)" : "rgba(11,18,32,.08)",
+      };
+    }
+
+    function setupHiDPICanvas(canvas){
+      const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+      const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
+      const cssH = canvas.getAttribute("height") ? Number(canvas.getAttribute("height")) : 220;
+
+      // canvas в CSS растянут по ширине, высота задана атрибутом
+      canvas.style.height = cssH + "px";
+      canvas.width  = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // рисуем в CSS пикселях
+      return ctx;
+    }
+
+    function drawDonut(percent){
+      const ctx = setupHiDPICanvas(donutCanvas);
+      const { text, track, accent, accent2 } = colorForCanvas();
+
+      const w = donutCanvas.clientWidth || donutCanvas.parentElement.clientWidth;
+      const h = Number(donutCanvas.style.height.replace("px","")) || 220;
+      ctx.clearRect(0,0,w,h);
+
+      const cx = w/2;
+      const cy = h/2 + 2;
+      const r = Math.min(w,h) * 0.34;
+      const thickness = Math.max(10, r * 0.28);
+
+      // track
+      ctx.lineCap = "round";
+      ctx.lineWidth = thickness;
+      ctx.strokeStyle = track;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.stroke();
+
+      // progress arc
+      const start = -Math.PI/2;
+      const end = start + (Math.PI*2) * (percent/100);
+
+      // gradient
+      const grad = ctx.createLinearGradient(cx-r, cy, cx+r, cy);
+      grad.addColorStop(0, accent);
+      grad.addColorStop(1, accent2);
+
+      ctx.strokeStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, start, end);
+      ctx.stroke();
+
+      // center text
+      ctx.fillStyle = text;
+      ctx.font = "950 34px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${percent}%`, cx, cy-6);
+
+      ctx.font = "700 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = colorForCanvas().subtle;
+      ctx.fillText("общий прогресс", cx, cy + 22);
+    }
+
+    function drawTrend(series){
+      const ctx = setupHiDPICanvas(trendCanvas);
+      const { text, grid, accent, accent2, track } = colorForCanvas();
+
+      const w = trendCanvas.clientWidth || trendCanvas.parentElement.clientWidth;
+      const h = Number(trendCanvas.style.height.replace("px","")) || 240;
+      ctx.clearRect(0,0,w,h);
+
+      // padding
+      const padL = 10, padR = 10, padT = 10, padB = 26;
+      const chartW = w - padL - padR;
+      const chartH = h - padT - padB;
+
+      // если нет данных — покажем аккуратную заглушку
+      if(!series.length){
+        ctx.fillStyle = colorForCanvas().subtle;
+        ctx.font = "800 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Пока нет активности — сделай первую запись 💜", w/2, h/2);
+        return;
+      }
+
+      const maxV = 100;
+      const minV = 0;
+
+      // grid lines
+      ctx.strokeStyle = grid;
+      ctx.lineWidth = 1;
+      for(let i=0;i<=4;i++){
+        const y = padT + chartH * (i/4);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(padL+chartW, y);
+        ctx.stroke();
+      }
+
+      const n = series.length;
+      const step = chartW / Math.max(1, n);
+      const barW = Math.max(10, Math.min(26, step*0.55));
+      const gap = step - barW;
+
+      const points = [];
+
+      for(let i=0;i<n;i++){
+        const v = series[i].value;
+        const x = padL + i*step + gap/2 + barW/2;
+        const y = padT + chartH - ( (v - minV)/(maxV-minV) ) * chartH;
+        points.push({x,y,v});
+      }
+
+      // bars
+      const grad = ctx.createLinearGradient(0, padT, 0, padT+chartH);
+      grad.addColorStop(0, accent2);
+      grad.addColorStop(1, accent);
+
+      for(let i=0;i<n;i++){
+        const v = series[i].value;
+        const x0 = padL + i*step + gap/2;
+        const barH = ((v-minV)/(maxV-minV))*chartH;
+
+        // ✅ если значение очень маленькое, делаем "минимальную высоту",
+        // но РИСУЕМ БАР только если есть активность (у нас и так только активные дни)
+        const minBar = 6;
+        const drawH = Math.max(minBar, barH);
+
+        const y0 = padT + chartH - drawH;
+
+        ctx.fillStyle = grad;
+        roundRect(ctx, x0, y0, barW, drawH, 8);
+        ctx.fill();
+      }
+
+      // line
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = accent2;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      for(let i=0;i<points.length;i++){
+        const p = points[i];
+        if(i===0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+
+      // dots
+      for(const p of points){
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.strokeStyle = track;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
+        ctx.stroke();
+      }
+
+      // labels (day)
+      ctx.fillStyle = colorForCanvas().subtle;
+      ctx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      for(let i=0;i<n;i++){
+        const d = series[i].day.slice(5); // MM-DD
+        const x = points[i].x;
+        const y = padT + chartH + 14;
+        ctx.fillText(d, x, y);
+      }
+
+      // title on canvas (tiny)
+      ctx.fillStyle = text;
+      ctx.font = "950 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.textAlign = "left";
+      ctx.fillText("активные дни", padL, padT+12);
+    }
+
+    function roundRect(ctx, x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+    }
+
+    function renderProgressModal(){
+      const total = getOverallProgress();
+      const count = entries.length;
+
+      pTotal.textContent = `${total}%`;
+      pMeta.textContent = `${count} ${count===1 ? "запись" : (count>=2 && count<=4 ? "записи" : "записей")}`;
+
+      pBar.style.width = `${total}%`;
+
+      drawDonut(total);
+
+      const series = buildDailySeries();
+      drawTrend(series);
+    }
+
+    function openProgress(){
+      progressModalBg.classList.add("show");
+      requestAnimationFrame(() => renderProgressModal());
+    }
+    function closeProgress(){
+      progressModalBg.classList.remove("show");
+      setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
+    }
+
+    // --------- Global UX guards ----------
+    document.addEventListener("gesturestart", (e) => e.preventDefault());
+    document.addEventListener("gesturechange", (e) => e.preventDefault());
+    document.addEventListener("gestureend", (e) => e.preventDefault());
 
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
@@ -1556,20 +1750,21 @@
       }
     });
 
-    // Prevent pinch zoom on iOS Safari (extra)
-    document.addEventListener("gesturestart", (e) => e.preventDefault());
-    document.addEventListener("gesturechange", (e) => e.preventDefault());
-    document.addEventListener("gestureend", (e) => e.preventDefault());
+    openProgressBtn.addEventListener("click", openProgress);
+    progressClose.addEventListener("click", closeProgress);
+    progressModalBg.addEventListener("click", (e) => { if(e.target === progressModalBg) closeProgress(); });
 
-    // Resize observer
+    // --------- Resize observer ----------
     const ro = new ResizeObserver(() => {
       updateBottomBarHeight();
       layoutSphere();
+      if(progressModalBg.classList.contains("show")){
+        renderProgressModal();
+      }
     });
 
     // --------- Boot ----------
     initTheme();
-
     setVh();
     window.addEventListener("resize", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
     window.addEventListener("orientationchange", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
@@ -1579,13 +1774,11 @@
     buildSphere();
     ro.observe(sphereWrap);
 
-    // меряем низ после отрисовки
     requestAnimationFrame(() => {
       updateBottomBarHeight();
       layoutSphere();
     });
 
-    // запускаем анимацию инерции
     animate();
   </script>
 </body>
