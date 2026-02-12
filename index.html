@@ -630,6 +630,12 @@
       .filterSelect{ max-width: 160px; }
       .tinyBtn{ height: 36px; }
     }
+    
+    /* Страховка: модалка прогресса не растягивается бесконечно */
+    #progressModal {
+      max-height: min(560px, calc(var(--vh, 1vh) * 100 - 120px));
+      overflow: auto;
+    }
   </style>
 </head>
 
