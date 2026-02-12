@@ -1482,51 +1482,73 @@
     }
 
     function drawDonut(percent){
-      const ctx = setupHiDPICanvas(donutCanvas);
-      const { text, track, accent, accent2 } = colorForCanvas();
+  const canvas = donutCanvas;
+  if (!canvas) return;
 
-      const w = donutCanvas.clientWidth || donutCanvas.parentElement.clientWidth;
-      const h = Number(donutCanvas.style.height.replace("px","")) || 220;
-      ctx.clearRect(0,0,w,h);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-      const cx = w/2;
-      const cy = h/2 + 2;
-      const r = Math.min(w,h) * 0.34;
-      const thickness = Math.max(10, r * 0.28);
+  // ✅ БЕРЕМ CSS-РАЗМЕР (не накопительный)
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
 
-      // track
-      ctx.lineCap = "round";
-      ctx.lineWidth = thickness;
-      ctx.strokeStyle = track;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI*2);
-      ctx.stroke();
+  // ширину берем по контейнеру, чтобы было адаптивно
+  const cssW = Math.max(220, Math.floor(canvas.parentElement?.clientWidth || 320));
+  const cssH = 220; // фиксированный CSS-высотный размер (как у тебя в height="220")
 
-      // progress arc
-      const start = -Math.PI/2;
-      const end = start + (Math.PI*2) * (percent/100);
+  // ✅ каждый раз задаём "чистые" размеры
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  canvas.width = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
 
-      // gradient
-      const grad = ctx.createLinearGradient(cx-r, cy, cx+r, cy);
-      grad.addColorStop(0, accent);
-      grad.addColorStop(1, accent2);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // рисуем в CSS-координатах
+  ctx.clearRect(0, 0, cssW, cssH);
 
-      ctx.strokeStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, start, end);
-      ctx.stroke();
+  const p = Math.max(0, Math.min(100, Number(percent) || 0)) / 100;
 
-      // center text
-      ctx.fillStyle = text;
-      ctx.font = "950 34px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`${percent}%`, cx, cy-6);
+  // ---- стили (оставляем твои цвета/вайб) ----
+  const w = cssW, h = cssH;
+  const cx = Math.floor(w / 2);
+  const cy = Math.floor(h / 2);
 
-      ctx.font = "700 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = colorForCanvas().subtle;
-      ctx.fillText("общий прогресс", cx, cy + 22);
-    }
+  const radius = Math.min(w, h) * 0.36;
+  const thickness = Math.max(10, Math.floor(radius * 0.28));
+
+  // фон кольца
+  ctx.lineCap = "round";
+  ctx.lineWidth = thickness;
+
+  // подложка
+  ctx.beginPath();
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // прогресс
+  const start = -Math.PI / 2;
+  const end = start + Math.PI * 2 * p;
+
+  // градиент под твою тему (mint + розовый акцент)
+  const grad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
+  grad.addColorStop(0, "rgba(72,202,228,0.95)");
+  grad.addColorStop(1, "rgba(255,140,200,0.85)");
+
+  ctx.beginPath();
+  ctx.strokeStyle = grad;
+  ctx.arc(cx, cy, radius, start, end);
+  ctx.stroke();
+
+  // центр-текст
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = "bold 28px Courier New, monospace";
+  ctx.fillText(Math.round(p * 100) + "%", cx, cy - 2);
+
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "12px Courier New, monospace";
+  ctx.fillText("за неделю", cx, cy + 22);
+}
 
    
     function roundRect(ctx, x, y, w, h, r){
