@@ -1565,8 +1565,10 @@
 
     function closeProgress(){
       progressModalBg.classList.remove("show");
+      progressModal.scrollTop = 0; // ✅
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
+
 
     // --------- Global UX guards ----------
     document.addEventListener("gesturestart", (e) => e.preventDefault());
