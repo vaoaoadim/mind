@@ -721,47 +721,32 @@
   </div>
 
   <!-- Progress modal -->
-  <div class="modalBg" id="progressModalBg">
-    <div class="modal" id="progressModal" role="dialog" aria-modal="true">
-      <div class="modalTop">
-        <div class="modalTitle">📊 Прогресс</div>
-        <button class="iconBtn noSelect" id="progressClose" aria-label="Закрыть">✕</button>
-      </div>
-      <div class="modalHint">Считается из среднего % по всем записям дневника. График показывает дни, где была активность.</div>
+<div class="modalBg" id="progressModalBg">
+  <div class="modal" id="progressModal" role="dialog" aria-modal="true">
+    <div class="modalTop">
+      <div class="modalTitle">📊 Прогресс</div>
+      <button class="iconBtn noSelect" id="progressClose" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="modalHint">Считается из среднего % по всем записям дневника.</div>
 
-      <div class="progressGrid">
-        <div class="pCard">
-          <div class="pRow">
-            <div>
-              <div class="pTitle">Общий прогресс</div>
-              <div class="pSub" id="pMeta">0 записей</div>
-            </div>
-            <div class="pTitle" id="pTotal">0%</div>
+    <div class="progressGrid">
+      <div class="pCard">
+        <div class="pRow">
+          <div>
+            <div class="pTitle">Общий прогресс</div>
+            <div class="pSub" id="pMeta">0 записей</div>
           </div>
-
-          <div class="pBarWrap">
-            <div class="pBar" id="pBar"></div>
-          </div>
-
-          <div style="margin-top:12px;">
-            <canvas id="donutCanvas" height="220"></canvas>
-          </div>
+          <div class="pTitle" id="pTotal">0%</div>
         </div>
 
-        <div class="pCard">
-          <div class="pRow">
-            <div>
-              <div class="pTitle">Динамика по дням</div>
-              <div class="pSub">Столбики = средний % за день, линия = тренд</div>
-            </div>
-          </div>
-          <div style="margin-top:12px;">
-            <canvas id="trendCanvas" height="240"></canvas>
-          </div>
+        <div style="margin-top:12px;">
+          <canvas id="donutCanvas" height="220"></canvas>
         </div>
       </div>
     </div>
   </div>
+</div>
+
 
   <!-- Affirmations modal -->
   <div class="modalBg" id="affModalBg">
@@ -917,9 +902,8 @@
     const progressClose   = document.getElementById("progressClose");
     const pTotal          = document.getElementById("pTotal");
     const pMeta           = document.getElementById("pMeta");
-    const pBar            = document.getElementById("pBar");
     const donutCanvas     = document.getElementById("donutCanvas");
-    const trendCanvas     = document.getElementById("trendCanvas");
+   
 
     // --------- Theme ----------
     function initTheme(){
@@ -1468,25 +1452,7 @@
       return Math.round(sum / entries.length);
     }
 
-    function buildDailySeries(){
-      // только дни, где реально есть записи
-      const map = new Map(); // day -> {sum, n}
-      for(const e of entries){
-        const day = dayKeyFromISO(e.createdAt);
-        const cur = map.get(day) || { sum: 0, n: 0 };
-        cur.sum += (Number(e.progress) || 0);
-        cur.n += 1;
-        map.set(day, cur);
-      }
-      const days = Array.from(map.keys()).sort(); // ISO day sort OK
-      const series = days.map(d => {
-        const v = map.get(d);
-        return { day: d, value: Math.round(v.sum / Math.max(1, v.n)) };
-      });
-
-      // если очень много — покажем последние 10 активных дней
-      return series.slice(-10);
-    }
+    
 
     function colorForCanvas(){
       const isDark = document.body.dataset.theme === "dark";
@@ -1562,126 +1528,7 @@
       ctx.fillText("общий прогресс", cx, cy + 22);
     }
 
-    function drawTrend(series){
-      const ctx = setupHiDPICanvas(trendCanvas);
-      const { text, grid, accent, accent2, track } = colorForCanvas();
-
-      const w = trendCanvas.clientWidth || trendCanvas.parentElement.clientWidth;
-      const h = Number(trendCanvas.style.height.replace("px","")) || 240;
-      ctx.clearRect(0,0,w,h);
-
-      // padding
-      const padL = 10, padR = 10, padT = 10, padB = 26;
-      const chartW = w - padL - padR;
-      const chartH = h - padT - padB;
-
-      // если нет данных — покажем аккуратную заглушку
-      if(!series.length){
-        ctx.fillStyle = colorForCanvas().subtle;
-        ctx.font = "800 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("Пока нет активности — сделай первую запись 💜", w/2, h/2);
-        return;
-      }
-
-      const maxV = 100;
-      const minV = 0;
-
-      // grid lines
-      ctx.strokeStyle = grid;
-      ctx.lineWidth = 1;
-      for(let i=0;i<=4;i++){
-        const y = padT + chartH * (i/4);
-        ctx.beginPath();
-        ctx.moveTo(padL, y);
-        ctx.lineTo(padL+chartW, y);
-        ctx.stroke();
-      }
-
-      const n = series.length;
-      const step = chartW / Math.max(1, n);
-      const barW = Math.max(10, Math.min(26, step*0.55));
-      const gap = step - barW;
-
-      const points = [];
-
-      for(let i=0;i<n;i++){
-        const v = series[i].value;
-        const x = padL + i*step + gap/2 + barW/2;
-        const y = padT + chartH - ( (v - minV)/(maxV-minV) ) * chartH;
-        points.push({x,y,v});
-      }
-
-      // bars
-      const grad = ctx.createLinearGradient(0, padT, 0, padT+chartH);
-      grad.addColorStop(0, accent2);
-      grad.addColorStop(1, accent);
-
-      for(let i=0;i<n;i++){
-        const v = series[i].value;
-        const x0 = padL + i*step + gap/2;
-        const barH = ((v-minV)/(maxV-minV))*chartH;
-
-        // ✅ если значение очень маленькое, делаем "минимальную высоту",
-        // но РИСУЕМ БАР только если есть активность (у нас и так только активные дни)
-        const minBar = 6;
-        const drawH = Math.max(minBar, barH);
-
-        const y0 = padT + chartH - drawH;
-
-        ctx.fillStyle = grad;
-        roundRect(ctx, x0, y0, barW, drawH, 8);
-        ctx.fill();
-      }
-
-      // line
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = accent2;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      for(let i=0;i<points.length;i++){
-        const p = points[i];
-        if(i===0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
-      }
-      ctx.stroke();
-
-      // dots
-      for(const p of points){
-        ctx.fillStyle = "#ffffff";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
-        ctx.fill();
-
-        ctx.strokeStyle = track;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4.5, 0, Math.PI*2);
-        ctx.stroke();
-      }
-
-      // labels (day)
-      ctx.fillStyle = colorForCanvas().subtle;
-      ctx.font = "800 11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      for(let i=0;i<n;i++){
-        const d = series[i].day.slice(5); // MM-DD
-        const x = points[i].x;
-        const y = padT + chartH + 14;
-        ctx.fillText(d, x, y);
-      }
-
-      // title on canvas (tiny)
-      ctx.fillStyle = text;
-      ctx.font = "950 12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.textAlign = "left";
-      ctx.fillText("активные дни", padL, padT+12);
-    }
-
+   
     function roundRect(ctx, x, y, w, h, r){
       const rr = Math.min(r, w/2, h/2);
       ctx.beginPath();
@@ -1696,22 +1543,26 @@
     function renderProgressModal(){
       const total = getOverallProgress();
       const count = entries.length;
-
+      
       pTotal.textContent = `${total}%`;
       pMeta.textContent = `${count} ${count===1 ? "запись" : (count>=2 && count<=4 ? "записи" : "записей")}`;
-
-      pBar.style.width = `${total}%`;
-
+      
       drawDonut(total);
-
-      const series = buildDailySeries();
-      drawTrend(series);
     }
-
+    
     function openProgress(){
+  // ✅ фикс “растягивания”: сбрасываем скролл/состояние при каждом открытии
+      
+      progressModal.scrollTop = 0;
+      
       progressModalBg.classList.add("show");
-      requestAnimationFrame(() => renderProgressModal());
+
+  // ✅ важно: дать браузеру применить display:flex, чтобы canvas получил реальную ширину
+      requestAnimationFrame(() => {
+        renderProgressModal();
+      });
     }
+
     function closeProgress(){
       progressModalBg.classList.remove("show");
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
