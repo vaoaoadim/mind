@@ -630,7 +630,7 @@
       <div class="header">
         <div class="brand">
           <div class="h-title">@mind</div>
-          <div class="h-sub">Дневник самопрограммирования <3</div>
+          <div class="h-sub">Дневник самопрограммирования.</div>
         </div>
         <button class="iconBtn noSelect" id="themeBtn" aria-label="Тема" title="Тема">🌓</button>
       </div>
@@ -1114,74 +1114,73 @@
       }
     }
 
-    // --------- Sphere drag (natural, not inverted) ----------
-    const ROT_SENS = 0.005; // чувствительность вращения
-    const VEL_SENS = 0.002; // инерция
-    let activePointerId = null;
-    
-    function onDragStart(e){
+    function onDragStart(clientX, clientY){
       isDragging = true;
-      activePointerId = e.pointerId;
-
-      startX = e.clientX;
-      startY = e.clientY;
-
-      velocityX = 0;
-      velocityY = 0;
+      prevTB = getTBVector(clientX, clientY);
+      inertOmega = 0; // сброс инерции при новом касании
+      lastMoveAt = performance.now();
     }
 
-    function onDragMove(e){
-      // двигаем только активным пальцем
+    function onDragMove(clientX, clientY){
       if(!isDragging) return;
-      if(activePointerId !== e.pointerId) return;
 
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      const curTB = getTBVector(clientX, clientY);
+      const a = prevTB;
+      const b = curTB;
 
-      // ✅ НАТУРАЛЬНО (как ты просишь):
-      // ведёшь палец ВЛЕВО -> сфера уходит ВЛЕВО (значит rotationY уменьшаем)
-      // ведёшь палец ВВЕРХ -> сфера уходит ВВЕРХ (значит rotationX уменьшаем)
-      rotationY -= dx * ROT_SENS;
-      rotationX -= dy * ROT_SENS;
+      // ось = a x b
+      let axis = vCross(a,b);
+      const axisLen = Math.hypot(axis.x, axis.y, axis.z);
 
-      // ограничение по вертикали, чтобы не "переворачивалась"
-      rotationX = clamp(rotationX, -1.25, 1.25);
+      // угол = acos(dot(a,b))
+      let dot = vDot(a,b);
+      dot = Math.max(-1, Math.min(1, dot));
+      const angle = Math.acos(dot);
 
-      // инерция должна совпадать по знаку с вращением
-      velocityY = -dx * VEL_SENS;
-      velocityX = -dy * VEL_SENS;
+      if(axisLen > 1e-6 && angle > 1e-6){
+        axis = { x: axis.x/axisLen, y: axis.y/axisLen, z: axis.z/axisLen };
 
-      startX = e.clientX;
-      startY = e.clientY;
+        // ✅ ключевое: чтобы сфера "ехала" в сторону пальца, а не наоборот
+        // Для трекбола правильное ощущение достигается умножением delta слева (delta * current).
+        const dq = qFromAxisAngle(axis.x, axis.y, axis.z, angle);
+        qOrient = qNorm(qMul(dq, qOrient));
 
+        // inertia estimate
+        const now = performance.now();
+        const dt = Math.max(8, now - lastMoveAt); // ms
+        lastMoveAt = now;
+
+        inertAxis = axis;
+        // переводим в "угол на кадр" ~ при 60fps
+        inertOmega = (angle / dt) * 16.67;
+      }
+
+      prevTB = curTB;
       layoutSphere();
     }
 
-    function onDragEnd(e){
-      if(activePointerId !== null && e.pointerId !== activePointerId) return;
+    function onDragEnd(){
       isDragging = false;
-      activePointerId = null;
+      prevTB = null;
     }
 
     function animate(){
       if(!isDragging){
-        rotationX += velocityX;
-        rotationY += velocityY;
-
-        velocityX *= 0.95;
-        velocityY *= 0.95;
-
-        // лёгкое авто-вращение, когда инерции почти нет
-        if(Math.abs(velocityX) < 0.00002 && Math.abs(velocityY) < 0.00002){
-          rotationY += 0.00135;
+        if(inertOmega > 0.00008){
+          const dq = qFromAxisAngle(inertAxis.x, inertAxis.y, inertAxis.z, inertOmega);
+          qOrient = qNorm(qMul(dq, qOrient));
+          inertOmega *= INERT_FRICTION;
+          layoutSphere();
+        }else{
+          // очень лёгкий автодрифт, чтобы сфера "жила"
+          const dq = qFromAxisAngle(0, 1, 0, 0.00125);
+          qOrient = qNorm(qMul(dq, qOrient));
+          layoutSphere();
         }
-
-        layoutSphere();
       }
       requestAnimationFrame(animate);
     }
 
-    // wheel zoom (desktop)
     sphereWrap.addEventListener("wheel", (e) => {
       e.preventDefault();
       sphereScale += e.deltaY * -0.001;
@@ -1189,30 +1188,13 @@
       layoutSphere();
     }, { passive:false });
 
-    // ✅ pointer events (важно: preventDefault + capture)
     sphereWrap.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      sphereWrap.setPointerCapture(e.pointerId);
-      onDragStart(e);
-    }, { passive:false });
-
-    sphereWrap.addEventListener("pointermove", (e) => {
-      e.preventDefault();
-      onDragMove(e);
-    }, { passive:false });
-
-    sphereWrap.addEventListener("pointerup", (e) => {
-      e.preventDefault();
-      try{ sphereWrap.releasePointerCapture(e.pointerId); }catch{}
-      onDragEnd(e);
-    }, { passive:false });
-
-    sphereWrap.addEventListener("pointercancel", (e) => {
-      e.preventDefault();
-      try{ sphereWrap.releasePointerCapture(e.pointerId); }catch{}
-      onDragEnd(e);
-    }, { passive:false });
-
+      sphereWrap.setPointerCapture?.(e.pointerId);
+      onDragStart(e.clientX, e.clientY);
+    });
+    sphereWrap.addEventListener("pointermove", (e) => onDragMove(e.clientX, e.clientY));
+    sphereWrap.addEventListener("pointerup", () => onDragEnd());
+    sphereWrap.addEventListener("pointercancel", () => onDragEnd());
 
     // --------- Entry modal ----------
     function pickHint(segId){
