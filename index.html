@@ -1120,44 +1120,32 @@
       inertOmega = 0; // сброс инерции при новом касании
       lastMoveAt = performance.now();
     }
-
+    
     function onDragMove(clientX, clientY){
       if(!isDragging) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      
+      const s = 0.005;
 
-      const curTB = getTBVector(clientX, clientY);
-      const a = prevTB;
-      const b = curTB;
+  // ✅ НАТУРАЛЬНО: сфера "идёт" за пальцем
+  // палец вправо  -> сфера вправо
+  // палец вверх   -> сфера вверх
+      rotationY -= dx * s;   // было: rotationY += dx * s
+      rotationX += dy * s;   // было: rotationX -= dy * s
+      
+      rotationX = clamp(rotationX, -1.25, 1.25);
 
-      // ось = a x b
-      let axis = vCross(a,b);
-      const axisLen = Math.hypot(axis.x, axis.y, axis.z);
-
-      // угол = acos(dot(a,b))
-      let dot = vDot(a,b);
-      dot = Math.max(-1, Math.min(1, dot));
-      const angle = Math.acos(dot);
-
-      if(axisLen > 1e-6 && angle > 1e-6){
-        axis = { x: axis.x/axisLen, y: axis.y/axisLen, z: axis.z/axisLen };
-
-        // ✅ ключевое: чтобы сфера "ехала" в сторону пальца, а не наоборот
-        // Для трекбола правильное ощущение достигается умножением delta слева (delta * current).
-        const dq = qFromAxisAngle(axis.x, axis.y, axis.z, angle);
-        qOrient = qNorm(qMul(dq, qOrient));
-
-        // inertia estimate
-        const now = performance.now();
-        const dt = Math.max(8, now - lastMoveAt); // ms
-        lastMoveAt = now;
-
-        inertAxis = axis;
-        // переводим в "угол на кадр" ~ при 60fps
-        inertOmega = (angle / dt) * 16.67;
-      }
-
-      prevTB = curTB;
+  // ✅ инерция должна быть в той же логике, что и drag
+      velocityX = dy * 0.002;    // было: velocityX = dy * 0.002 (оставляем)
+      velocityY = -dx * 0.002;   // было: velocityY = dx * 0.002
+      
+      startX = clientX;
+      startY = clientY;
+      
       layoutSphere();
     }
+
 
     function onDragEnd(){
       isDragging = false;
