@@ -42,10 +42,6 @@
 
       --bottomBarH: 92px;
 
-      /* ✅ тонкая "обводка-рефлекс" (адаптивная) */
-      --outline: rgba(11,18,32,.10);
-      --outlineChip: rgba(11,18,32,.10);
-
       /* select arrow (light) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%230b1220' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
@@ -61,10 +57,6 @@
 
       --border:rgba(233,236,243,.14);
       --border2:rgba(167,139,250,.28);
-
-      /* ✅ тонкая "обводка-рефлекс" (адаптивная) */
-      --outline: rgba(233,236,243,.14);
-      --outlineChip: rgba(233,236,243,.14);
 
       /* select arrow (dark) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23e9ecf3' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
@@ -135,10 +127,9 @@
       flex:1;min-width:0;
       background:var(--card);
       border:1px solid var(--border);
-      /* ✅ лёгкая обводка-подсветка */
-      box-shadow: 0 12px 34px rgba(2,6,23,.12), 0 0 0 1px var(--outline) inset;
       border-radius:16px;
       padding:10px 12px;
+      box-shadow:var(--shadow);
       backdrop-filter: blur(12px);
     }
     .metric .k{ font-size:11px; color:var(--muted); }
@@ -197,12 +188,9 @@
       padding: 9px 12px;
       border-radius: 18px;
       border: 1px solid var(--border2);
-      /* ✅ тонкий “инсет-рефлекс” + аккуратная обводка */
-      box-shadow:
-        0 10px 26px rgba(2,6,23,.10),
-        0 0 0 1px var(--outlineChip) inset;
       background: var(--card2);
       backdrop-filter: blur(14px);
+      box-shadow: 0 10px 26px rgba(2,6,23,.10);
       color:var(--text);
       font-size:12px;
       font-weight:900;
@@ -395,7 +383,7 @@
       border-radius: 14px;
       border: 1px solid var(--border);
       background-color: var(--card);
-      box-shadow:var(--shadow);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       color: var(--text);
       font-weight: 900;
@@ -658,7 +646,7 @@
 
     <div class="bottomBar" id="bottomBar">
       <div class="bottomStack">
-        <!-- ✅ порядок: дневник сверху, потом библиотека, потом прогресс -->
+        <!-- ✅ порядок: Открыть дневник сверху -->
         <button class="primaryBtn noSelect" id="openJournalBtn">
           <span style="font-size:18px">📓</span>
           <span>Открыть дневник</span>
@@ -787,6 +775,8 @@
       { id: 20, name: "Свободный текст", emoji: "📝" },
     ];
 
+    const hintsBySegment = {};
+
     const LS = {
       theme: "mind_theme",
       entries: "mind_entries_v4",
@@ -838,7 +828,21 @@
     }
 
     let affs = loadJSON(LS.affs, []).map(a => ({ ...a, pinned: !!a.pinned }));
+
     let activeSegment = null;
+
+    // --- Sphere rotation/inertia ---
+    let rotationX = -0.22;
+    let rotationY =  0.36;
+    let velocityX = 0;
+    let velocityY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let sphereScale = 1.0;
+
+    let openProgressForId = null;
+    let journalFilterSegId = "";
 
     // --------- Elements ----------
     const themeBtn = document.getElementById("themeBtn");
@@ -871,6 +875,7 @@
     const affInput   = document.getElementById("affInput");
     const affAddBtn  = document.getElementById("affAddBtn");
 
+    // Progress UI
     const openProgressBtn = document.getElementById("openProgressBtn");
     const progressModalBg = document.getElementById("progressModalBg");
     const progressClose   = document.getElementById("progressClose");
@@ -893,6 +898,7 @@
       if(openRange){
         setRangeGradient(openRange, Number(openRange.value));
       }
+
       if(progressModalBg.classList.contains("show")){
         requestAnimationFrame(() => renderProgressModal());
       }
@@ -954,89 +960,6 @@
       mToday.textContent  = `${m.todayCount} 📝`;
     }
 
-    // =========================================================
-    // ✅ Trackball rotation (натуральная сфера, как "трекбол")
-    // =========================================================
-
-    // Quaternion helpers
-    function qNorm(q){
-      const len = Math.hypot(q.w, q.x, q.y, q.z) || 1;
-      return { w:q.w/len, x:q.x/len, y:q.y/len, z:q.z/len };
-    }
-    function qMul(a,b){
-      return {
-        w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
-        x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
-        y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
-        z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w,
-      };
-    }
-    function qFromAxisAngle(ax,ay,az, angle){
-      const half = angle/2;
-      const s = Math.sin(half);
-      const n = Math.hypot(ax,ay,az) || 1;
-      return qNorm({ w: Math.cos(half), x:(ax/n)*s, y:(ay/n)*s, z:(az/n)*s });
-    }
-    function vDot(a,b){ return a.x*b.x + a.y*b.y + a.z*b.z; }
-    function vCross(a,b){
-      return {
-        x: a.y*b.z - a.z*b.y,
-        y: a.z*b.x - a.x*b.z,
-        z: a.x*b.y - a.y*b.x
-      };
-    }
-    function vNorm(v){
-      const len = Math.hypot(v.x,v.y,v.z) || 1;
-      return { x:v.x/len, y:v.y/len, z:v.z/len };
-    }
-    function rotateVecByQuat(v, q){
-      // v' = q * (0,v) * q^-1
-      const qw=q.w, qx=q.x, qy=q.y, qz=q.z;
-      const tx = 2*(qy*v.z - qz*v.y);
-      const ty = 2*(qz*v.x - qx*v.z);
-      const tz = 2*(qx*v.y - qy*v.x);
-      return {
-        x: v.x + qw*tx + (qy*tz - qz*ty),
-        y: v.y + qw*ty + (qz*tx - qx*tz),
-        z: v.z + qw*tz + (qx*ty - qy*tx),
-      };
-    }
-
-    // Trackball state
-    let qOrient = { w: 1, x: 0, y: 0, z: 0 };
-    let isDragging = false;
-    let prevTB = null;
-    let lastMoveAt = 0;
-
-    // Inertia (angular velocity around axis)
-    let inertAxis = { x:0, y:1, z:0 };
-    let inertOmega = 0; // radians/frame-ish
-    const INERT_FRICTION = 0.93;
-
-    let sphereScale = 1.0;
-
-    function getTBVector(clientX, clientY){
-      const rect = sphereWrap.getBoundingClientRect();
-      const cx = rect.left + rect.width/2;
-      const cy = rect.top  + rect.height/2;
-      const r = Math.min(rect.width, rect.height) * 0.50;
-
-      // нормализуем в [-1..1], Y вверх (натурально)
-      const x = (clientX - cx) / r;
-      const y = (cy - clientY) / r; // <— важно: вверх = положительный y
-
-      const d = x*x + y*y;
-      let z;
-      if(d <= 1){
-        z = Math.sqrt(1 - d);
-      }else{
-        // за пределами сферы — нормализуем к кругу (гиперболическая проекция)
-        const s = 1 / Math.sqrt(d);
-        return { x: x*s, y: y*s, z: 0 };
-      }
-      return { x, y, z };
-    }
-
     // --------- Sphere ----------
     const nodes = [];
     function buildSphere(){
@@ -1066,9 +989,6 @@
       layoutSphere();
     }
 
-    let openProgressForId = null;
-    let journalFilterSegId = "";
-
     function fillJournalFilterOptions(){
       journalFilter.innerHTML = `<option value="">Все записи</option>`;
       for(const s of segments){
@@ -1079,6 +999,8 @@
       }
       journalFilter.value = journalFilterSegId;
     }
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
     function layoutSphere(){
       const rect = sphereWrap.getBoundingClientRect();
@@ -1092,20 +1014,23 @@
         const phi = Math.acos(-1 + (2*i)/len);
         const theta = Math.sqrt(len * Math.PI) * phi;
 
-        const base = {
-          x: radius * Math.sin(phi) * Math.cos(theta),
-          y: radius * Math.sin(phi) * Math.sin(theta),
-          z: radius * Math.cos(phi)
-        };
+        let x = radius * Math.sin(phi) * Math.cos(theta);
+        let y = radius * Math.sin(phi) * Math.sin(theta);
+        let z = radius * Math.cos(phi);
 
-        // ✅ вращение через кватернион (трекбол)
-        const rv = rotateVecByQuat(base, qOrient);
+        const cosY = Math.cos(rotationY), sinY = Math.sin(rotationY);
+        const cosX = Math.cos(rotationX), sinX = Math.sin(rotationX);
 
-        const depth = (rv.z + radius) / (2*radius);
+        const x1 = x*cosY - z*sinY;
+        const z1 = x*sinY + z*cosY;
+        const y1 = y*cosX - z1*sinX;
+        const z2 = y*sinX + z1*cosX;
+
+        const depth = (z2 + radius) / (2*radius);
         const scale = 0.55 + depth * 0.55;
         const opacity = 0.28 + depth * 0.72;
 
-        item.node.style.transform = `translate3d(calc(-50% + ${rv.x}px), calc(-50% + ${rv.y}px), 0)`;
+        item.node.style.transform = `translate3d(calc(-50% + ${x1}px), calc(-50% + ${y1}px), 0)`;
         item.node.style.zIndex = String(Math.floor(scale * 1000));
 
         item.chip.style.transform = `scale(${(scale * sphereScale).toFixed(4)})`;
@@ -1116,67 +1041,50 @@
 
     function onDragStart(clientX, clientY){
       isDragging = true;
-      prevTB = getTBVector(clientX, clientY);
-      inertOmega = 0; // сброс инерции при новом касании
-      lastMoveAt = performance.now();
+      startX = clientX;
+      startY = clientY;
+      velocityX = 0;
+      velocityY = 0;
     }
 
+    // ✅ FIX: теперь сфера двигается "за пальцем" (как скролл)
     function onDragMove(clientX, clientY){
       if(!isDragging) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
 
-      const curTB = getTBVector(clientX, clientY);
-      const a = prevTB;
-      const b = curTB;
+      // было: rotationY += dx; rotationX -= dy; (это давало "наоборот")
+      rotationY -= dx * 0.005;  // тянешь влево -> уходит влево
+      rotationX += dy * 0.005;  // тянешь вверх  -> уходит вверх
 
-      // ось = a x b
-      let axis = vCross(a,b);
-      const axisLen = Math.hypot(axis.x, axis.y, axis.z);
+      rotationX = clamp(rotationX, -1.25, 1.25);
 
-      // угол = acos(dot(a,b))
-      let dot = vDot(a,b);
-      dot = Math.max(-1, Math.min(1, dot));
-      const angle = Math.acos(dot);
+      // инерция в том же направлении, что и палец
+      velocityX = -(dy * 0.002);
+      velocityY = -(dx * 0.002);
 
-      if(axisLen > 1e-6 && angle > 1e-6){
-        axis = { x: axis.x/axisLen, y: axis.y/axisLen, z: axis.z/axisLen };
+      startX = clientX;
+      startY = clientY;
 
-        // ✅ ключевое: чтобы сфера "ехала" в сторону пальца, а не наоборот
-        // Для трекбола правильное ощущение достигается умножением delta слева (delta * current).
-        const dq = qFromAxisAngle(axis.x, axis.y, axis.z, angle);
-        qOrient = qNorm(qMul(dq, qOrient));
-
-        // inertia estimate
-        const now = performance.now();
-        const dt = Math.max(8, now - lastMoveAt); // ms
-        lastMoveAt = now;
-
-        inertAxis = axis;
-        // переводим в "угол на кадр" ~ при 60fps
-        inertOmega = (angle / dt) * 16.67;
-      }
-
-      prevTB = curTB;
       layoutSphere();
     }
 
     function onDragEnd(){
       isDragging = false;
-      prevTB = null;
     }
 
     function animate(){
       if(!isDragging){
-        if(inertOmega > 0.00008){
-          const dq = qFromAxisAngle(inertAxis.x, inertAxis.y, inertAxis.z, inertOmega);
-          qOrient = qNorm(qMul(dq, qOrient));
-          inertOmega *= INERT_FRICTION;
-          layoutSphere();
-        }else{
-          // очень лёгкий автодрифт, чтобы сфера "жила"
-          const dq = qFromAxisAngle(0, 1, 0, 0.00125);
-          qOrient = qNorm(qMul(dq, qOrient));
-          layoutSphere();
+        rotationX += velocityX;
+        rotationY += velocityY;
+
+        velocityX *= 0.95;
+        velocityY *= 0.95;
+
+        if(Math.abs(velocityX) < 0.00002 && Math.abs(velocityY) < 0.00002){
+          rotationY += 0.00135;
         }
+        layoutSphere();
       }
       requestAnimationFrame(animate);
     }
@@ -1250,14 +1158,13 @@
     }
 
     // --------- Journal ----------
-    let journalScrollBeforeProgress = 0;
-
     function openJournal(){
       openProgressForId = null;
       renderJournal();
       journalModalBg.classList.add("show");
     }
     function closeJournal(){
+      let journalScrollBeforeProgress = 0;
       journalModalBg.classList.remove("show");
       openProgressForId = null;
       journalScrollBeforeProgress = 0;
@@ -1613,8 +1520,11 @@
     function openProgress(){
       progressModal.scrollTop = 0;
       progressModalBg.classList.add("show");
-      requestAnimationFrame(() => renderProgressModal());
+      requestAnimationFrame(() => {
+        renderProgressModal();
+      });
     }
+
     function closeProgress(){
       progressModalBg.classList.remove("show");
       progressModal.scrollTop = 0;
