@@ -42,6 +42,9 @@
 
       --bottomBarH: 92px;
 
+      /* ✅ мягкая обводка (light) */
+      --softOutline: rgba(11,18,32,.14);
+
       /* select arrow (light) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%230b1220' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
@@ -58,6 +61,9 @@
       --border:rgba(233,236,243,.14);
       --border2:rgba(167,139,250,.28);
 
+      /* ✅ мягкая обводка (dark) */
+      --softOutline: rgba(233,236,243,.18);
+
       /* select arrow (dark) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23e9ecf3' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
@@ -69,7 +75,6 @@
       min-height: 100%;
       margin: 0;
       background: var(--bg);
-      /* помогает системным контролам (в т.ч. select) подстраиваться под тему */
       color-scheme: light dark;
     }
 
@@ -115,7 +120,7 @@
       width:44px;height:44px;border-radius:16px;
       border:1px solid var(--border);
       background:var(--card);
-      box-shadow:var(--shadow);
+      box-shadow:var(--shadow), inset 0 0 0 1px var(--softOutline);
       backdrop-filter: blur(12px);
       cursor:pointer;
       color:var(--text);
@@ -130,7 +135,8 @@
       border:1px solid var(--border);
       border-radius:16px;
       padding:10px 12px;
-      box-shadow:var(--shadow);
+      /* ✅ добавили адаптивную тонкую обводку */
+      box-shadow:var(--shadow), inset 0 0 0 1px var(--softOutline);
       backdrop-filter: blur(12px);
     }
     .metric .k{ font-size:11px; color:var(--muted); }
@@ -191,7 +197,8 @@
       border: 1px solid var(--border2);
       background: var(--card2);
       backdrop-filter: blur(14px);
-      box-shadow: 0 10px 26px rgba(2,6,23,.10);
+      /* ✅ добавили мягкую обводку */
+      box-shadow: 0 10px 26px rgba(2,6,23,.10), inset 0 0 0 1px var(--softOutline);
       color:var(--text);
       font-size:12px;
       font-weight:900;
@@ -205,12 +212,12 @@
     .chip:active{ transform: scale(.98); }
     .chip .e{ font-size:16px; }
 
+    /* ✅ Bottom panel: выезжающая панель с ручкой */
     .bottomBar{
       position:fixed;
       left:0; right:0;
       bottom:0;
 
-      /* ✅ убрали лишний воздух: оставили минимально + safe-area */
       padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
 
       background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
@@ -219,6 +226,8 @@
       display:flex;
       justify-content:center;
       z-index:20;
+
+      transition: padding .22s ease;
     }
     [data-theme="dark"] .bottomBar{
       background: linear-gradient(180deg, rgba(0,0,0,0), var(--card));
@@ -229,6 +238,58 @@
       display:flex;
       flex-direction:column;
       gap:8px;
+
+      transition: max-height .26s ease, opacity .22s ease, transform .22s ease;
+      max-height: 260px;
+      opacity: 1;
+      transform: translateY(0);
+      will-change: max-height, opacity, transform;
+    }
+
+    .barHandleRow{
+      width: min(430px, 100%);
+      display:flex;
+      justify-content:center;
+      margin-bottom: 6px;
+    }
+
+    .barToggle{
+      height: 30px;
+      min-width: 64px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      box-shadow: var(--shadow), inset 0 0 0 1px var(--softOutline);
+      backdrop-filter: blur(14px);
+      cursor:pointer;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      user-select:none;
+    }
+    .barToggle .chev{
+      display:inline-block;
+      transition: transform .22s ease;
+      transform: rotate(0deg);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .bottomBar.collapsed{
+      padding-top: 10px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    }
+    .bottomBar.collapsed .bottomStack{
+      max-height: 0px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events:none;
+    }
+    .bottomBar.collapsed .barToggle .chev{
+      transform: rotate(180deg);
     }
 
     .primaryBtn{
@@ -274,7 +335,6 @@
       color: var(--text);
     }
 
-    /* ✅ маленькая кнопка "Прогресс" */
     .tinyBtn{
       width:100%;
       height: 38px;
@@ -383,7 +443,6 @@
       gap:10px;
     }
 
-    /* ✅ select со своей стрелкой (видно в темной теме) */
     .filterSelect{
       height: 40px;
       border-radius: 14px;
@@ -394,7 +453,7 @@
       color: var(--text);
       font-weight: 900;
       font-size: 12px;
-      padding: 0 38px 0 10px; /* место под стрелку */
+      padding: 0 38px 0 10px;
       outline: none;
       max-width: 220px;
       cursor: pointer;
@@ -565,7 +624,6 @@
       cursor:pointer;
     }
 
-    /* Progress modal */
     .progressGrid{
       display:grid;
       grid-template-columns: 1fr;
@@ -586,25 +644,6 @@
     }
     .pTitle{ font-weight:950; font-size:13px; color:var(--text); }
     .pSub{ font-size:12px; color:var(--muted); }
-
-    .pBarWrap{
-      margin-top:10px;
-      height: 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(11,18,32,.06);
-      overflow:hidden;
-    }
-    [data-theme="dark"] .pBarWrap{
-      background: rgba(233,236,243,.10);
-    }
-    .pBar{
-      height:100%;
-      width:0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(109,94,252,.95), rgba(167,139,250,.88));
-      box-shadow: 0 10px 30px rgba(109,94,252,.20);
-    }
 
     canvas{
       width:100%;
@@ -630,8 +669,7 @@
       .filterSelect{ max-width: 160px; }
       .tinyBtn{ height: 36px; }
     }
-    
-    /* Страховка: модалка прогресса не растягивается бесконечно */
+
     #progressModal {
       max-height: min(560px, calc(var(--vh, 1vh) * 100 - 120px));
       overflow: auto;
@@ -671,22 +709,33 @@
       </div>
     </div>
 
+    <!-- ✅ Bottom panel: ручка + выезжающие кнопки -->
     <div class="bottomBar" id="bottomBar">
-      <div class="bottomStack">
-        <button class="secondaryBtn noSelect" id="openAffBtn">
-          <span style="font-size:16px">📚</span>
-          <span>Библиотека аффирмаций</span>
-        </button>
+      <div style="width:min(430px, 100%); display:flex; flex-direction:column;">
+        <div class="barHandleRow">
+          <button class="barToggle noSelect" id="barToggle" aria-label="Панель" title="Панель">
+            <span class="chev">⌃</span>
+            <span style="font-size:12px; font-weight:950; letter-spacing:.12px;">Меню</span>
+          </button>
+        </div>
 
-        <button class="primaryBtn noSelect" id="openJournalBtn">
-          <span style="font-size:18px">📓</span>
-          <span>Открыть дневник</span>
-        </button>
+        <div class="bottomStack" id="bottomStack">
+          <!-- ✅ 4) "Открыть дневник" — первая -->
+          <button class="primaryBtn noSelect" id="openJournalBtn">
+            <span style="font-size:18px">📓</span>
+            <span>Открыть дневник</span>
+          </button>
 
-        <button class="tinyBtn noSelect" id="openProgressBtn">
-          <span style="font-size:15px">📊</span>
-          <span>Прогресс</span>
-        </button>
+          <button class="secondaryBtn noSelect" id="openAffBtn">
+            <span style="font-size:16px">📚</span>
+            <span>Библиотека аффирмаций</span>
+          </button>
+
+          <button class="tinyBtn noSelect" id="openProgressBtn">
+            <span style="font-size:15px">📊</span>
+            <span>Прогресс</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -727,32 +776,31 @@
   </div>
 
   <!-- Progress modal -->
-<div class="modalBg" id="progressModalBg">
-  <div class="modal" id="progressModal" role="dialog" aria-modal="true">
-    <div class="modalTop">
-      <div class="modalTitle">📊 Прогресс</div>
-      <button class="iconBtn noSelect" id="progressClose" aria-label="Закрыть">✕</button>
-    </div>
-    <div class="modalHint">Считается из среднего % по всем записям дневника.</div>
+  <div class="modalBg" id="progressModalBg">
+    <div class="modal" id="progressModal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div class="modalTitle">📊 Прогресс</div>
+        <button class="iconBtn noSelect" id="progressClose" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="modalHint">Считается из среднего % по всем записям дневника.</div>
 
-    <div class="progressGrid">
-      <div class="pCard">
-        <div class="pRow">
-          <div>
-            <div class="pTitle">Общий прогресс</div>
-            <div class="pSub" id="pMeta">0 записей</div>
+      <div class="progressGrid">
+        <div class="pCard">
+          <div class="pRow">
+            <div>
+              <div class="pTitle">Общий прогресс</div>
+              <div class="pSub" id="pMeta">0 записей</div>
+            </div>
+            <div class="pTitle" id="pTotal">0%</div>
           </div>
-          <div class="pTitle" id="pTotal">0%</div>
-        </div>
 
-        <div style="margin-top:12px;">
-          <canvas id="donutCanvas" height="220"></canvas>
+          <div style="margin-top:12px;">
+            <canvas id="donutCanvas" height="220"></canvas>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
 
   <!-- Affirmations modal -->
   <div class="modalBg" id="affModalBg">
@@ -802,13 +850,14 @@
       { id: 20, name: "Свободный текст", emoji: "📝" },
     ];
 
-    const hintsBySegment = {}; // (оставлено как есть — в твоём коде у тебя было заполнение; не критично для этих правок)
+    const hintsBySegment = {};
 
     const LS = {
       theme: "mind_theme",
       entries: "mind_entries_v4",
       streak: "mind_streak_v1",
-      affs: "mind_affs_v1"
+      affs: "mind_affs_v1",
+      bar: "mind_bottom_panel_v1"
     };
 
     function loadJSON(key, fallback){
@@ -880,6 +929,8 @@
     const sphereEl   = document.getElementById("sphere");
 
     const bottomBar = document.getElementById("bottomBar");
+    const bottomStack = document.getElementById("bottomStack");
+    const barToggle = document.getElementById("barToggle");
 
     const entryModalBg = document.getElementById("entryModalBg");
     const entryTitle   = document.getElementById("entryTitle");
@@ -909,7 +960,6 @@
     const pTotal          = document.getElementById("pTotal");
     const pMeta           = document.getElementById("pMeta");
     const donutCanvas     = document.getElementById("donutCanvas");
-   
 
     // --------- Theme ----------
     function initTheme(){
@@ -927,7 +977,6 @@
         setRangeGradient(openRange, Number(openRange.value));
       }
 
-      // перерисовать прогресс-диаграммы если модалка открыта
       if(progressModalBg.classList.contains("show")){
         requestAnimationFrame(() => renderProgressModal());
       }
@@ -942,8 +991,22 @@
     function updateBottomBarHeight(){
       if(!bottomBar) return;
       const rect = bottomBar.getBoundingClientRect();
-      const h = Math.max(68, Math.round(rect.height) + 2);
+      const h = Math.max(54, Math.round(rect.height) + 2);
       document.documentElement.style.setProperty("--bottomBarH", h + "px");
+    }
+
+    // ✅ Bottom panel collapse/expand (без влияния на сферу)
+    function setBottomCollapsed(collapsed){
+      bottomBar.classList.toggle("collapsed", !!collapsed);
+      localStorage.setItem(LS.bar, collapsed ? "1" : "0");
+      // дать анимации отработать + пересчитать высоту
+      requestAnimationFrame(() => updateBottomBarHeight());
+      setTimeout(updateBottomBarHeight, 260);
+    }
+    function initBottomPanel(){
+      const saved = localStorage.getItem(LS.bar);
+      const collapsed = (saved === "1");
+      setBottomCollapsed(collapsed);
     }
 
     // --------- Streak ----------
@@ -1081,13 +1144,15 @@
       const dx = clientX - startX;
       const dy = clientY - startY;
 
-      rotationY += dx * 0.005;
-      rotationX -= dy * 0.005;
+      // ✅ 1) ЛОГИЧНОЕ НАПРАВЛЕНИЕ: сфера "едет" за пальцем
+      rotationY -= dx * 0.005;
+      rotationX += dy * 0.005;
 
       rotationX = clamp(rotationX, -1.25, 1.25);
 
-      velocityX = dy * 0.002;
-      velocityY = dx * 0.002;
+      // инерция в том же направлении
+      velocityX = -dy * 0.002;
+      velocityY = -dx * 0.002;
 
       startX = clientX;
       startY = clientY;
@@ -1184,13 +1249,14 @@
     }
 
     // --------- Journal ----------
+    let journalScrollBeforeProgress = 0;
+
     function openJournal(){
       openProgressForId = null;
       renderJournal();
       journalModalBg.classList.add("show");
     }
     function closeJournal(){
-      let journalScrollBeforeProgress = 0;
       journalModalBg.classList.remove("show");
       openProgressForId = null;
       journalScrollBeforeProgress = 0;
@@ -1207,33 +1273,29 @@
     }
 
     function toggleProgressMenu(entryId){
-  const wasOpen = openProgressForId;
-  const next = (wasOpen === entryId) ? null : entryId;
+      const wasOpen = openProgressForId;
+      const next = (wasOpen === entryId) ? null : entryId;
 
-  // ✅ если “Прогресс” был закрыт и мы сейчас открываем — запомним scrollTop ДО автодокрутки
-  if(!wasOpen && next){
-    journalScrollBeforeProgress = journalModal.scrollTop;
-  }
+      if(!wasOpen && next){
+        journalScrollBeforeProgress = journalModal.scrollTop;
+      }
 
-  openProgressForId = next;
-  renderJournal();
+      openProgressForId = next;
+      renderJournal();
 
-  // ✅ если открываем — аккуратно докручиваем, как и раньше
-  if(openProgressForId){
-    requestAnimationFrame(() => {
-      const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
-      if(!entryEl) return;
-      ensureEntryPopoverVisible(journalModal, entryEl);
-    });
-    return;
-  }
+      if(openProgressForId){
+        requestAnimationFrame(() => {
+          const entryEl = journalBody.querySelector(`[data-id="${openProgressForId}"]`);
+          if(!entryEl) return;
+          ensureEntryPopoverVisible(journalModal, entryEl);
+        });
+        return;
+      }
 
-  // ✅ если закрываем — возвращаем scrollTop обратно, чтобы модалка не “уезжала” вниз каждый раз
-  requestAnimationFrame(() => {
-    journalModal.scrollTop = journalScrollBeforeProgress;
-  });
+      requestAnimationFrame(() => {
+        journalModal.scrollTop = journalScrollBeforeProgress;
+      });
     }
-    
 
     function ensureEntryPopoverVisible(modalEl, entryEl){
       const pop = entryEl.querySelector(".pop");
@@ -1471,152 +1533,93 @@
       }
     }
 
-    // --------- Progress modal (donut + bar + trend) ----------
+    // --------- Progress modal ----------
     function getOverallProgress(){
       if(!entries.length) return 0;
       const sum = entries.reduce((acc, e) => acc + (Number(e.progress) || 0), 0);
       return Math.round(sum / entries.length);
     }
 
-    
-
-    function colorForCanvas(){
-      const isDark = document.body.dataset.theme === "dark";
-      return {
-        text: isDark ? "rgba(233,236,243,.90)" : "rgba(11,18,32,.88)",
-        grid: isDark ? "rgba(233,236,243,.12)" : "rgba(11,18,32,.10)",
-        subtle: isDark ? "rgba(233,236,243,.22)" : "rgba(11,18,32,.18)",
-        accent: "rgba(109,94,252,.95)",
-        accent2: "rgba(167,139,250,.90)",
-        track: isDark ? "rgba(233,236,243,.10)" : "rgba(11,18,32,.08)",
-      };
-    }
-
-    function setupHiDPICanvas(canvas){
-      const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
-      const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
-      const cssH = canvas.getAttribute("height") ? Number(canvas.getAttribute("height")) : 220;
-
-      // canvas в CSS растянут по ширине, высота задана атрибутом
-      canvas.style.height = cssH + "px";
-      canvas.width  = Math.floor(cssW * dpr);
-      canvas.height = Math.floor(cssH * dpr);
+    function drawDonut(percent){
+      const canvas = donutCanvas;
+      if (!canvas) return;
 
       const ctx = canvas.getContext("2d");
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // рисуем в CSS пикселях
-      return ctx;
-    }
+      if (!ctx) return;
 
-    function drawDonut(percent){
-  const canvas = donutCanvas;
-  if (!canvas) return;
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const cssW = Math.max(220, Math.floor(canvas.parentElement?.clientWidth || 320));
+      const cssH = 220;
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+      canvas.style.width = cssW + "px";
+      canvas.style.height = cssH + "px";
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
 
-  // ✅ БЕРЕМ CSS-РАЗМЕР (не накопительный)
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
 
-  // ширину берем по контейнеру, чтобы было адаптивно
-  const cssW = Math.max(220, Math.floor(canvas.parentElement?.clientWidth || 320));
-  const cssH = 220; // фиксированный CSS-высотный размер (как у тебя в height="220")
+      const p = Math.max(0, Math.min(100, Number(percent) || 0)) / 100;
 
-  // ✅ каждый раз задаём "чистые" размеры
-  canvas.style.width = cssW + "px";
-  canvas.style.height = cssH + "px";
-  canvas.width = Math.floor(cssW * dpr);
-  canvas.height = Math.floor(cssH * dpr);
+      const w = cssW, h = cssH;
+      const cx = Math.floor(w / 2);
+      const cy = Math.floor(h / 2);
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // рисуем в CSS-координатах
-  ctx.clearRect(0, 0, cssW, cssH);
+      const radius = Math.min(w, h) * 0.36;
+      const thickness = Math.max(10, Math.floor(radius * 0.28));
 
-  const p = Math.max(0, Math.min(100, Number(percent) || 0)) / 100;
+      ctx.lineCap = "round";
+      ctx.lineWidth = thickness;
 
-  // ---- стили (оставляем твои цвета/вайб) ----
-  const w = cssW, h = cssH;
-  const cx = Math.floor(w / 2);
-  const cy = Math.floor(h / 2);
-
-  const radius = Math.min(w, h) * 0.36;
-  const thickness = Math.max(10, Math.floor(radius * 0.28));
-
-  // фон кольца
-  ctx.lineCap = "round";
-  ctx.lineWidth = thickness;
-
-  // подложка
-  ctx.beginPath();
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // прогресс
-  const start = -Math.PI / 2;
-  const end = start + Math.PI * 2 * p;
-
-  // градиент под твою тему (mint + розовый акцент)
-  const grad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
-  grad.addColorStop(0, "rgba(72,202,228,0.95)");
-  grad.addColorStop(1, "rgba(255,140,200,0.85)");
-
-  ctx.beginPath();
-  ctx.strokeStyle = grad;
-  ctx.arc(cx, cy, radius, start, end);
-  ctx.stroke();
-
-  // центр-текст
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = "bold 28px Courier New, monospace";
-  ctx.fillText(Math.round(p * 100) + "%", cx, cy - 2);
-
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "12px Courier New, monospace";
-  ctx.fillText("за неделю", cx, cy + 22);
-}
-
-   
-    function roundRect(ctx, x, y, w, h, r){
-      const rr = Math.min(r, w/2, h/2);
       ctx.beginPath();
-      ctx.moveTo(x+rr, y);
-      ctx.arcTo(x+w, y, x+w, y+h, rr);
-      ctx.arcTo(x+w, y+h, x, y+h, rr);
-      ctx.arcTo(x, y+h, x, y, rr);
-      ctx.arcTo(x, y, x+w, y, rr);
-      ctx.closePath();
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const start = -Math.PI / 2;
+      const end = start + Math.PI * 2 * p;
+
+      const grad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
+      grad.addColorStop(0, "rgba(72,202,228,0.95)");
+      grad.addColorStop(1, "rgba(255,140,200,0.85)");
+
+      ctx.beginPath();
+      ctx.strokeStyle = grad;
+      ctx.arc(cx, cy, radius, start, end);
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255,255,255,0.95)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "bold 28px Courier New, monospace";
+      ctx.fillText(Math.round(p * 100) + "%", cx, cy - 2);
+
+      ctx.fillStyle = "rgba(255,255,255,0.65)";
+      ctx.font = "12px Courier New, monospace";
+      ctx.fillText("за неделю", cx, cy + 22);
     }
 
     function renderProgressModal(){
       const total = getOverallProgress();
       const count = entries.length;
-      
+
       pTotal.textContent = `${total}%`;
       pMeta.textContent = `${count} ${count===1 ? "запись" : (count>=2 && count<=4 ? "записи" : "записей")}`;
-      
+
       drawDonut(total);
     }
-    
-    function openProgress(){
-  // ✅ фикс “растягивания”: сбрасываем скролл/состояние при каждом открытии
-      
-      progressModal.scrollTop = 0;
-      
-      progressModalBg.classList.add("show");
 
-  // ✅ важно: дать браузеру применить display:flex, чтобы canvas получил реальную ширину
-      requestAnimationFrame(() => {
-        renderProgressModal();
-      });
+    function openProgress(){
+      progressModal.scrollTop = 0;
+      progressModalBg.classList.add("show");
+      requestAnimationFrame(() => renderProgressModal());
     }
 
     function closeProgress(){
       progressModalBg.classList.remove("show");
-      progressModal.scrollTop = 0; // ✅
+      progressModal.scrollTop = 0;
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
-
 
     // --------- Global UX guards ----------
     document.addEventListener("gesturestart", (e) => e.preventDefault());
@@ -1625,6 +1628,12 @@
 
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
+
+    // ✅ bottom panel toggle
+    barToggle.addEventListener("click", () => {
+      const collapsed = bottomBar.classList.contains("collapsed");
+      setBottomCollapsed(!collapsed);
+    });
 
     entryClose.addEventListener("click", closeEntry);
     entryModalBg.addEventListener("click", (e) => { if(e.target === entryModalBg) closeEntry(); });
@@ -1667,12 +1676,17 @@
     // --------- Boot ----------
     initTheme();
     setVh();
+
     window.addEventListener("resize", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
     window.addEventListener("orientationchange", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
 
     normalizeStreakOnBoot();
     renderMetrics();
     buildSphere();
+
+    // init bottom panel after DOM sizes
+    initBottomPanel();
+
     ro.observe(sphereWrap);
 
     requestAnimationFrame(() => {
