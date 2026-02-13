@@ -42,10 +42,6 @@
 
       --bottomBarH: 92px;
 
-      /* ✅ тонкая обводка (light) */
-      --strokeSoft: rgba(11,18,32,.12);
-      --strokeSoft2: rgba(11,18,32,.16);
-
       /* select arrow (light) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%230b1220' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
     }
@@ -61,10 +57,6 @@
 
       --border:rgba(233,236,243,.14);
       --border2:rgba(167,139,250,.28);
-
-      /* ✅ тонкая обводка (dark) */
-      --strokeSoft: rgba(233,236,243,.14);
-      --strokeSoft2: rgba(233,236,243,.20);
 
       /* select arrow (dark) */
       --selectArrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23e9ecf3' d='M7 10l5 5l5-5z'/%3E%3C/svg%3E");
@@ -139,8 +131,6 @@
       padding:10px 12px;
       box-shadow:var(--shadow);
       backdrop-filter: blur(12px);
-      /* ✅ лёгкая адаптивная обводка */
-      box-shadow: var(--shadow), inset 0 0 0 1px var(--strokeSoft);
     }
     .metric .k{ font-size:11px; color:var(--muted); }
     .metric .v{ margin-top:2px; font-size:16px; font-weight:900; color:var(--text); }
@@ -210,8 +200,6 @@
       transition: transform .12s ease, opacity .12s ease, filter .12s ease;
       -webkit-font-smoothing: antialiased;
       text-rendering: geometricPrecision;
-      /* ✅ лёгкая адаптивная обводка (поверх границы) */
-      box-shadow: 0 10px 26px rgba(2,6,23,.10), inset 0 0 0 1px var(--strokeSoft);
     }
     .chip:active{ transform: scale(.98); }
     .chip .e{ font-size:16px; }
@@ -220,9 +208,7 @@
       position:fixed;
       left:0; right:0;
       bottom:0;
-
       padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
-
       background: linear-gradient(180deg, rgba(255,255,255,0), var(--card));
       backdrop-filter: blur(14px);
       border-top: 1px solid var(--border);
@@ -397,7 +383,7 @@
       border-radius: 14px;
       border: 1px solid var(--border);
       background-color: var(--card);
-      box-shadow:var(--shadow);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       color: var(--text);
       font-weight: 900;
@@ -658,10 +644,9 @@
       </div>
     </div>
 
-    <!-- ✅ без меню/выползания — просто фикс снизу -->
     <div class="bottomBar" id="bottomBar">
       <div class="bottomStack">
-        <!-- ✅ 1) “Открыть дневник” — первой -->
+        <!-- ✅ порядок: Открыть дневник сверху -->
         <button class="primaryBtn noSelect" id="openJournalBtn">
           <span style="font-size:18px">📓</span>
           <span>Открыть дневник</span>
@@ -1062,20 +1047,21 @@
       velocityY = 0;
     }
 
+    // ✅ FIX: теперь сфера двигается "за пальцем" (как скролл)
     function onDragMove(clientX, clientY){
       if(!isDragging) return;
       const dx = clientX - startX;
       const dy = clientY - startY;
 
-      // ✅ логика “сфера едет за пальцем” и по X, и по Y
-      rotationY += dx * 0.005;
-      rotationX += dy * 0.005;   // было: rotationX -= dy * 0.005
+      // было: rotationY += dx; rotationX -= dy; (это давало "наоборот")
+      rotationY -= dx * 0.005;  // тянешь влево -> уходит влево
+      rotationX += dy * 0.005;  // тянешь вверх  -> уходит вверх
 
       rotationX = clamp(rotationX, -1.25, 1.25);
 
-      // инерция — в той же логике
-      velocityX = dy * 0.002;
-      velocityY = dx * 0.002;
+      // инерция в том же направлении, что и палец
+      velocityX = -(dy * 0.002);
+      velocityY = -(dx * 0.002);
 
       startX = clientX;
       startY = clientY;
@@ -1172,14 +1158,13 @@
     }
 
     // --------- Journal ----------
-    let journalScrollBeforeProgress = 0;
-
     function openJournal(){
       openProgressForId = null;
       renderJournal();
       journalModalBg.classList.add("show");
     }
     function closeJournal(){
+      let journalScrollBeforeProgress = 0;
       journalModalBg.classList.remove("show");
       openProgressForId = null;
       journalScrollBeforeProgress = 0;
