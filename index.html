@@ -1114,60 +1114,74 @@
       }
     }
 
-    function onDragStart(clientX, clientY){
-      isDragging = true;
-      prevTB = getTBVector(clientX, clientY);
-      inertOmega = 0; // сброс инерции при новом касании
-      lastMoveAt = performance.now();
-    }
+    // --------- Sphere drag (natural, not inverted) ----------
+    const ROT_SENS = 0.005; // чувствительность вращения
+    const VEL_SENS = 0.002; // инерция
+    let activePointerId = null;
     
-    function onDragMove(clientX, clientY){
+    function onDragStart(e){
+      isDragging = true;
+      activePointerId = e.pointerId;
+
+      startX = e.clientX;
+      startY = e.clientY;
+
+      velocityX = 0;
+      velocityY = 0;
+    }
+
+    function onDragMove(e){
+      // двигаем только активным пальцем
       if(!isDragging) return;
-      
-      const dx = clientX - startX;
-      const dy = clientY - startY;
+      if(activePointerId !== e.pointerId) return;
 
-  // ✅ Натурально: тянешь вправо — шар крутится вправо, тянешь вверх — шар крутится вверх
-      rotationY -= dx * 0.005;  // было +=
-      rotationX += dy * 0.005;  // было -=
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
 
-  // ограничение по вертикали (чтобы не переворачивался слишком сильно)
+      // ✅ НАТУРАЛЬНО (как ты просишь):
+      // ведёшь палец ВЛЕВО -> сфера уходит ВЛЕВО (значит rotationY уменьшаем)
+      // ведёшь палец ВВЕРХ -> сфера уходит ВВЕРХ (значит rotationX уменьшаем)
+      rotationY -= dx * ROT_SENS;
+      rotationX -= dy * ROT_SENS;
+
+      // ограничение по вертикали, чтобы не "переворачивалась"
       rotationX = clamp(rotationX, -1.25, 1.25);
 
-  //  инерция должна соответствовать тем же знакам
-      velocityY = (-dx) * 0.002; // было dx * 0.002
-      velocityX = ( dy) * 0.002; // было dy * 0.002 (знак ок)
-      
-      startX = clientX;
-      startY = clientY;
-      
+      // инерция должна совпадать по знаку с вращением
+      velocityY = -dx * VEL_SENS;
+      velocityX = -dy * VEL_SENS;
+
+      startX = e.clientX;
+      startY = e.clientY;
+
       layoutSphere();
     }
 
-
-
-    function onDragEnd(){
+    function onDragEnd(e){
+      if(activePointerId !== null && e.pointerId !== activePointerId) return;
       isDragging = false;
-      prevTB = null;
+      activePointerId = null;
     }
 
     function animate(){
       if(!isDragging){
-        if(inertOmega > 0.00008){
-          const dq = qFromAxisAngle(inertAxis.x, inertAxis.y, inertAxis.z, inertOmega);
-          qOrient = qNorm(qMul(dq, qOrient));
-          inertOmega *= INERT_FRICTION;
-          layoutSphere();
-        }else{
-          // очень лёгкий автодрифт, чтобы сфера "жила"
-          const dq = qFromAxisAngle(0, 1, 0, 0.00125);
-          qOrient = qNorm(qMul(dq, qOrient));
-          layoutSphere();
+        rotationX += velocityX;
+        rotationY += velocityY;
+
+        velocityX *= 0.95;
+        velocityY *= 0.95;
+
+        // лёгкое авто-вращение, когда инерции почти нет
+        if(Math.abs(velocityX) < 0.00002 && Math.abs(velocityY) < 0.00002){
+          rotationY += 0.00135;
         }
+
+        layoutSphere();
       }
       requestAnimationFrame(animate);
     }
 
+    // wheel zoom (desktop)
     sphereWrap.addEventListener("wheel", (e) => {
       e.preventDefault();
       sphereScale += e.deltaY * -0.001;
@@ -1175,13 +1189,30 @@
       layoutSphere();
     }, { passive:false });
 
+    // ✅ pointer events (важно: preventDefault + capture)
     sphereWrap.addEventListener("pointerdown", (e) => {
-      sphereWrap.setPointerCapture?.(e.pointerId);
-      onDragStart(e.clientX, e.clientY);
-    });
-    sphereWrap.addEventListener("pointermove", (e) => onDragMove(e.clientX, e.clientY));
-    sphereWrap.addEventListener("pointerup", () => onDragEnd());
-    sphereWrap.addEventListener("pointercancel", () => onDragEnd());
+      e.preventDefault();
+      sphereWrap.setPointerCapture(e.pointerId);
+      onDragStart(e);
+    }, { passive:false });
+
+    sphereWrap.addEventListener("pointermove", (e) => {
+      e.preventDefault();
+      onDragMove(e);
+    }, { passive:false });
+
+    sphereWrap.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      try{ sphereWrap.releasePointerCapture(e.pointerId); }catch{}
+      onDragEnd(e);
+    }, { passive:false });
+
+    sphereWrap.addEventListener("pointercancel", (e) => {
+      e.preventDefault();
+      try{ sphereWrap.releasePointerCapture(e.pointerId); }catch{}
+      onDragEnd(e);
+    }, { passive:false });
+
 
     // --------- Entry modal ----------
     function pickHint(segId){
