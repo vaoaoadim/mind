@@ -591,6 +591,262 @@
       -webkit-user-select:none;
     }
 
+    
+    /* ---------- Meditation ---------- */
+    .medModal{
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+    .medTabs{
+      margin-top:10px;
+      display:flex;
+      gap:8px;
+      padding: 6px;
+      border-radius: 16px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(10px);
+    }
+    .medTabBtn{
+      flex:1;
+      height: 40px;
+      border-radius: 14px;
+      border:1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .medTabBtn.active{
+      color: var(--text);
+      border-color: rgba(109,94,252,.25);
+      background: linear-gradient(135deg, rgba(109,94,252,.20), rgba(167,139,250,.12));
+      box-shadow: 0 12px 34px rgba(109,94,252,.12);
+    }
+
+    .medGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .medField{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 10px;
+    }
+    .medFieldWide{ grid-column: 1 / -1; }
+    .medLabel{
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 900;
+      margin-bottom:8px;
+    }
+    .medSelect{
+      width:100%;
+      max-width:none;
+      height: 42px;
+      border-radius: 14px;
+    }
+    .medToggleRow{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .medToggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 900;
+      user-select:none;
+    }
+    .medToggle input{
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .medMini{ display:flex; flex-direction:column; gap:6px; }
+    .medMiniTitle{ font-weight: 950; font-size: 12px; color: var(--text); }
+    .medMiniText{ font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+    .medStatsGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .medStatCard{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .medStatK{ font-size: 11px; color: var(--muted); font-weight: 900; }
+    .medStatV{ margin-top:4px; font-size: 16px; font-weight: 950; color: var(--text); }
+    .medStatS{ margin-top:2px; font-size: 11px; color: var(--muted); }
+
+    .medHistory{
+      margin-top:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 12px;
+    }
+    .medHistoryTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .medHistoryTitle{ font-weight: 950; font-size: 13px; color: var(--text); }
+    .medHistoryRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+    }
+    .medHistoryRow:first-child{ border-top:none; padding-top:0; }
+    .medHistoryLeft{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .medHistoryMain{ font-weight: 950; font-size: 13px; color: var(--text); }
+    .medHistorySub{ font-size: 11px; color: var(--muted); }
+    .medHistoryRight{ display:flex; flex-direction:column; gap:2px; align-items:flex-end; }
+    .medBadge{
+      padding: 4px 8px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      font-weight: 950;
+      font-size: 11px;
+      user-select:none;
+      white-space:nowrap;
+    }
+
+    .medRun{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .medRunTop{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      padding: 10px 0 2px;
+    }
+    .medRunTimer{
+      font-weight: 950;
+      font-size: 34px;
+      letter-spacing: .5px;
+      color: var(--text);
+    }
+    .medRunPhase{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+      text-align:center;
+    }
+
+    .medVisualWrap{
+      position:relative;
+      width:100%;
+      border-radius: 22px;
+      border:1px solid var(--border);
+      background:
+        radial-gradient(closest-side at 50% 42%, rgba(109,94,252,.18), transparent 62%),
+        radial-gradient(closest-side at 60% 60%, rgba(167,139,250,.12), transparent 70%),
+        rgba(255,255,255,.02);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    #medCanvas{
+      width:100%;
+      display:block;
+    }
+    .medVisualOverlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+    }
+    .medCue{
+      padding: 10px 14px;
+      border-radius: 999px;
+      border:1px solid rgba(109,94,252,.25);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(12px);
+      font-weight: 950;
+      color: var(--text);
+      letter-spacing:.2px;
+    }
+    [data-theme="dark"] .medCue{
+      background: rgba(7,10,26,.46);
+    }
+
+    .medControls{
+      display:flex;
+      gap:10px;
+    }
+    .medMicroHint{
+      font-size: 12px;
+      color: var(--muted);
+      text-align:center;
+      line-height:1.35;
+    }
+
+    .medDone{
+      margin-top:12px;
+    }
+    .medDoneCard{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+    .medDoneTitle{
+      font-weight: 950;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .medDoneSub{
+      margin-top:6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .medDoneGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .medDoneStat{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding: 10px 12px;
+    }
+    .medDoneK{ font-size:11px; color:var(--muted); font-weight:900; }
+    .medDoneV{ margin-top:4px; font-size:15px; color:var(--text); font-weight:950; }
+
+    @media (max-width: 420px){
+      .medGrid{ grid-template-columns: 1fr; }
+      .medStatsGrid{ grid-template-columns: 1fr 1fr; }
+      .medRunTimer{ font-size: 32px; }
+    }
+
+
     @media (max-width: 420px){
       .h-title{ font-size: 17px; }
       .h-sub{ font-size: 11px; }
@@ -661,6 +917,11 @@
           <span style="font-size:15px">📊</span>
           <span>Прогресс</span>
         </button>
+
+        <button class="tinyBtn noSelect" id="openMedBtn">
+          <span style="font-size:15px">🧘</span>
+          <span>Медитация</span>
+        </button>
       </div>
     </div>
   </div>
@@ -727,6 +988,142 @@
     </div>
   </div>
 
+
+  <!-- Meditation modal -->
+  <div class="modalBg" id="medModalBg">
+    <div class="modal medModal" id="medModal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div class="modalTitle">🧘 Медитация</div>
+        <button class="iconBtn noSelect" id="medClose" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div class="medTabs">
+        <button class="medTabBtn noSelect active" data-tab="start">Старт</button>
+        <button class="medTabBtn noSelect" data-tab="stats">Статистика</button>
+      </div>
+
+      <!-- Start / settings -->
+      <div class="medTab" id="medTabStart">
+        <div class="modalHint" style="margin-top:8px">
+          Быстрая сессия, дыхание и фокус. Всё сохраняется — сможешь видеть прогресс по неделям.
+        </div>
+
+        <div class="medGrid">
+          <div class="medField">
+            <div class="medLabel">Время</div>
+            <select class="filterSelect medSelect" id="medDuration" aria-label="Длительность медитации">
+              <option value="180">3 минуты</option>
+              <option value="300" selected>5 минут</option>
+              <option value="480">8 минут</option>
+              <option value="600">10 минут</option>
+              <option value="900">15 минут</option>
+              <option value="1200">20 минут</option>
+            </select>
+          </div>
+
+          <div class="medField">
+            <div class="medLabel">Стиль</div>
+            <select class="filterSelect medSelect" id="medStyle" aria-label="Стиль медитации">
+              <option value="breath_44">Дыхание 4–4 (вдох/выдох)</option>
+              <option value="box_4444">Box 4–4–4–4 (вдох/задержка/выдох/задержка)</option>
+              <option value="silent">Тишина (таймер)</option>
+            </select>
+          </div>
+
+          <div class="medField medFieldWide">
+            <div class="medToggleRow">
+              <label class="medToggle">
+                <input type="checkbox" id="medBell" checked />
+                <span>Звонок в конце</span>
+              </label>
+              <label class="medToggle">
+                <input type="checkbox" id="medAmbient" />
+                <span>Тихий фон</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="medField medFieldWide">
+            <div class="medMini">
+              <div class="medMiniTitle">Подсказка</div>
+              <div class="medMiniText" id="medPreviewHint">Сядь удобно. Расслабь плечи. Дыши спокойно.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="primaryBtn noSelect" id="medStartBtn" style="margin-top:12px">
+          <span style="font-size:18px">▶️</span>
+          <span>Начать медитацию</span>
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="medTab" id="medTabStats" style="display:none;">
+        <div class="modalHint" style="margin-top:8px">
+          Неделя считается с понедельника. Сессии сохраняются на устройстве.
+        </div>
+
+        <div class="medStatsGrid" id="medStatsGrid"></div>
+
+        <div class="medHistory">
+          <div class="medHistoryTop">
+            <div class="medHistoryTitle">Последние сессии</div>
+            <button class="secondaryBtn noSelect" id="medClearBtn" style="height:42px; border-radius:16px; width:auto; padding:0 14px;">
+              Очистить
+            </button>
+          </div>
+          <div id="medHistoryBody"></div>
+        </div>
+      </div>
+
+      <!-- Running (full-screen inside modal) -->
+      <div class="medRun" id="medRun" style="display:none;">
+        <div class="medRunTop">
+          <div class="medRunTimer" id="medTimer">05:00</div>
+          <div class="medRunPhase" id="medPhase">Подготовка…</div>
+        </div>
+
+        <div class="medVisualWrap">
+          <canvas id="medCanvas" height="360"></canvas>
+          <div class="medVisualOverlay">
+            <div class="medCue" id="medCue">Вдох</div>
+          </div>
+        </div>
+
+        <div class="medControls">
+          <button class="secondaryBtn noSelect" id="medPauseBtn" style="flex:1">
+            ⏸ Пауза
+          </button>
+          <button class="tinyBtn noSelect" id="medStopBtn" style="flex:1">
+            ⏹ Закончить
+          </button>
+        </div>
+
+        <div class="medMicroHint" id="medMicroHint">Мягко возвращай внимание к дыханию.</div>
+      </div>
+
+      <!-- Summary -->
+      <div class="medDone" id="medDone" style="display:none;">
+        <div class="medDoneCard">
+          <div class="medDoneTitle">Готово ✅</div>
+          <div class="medDoneSub" id="medDoneSub">5 минут. Отличная работа.</div>
+
+          <div class="medDoneGrid" id="medDoneGrid"></div>
+
+          <button class="primaryBtn noSelect" id="medDoneBtn" style="margin-top:12px">
+            <span style="font-size:18px">✨</span>
+            <span>Вернуться</span>
+          </button>
+
+          <button class="secondaryBtn noSelect" id="medDoneToStatsBtn" style="margin-top:8px">
+            <span style="font-size:16px">📈</span>
+            <span>Открыть статистику</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Affirmations modal -->
   <div class="modalBg" id="affModalBg">
     <div class="modal" id="affModal" role="dialog" aria-modal="true">
@@ -781,7 +1178,8 @@
       theme: "mind_theme",
       entries: "mind_entries_v4",
       streak: "mind_streak_v1",
-      affs: "mind_affs_v1"
+      affs: "mind_affs_v1",
+      meds: "mind_meds_v1"
     };
 
     function loadJSON(key, fallback){
@@ -828,6 +1226,18 @@
     }
 
     let affs = loadJSON(LS.affs, []).map(a => ({ ...a, pinned: !!a.pinned }));
+
+
+    // Meditation sessions
+    let medSessions = loadJSON(LS.meds, []).map(s => ({
+      ...s,
+      completed: !!s.completed,
+      targetSec: Number(s.targetSec || 0),
+      actualSec: Number(s.actualSec || 0),
+      startedAt: s.startedAt || "",
+      endedAt: s.endedAt || "",
+      style: s.style || "silent",
+    }));
 
     let activeSegment = null;
 
@@ -892,6 +1302,43 @@
     const pTotal          = document.getElementById("pTotal");
     const pMeta           = document.getElementById("pMeta");
     const donutCanvas     = document.getElementById("donutCanvas");
+
+    // Meditation UI
+    const openMedBtn   = document.getElementById("openMedBtn");
+    const medModalBg   = document.getElementById("medModalBg");
+    const medModal     = document.getElementById("medModal");
+    const medClose     = document.getElementById("medClose");
+
+    const medTabBtns   = Array.from(document.querySelectorAll('.medTabBtn'));
+    const medTabStart  = document.getElementById("medTabStart");
+    const medTabStats  = document.getElementById("medTabStats");
+
+    const medDuration  = document.getElementById("medDuration");
+    const medStyle     = document.getElementById("medStyle");
+    const medBell      = document.getElementById("medBell");
+    const medAmbient   = document.getElementById("medAmbient");
+    const medPreviewHint = document.getElementById("medPreviewHint");
+
+    const medStartBtn  = document.getElementById("medStartBtn");
+    const medRun       = document.getElementById("medRun");
+    const medTimer     = document.getElementById("medTimer");
+    const medPhase     = document.getElementById("medPhase");
+    const medCue       = document.getElementById("medCue");
+    const medCanvas    = document.getElementById("medCanvas");
+    const medPauseBtn  = document.getElementById("medPauseBtn");
+    const medStopBtn   = document.getElementById("medStopBtn");
+    const medMicroHint = document.getElementById("medMicroHint");
+
+    const medDone      = document.getElementById("medDone");
+    const medDoneSub   = document.getElementById("medDoneSub");
+    const medDoneGrid  = document.getElementById("medDoneGrid");
+    const medDoneBtn   = document.getElementById("medDoneBtn");
+    const medDoneToStatsBtn = document.getElementById("medDoneToStatsBtn");
+
+    const medStatsGrid = document.getElementById("medStatsGrid");
+    const medHistoryBody = document.getElementById("medHistoryBody");
+    const medClearBtn  = document.getElementById("medClearBtn");
+
 
     // --------- Theme ----------
     function initTheme(){
@@ -1655,6 +2102,711 @@
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
+    
+
+    // --------- Meditation ----------
+
+    const MED = {
+      styles: {
+        breath_44: { name: "Дыхание 4–4", cycle: [ ["Вдох",4], ["Выдох",4] ], hint: "Следи за движением круга. Вдох — расширение. Выдох — сжатие." },
+        box_4444:  { name: "Box 4–4–4–4", cycle: [ ["Вдох",4], ["Задержка",4], ["Выдох",4], ["Задержка",4] ], hint: "Ровно и спокойно. Если тяжело — дыши мягче, можно без задержек." },
+        silent:    { name: "Тишина", cycle: [ ["Фокус",999999] ], hint: "Просто сиди. Замечай мысли и возвращайся к дыханию." },
+      }
+    };
+
+    let medActive = null; // {id,targetSec,style,bell,ambient,startedAtMs,paused,totalPausedMs,pauseStartedMs,endedAtMs,completed}
+    let medTickRaf = 0;
+    let medCanvasRaf = 0;
+    let medAudio = null; // {ctx, osc, gain}
+    let medLastCue = "";
+    let medCountdown = 0; // 3..0
+    let medCanvasState = { t0: 0, w: 0, h: 0, dpr: 1, dots: [] };
+
+    function saveMeds(){ saveJSON(LS.meds, medSessions); }
+
+    function fmtMMSS(sec){
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return String(m).padStart(2,"0") + ":" + String(r).padStart(2,"0");
+    }
+
+    function isoFromMs(ms){ return new Date(ms).toISOString(); }
+
+    function startOfWeekMs(dateMs){
+      const d = new Date(dateMs);
+      const day = (d.getDay() + 6) % 7; // Mon=0
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate() - day);
+      return d.getTime();
+    }
+
+    function switchMedTab(tab){
+      for(const b of medTabBtns){
+        const is = b.dataset.tab === tab;
+        b.classList.toggle("active", is);
+      }
+      medTabStart.style.display = (tab === "start") ? "block" : "none";
+      medTabStats.style.display = (tab === "stats") ? "block" : "none";
+
+      // hide run/done when switching
+      if(tab === "stats"){
+        medRun.style.display = "none";
+        medDone.style.display = "none";
+        renderMedStats();
+      }
+    }
+
+    function updateMedPreview(){
+      const styleKey = medStyle.value || "silent";
+      const st = MED.styles[styleKey] || MED.styles.silent;
+      medPreviewHint.textContent = st.hint;
+    }
+
+    function openMeditation(){
+      // reset UI state
+      cancelMedLoops();
+      medRun.style.display = "none";
+      medDone.style.display = "none";
+      medTabStart.style.display = "block";
+      medTabStats.style.display = "none";
+      switchMedTab("start");
+      updateMedPreview();
+
+      medModalBg.classList.add("show");
+      // Canvas sizes need layout
+      requestAnimationFrame(() => {
+        if(medModalBg.classList.contains("show")){
+          updateMedCanvasSize();
+          drawMedCanvas(0, "idle");
+        }
+      });
+    }
+
+    function closeMeditation(){
+      // if running — stop safely but do not auto-save as complete
+      if(medActive){
+        stopMeditation(false);
+      }
+      medModalBg.classList.remove("show");
+      cancelMedLoops();
+      stopAmbient();
+      setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
+    }
+
+    function cancelMedLoops(){
+      if(medTickRaf){ cancelAnimationFrame(medTickRaf); medTickRaf = 0; }
+      if(medCanvasRaf){ cancelAnimationFrame(medCanvasRaf); medCanvasRaf = 0; }
+    }
+
+    function updateMedCanvasSize(){
+      if(!medCanvas) return;
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const cssW = Math.max(240, Math.floor(medCanvas.parentElement?.clientWidth || 320));
+      // height adaptive: a bit taller on big screens, but safe
+      const cssH = Math.max(280, Math.min(420, Math.floor(cssW * 0.92)));
+
+      medCanvas.style.width = cssW + "px";
+      medCanvas.style.height = cssH + "px";
+      medCanvas.width = Math.floor(cssW * dpr);
+      medCanvas.height = Math.floor(cssH * dpr);
+
+      const ctx = medCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      medCanvasState.dpr = dpr;
+      medCanvasState.w = cssW;
+      medCanvasState.h = cssH;
+
+      // seed dots once per resize
+      const dotCount = Math.max(18, Math.min(42, Math.floor(cssW / 10)));
+      medCanvasState.dots = Array.from({length: dotCount}).map(() => ({
+        a: Math.random() * Math.PI * 2,
+        r: 0.22 + Math.random() * 0.55,
+        s: 0.15 + Math.random() * 0.55,
+        p: 0.3 + Math.random() * 0.7,
+      }));
+    }
+
+    function startAmbient(){
+      try{
+        if(!medAmbient.checked) return;
+        if(medAudio) return;
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return;
+
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.value = 110; // low A
+        gain.gain.value = 0.0001;
+
+        lfo.type = "sine";
+        lfo.frequency.value = 0.08; // slow swell
+        lfoGain.gain.value = 18; // +/- freq
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        lfo.start();
+
+        // gentle fade in
+        gain.gain.setTargetAtTime(0.02, ctx.currentTime, 0.8);
+
+        medAudio = { ctx, osc, gain, lfo, lfoGain };
+      }catch{}
+    }
+
+    function stopAmbient(){
+      try{
+        if(!medAudio) return;
+        const { ctx, osc, gain, lfo } = medAudio;
+        gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.25);
+        setTimeout(() => {
+          try{ osc.stop(); }catch{}
+          try{ lfo.stop(); }catch{}
+          try{ ctx.close(); }catch{}
+        }, 450);
+      }catch{}
+      medAudio = null;
+    }
+
+    function playBell(){
+      try{
+        if(!medBell.checked) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return;
+
+        const ctx = new AudioCtx();
+        const o1 = ctx.createOscillator();
+        const o2 = ctx.createOscillator();
+        const g = ctx.createGain();
+
+        o1.type = "sine"; o2.type = "sine";
+        o1.frequency.value = 880;
+        o2.frequency.value = 1320;
+
+        g.gain.value = 0.0001;
+
+        o1.connect(g); o2.connect(g);
+        g.connect(ctx.destination);
+
+        o1.start(); o2.start();
+
+        const t = ctx.currentTime;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.06, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+
+        o1.stop(t + 1.25);
+        o2.stop(t + 1.25);
+
+        setTimeout(() => { try{ ctx.close(); }catch{} }, 1400);
+      }catch{}
+    }
+
+    function beginMeditation(){
+      if(medActive) return;
+
+      const targetSec = Number(medDuration.value || 300);
+      const styleKey = medStyle.value || "silent";
+      const st = MED.styles[styleKey] || MED.styles.silent;
+
+      // UI swap to run mode
+      medTabStart.style.display = "none";
+      medTabStats.style.display = "none";
+      for(const b of medTabBtns){ b.classList.remove("active"); }
+
+      medRun.style.display = "flex";
+      medDone.style.display = "none";
+
+      medMicroHint.textContent = st.hint;
+
+      updateMedCanvasSize();
+      medCanvasState.t0 = performance.now();
+
+      medActive = {
+        id: crypto.randomUUID(),
+        targetSec,
+        style: styleKey,
+        startedAtMs: Date.now(),
+        paused: false,
+        totalPausedMs: 0,
+        pauseStartedMs: 0,
+        completed: false,
+      };
+
+      // 3-2-1 countdown for calmer start
+      medCountdown = 3;
+      medPhase.textContent = "Подготовка…";
+      medCue.textContent = "Готовимся";
+      medTimer.textContent = fmtMMSS(targetSec);
+
+      startAmbient();
+
+      tickMeditation(); // schedules itself
+      animateMedCanvas(); // schedules itself
+    }
+
+    function getElapsedSec(){
+      if(!medActive) return 0;
+      const now = Date.now();
+      const pausedExtra = medActive.paused ? (now - medActive.pauseStartedMs) : 0;
+      const elapsedMs = (now - medActive.startedAtMs) - medActive.totalPausedMs - pausedExtra;
+      return Math.max(0, elapsedMs / 1000);
+    }
+
+    function getRemainingSec(){
+      if(!medActive) return 0;
+      const rem = medActive.targetSec - getElapsedSec();
+      return rem;
+    }
+
+    function getCycleState(styleKey, elapsedSec){
+      const st = MED.styles[styleKey] || MED.styles.silent;
+      if(styleKey === "silent") return { label: "Фокус", phase: "Фокус", progress: 0.5 };
+
+      const cycle = st.cycle;
+      const total = cycle.reduce((a, it) => a + it[1], 0);
+      const t = elapsedSec % total;
+
+      let acc = 0;
+      for(const [label, dur] of cycle){
+        if(t < acc + dur){
+          const inside = t - acc;
+          const phaseProg = dur ? (inside / dur) : 0;
+          return { label, phase: label, progress: phaseProg, phaseDur: dur, phaseInside: inside, cycleTotal: total };
+        }
+        acc += dur;
+      }
+      return { label: cycle[0][0], phase: cycle[0][0], progress: 0 };
+    }
+
+    function tickMeditation(){
+      if(!medActive) return;
+
+      if(medActive.paused){
+        medTimer.textContent = fmtMMSS(getRemainingSec());
+        medPhase.textContent = "Пауза";
+        medCue.textContent = "Пауза";
+        medTickRaf = requestAnimationFrame(tickMeditation);
+        return;
+      }
+
+      // countdown
+      if(medCountdown > 0){
+        medCue.textContent = String(medCountdown);
+        medPhase.textContent = "Подготовка…";
+        medCountdown -= 1;
+        medTickRaf = requestAnimationFrame(() => {
+          // wait ~1s using time check
+          const t0 = performance.now();
+          const wait = () => {
+            if(!medActive || medActive.paused) return;
+            if(performance.now() - t0 >= 950){
+              tickMeditation();
+            }else{
+              medTickRaf = requestAnimationFrame(wait);
+            }
+          };
+          wait();
+        });
+        return;
+      }
+
+      const elapsed = getElapsedSec();
+      const rem = getRemainingSec();
+
+      medTimer.textContent = fmtMMSS(rem);
+
+      const cyc = getCycleState(medActive.style, elapsed);
+      medPhase.textContent = (medActive.style === "silent") ? "Фокус на дыхании" : `Сейчас: ${cyc.phase}`;
+      medCue.textContent = cyc.label;
+
+      if(rem <= 0.15){
+        stopMeditation(true);
+        return;
+      }
+
+      medTickRaf = requestAnimationFrame(tickMeditation);
+    }
+
+    function animateMedCanvas(){
+      if(!medActive) return;
+
+      const now = performance.now();
+      const t = (now - (medCanvasState.t0 || now)) / 1000;
+
+      let mode = "idle";
+      let amp = 0.4;
+      if(medActive.paused){
+        mode = "paused";
+        amp = 0.18;
+      }else if(medCountdown > 0){
+        mode = "countdown";
+        amp = 0.22;
+      }else{
+        mode = "run";
+        amp = 0.45;
+      }
+
+      drawMedCanvas(t, mode);
+
+      medCanvasRaf = requestAnimationFrame(animateMedCanvas);
+    }
+
+    function drawMedCanvas(t, mode){
+      if(!medCanvas) return;
+      const ctx = medCanvas.getContext("2d");
+      if(!ctx) return;
+
+      const w = medCanvasState.w || (medCanvas.clientWidth || 320);
+      const h = medCanvasState.h || 360;
+
+      ctx.clearRect(0,0,w,h);
+
+      // Background subtle grid-ish
+      ctx.fillStyle = "rgba(0,0,0,0)";
+      ctx.fillRect(0,0,w,h);
+
+      // Determine breathing scale
+      let s = 0.55;
+      let cue = "Фокус";
+
+      if(medActive){
+        if(mode === "paused"){
+          s = 0.52 + 0.02 * Math.sin(t*2);
+          cue = "Пауза";
+        }else if(mode === "countdown"){
+          s = 0.50 + 0.03 * Math.sin(t*3.2);
+          cue = "Готовимся";
+        }else{
+          const elapsed = getElapsedSec();
+          const stKey = medActive.style || "silent";
+          if(stKey === "silent"){
+            s = 0.56 + 0.04 * Math.sin(t*1.2);
+            cue = "Фокус";
+          }else{
+            const cyc = getCycleState(stKey, elapsed);
+            cue = cyc.label;
+
+            // map phase to expansion/contraction
+            // Inhale: expand; Exhale: contract; Hold: steady w/ micro pulse
+            if(cyc.label === "Вдох"){
+              s = 0.48 + 0.24 * cyc.progress;
+            }else if(cyc.label === "Выдох"){
+              s = 0.72 - 0.24 * cyc.progress;
+            }else{ // hold
+              s = 0.72 + 0.01 * Math.sin(t*3.4);
+            }
+          }
+        }
+      }
+
+      // Core orb
+      const cx = w/2;
+      const cy = h/2;
+      const R = Math.min(w,h) * 0.26;
+      const r = R * s;
+
+      // glow
+      const g1 = ctx.createRadialGradient(cx, cy, r*0.2, cx, cy, r*2.4);
+      g1.addColorStop(0, "rgba(109,94,252,0.26)");
+      g1.addColorStop(1, "rgba(109,94,252,0)");
+      ctx.fillStyle = g1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r*2.2, 0, Math.PI*2);
+      ctx.fill();
+
+      // main gradient
+      const g2 = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.2, cx, cy, r);
+      g2.addColorStop(0, "rgba(167,139,250,0.92)");
+      g2.addColorStop(0.55, "rgba(109,94,252,0.82)");
+      g2.addColorStop(1, "rgba(109,94,252,0.16)");
+
+      ctx.fillStyle = g2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.fill();
+
+      // subtle ring
+      ctx.strokeStyle = "rgba(233,236,243,0.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r*1.04, 0, Math.PI*2);
+      ctx.stroke();
+
+      // orbit dots
+      const dots = medCanvasState.dots || [];
+      for(const d of dots){
+        const a = d.a + t * d.s * 0.7;
+        const rr = r * (1.35 + d.r);
+        const x = cx + Math.cos(a) * rr;
+        const y = cy + Math.sin(a) * rr * 0.86;
+
+        const alpha = 0.10 + 0.25 * d.p;
+        ctx.fillStyle = `rgba(233,236,243,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.2 + d.p*1.8, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // bottom fade for depth
+      const fade = ctx.createLinearGradient(0, cy, 0, h);
+      fade.addColorStop(0, "rgba(0,0,0,0)");
+      fade.addColorStop(1, "rgba(0,0,0,0.14)");
+      ctx.fillStyle = fade;
+      ctx.fillRect(0,0,w,h);
+    }
+
+    function togglePause(){
+      if(!medActive) return;
+      if(medActive.paused){
+        // resume
+        medActive.paused = false;
+        const now = Date.now();
+        medActive.totalPausedMs += (now - medActive.pauseStartedMs);
+        medActive.pauseStartedMs = 0;
+        medPauseBtn.textContent = "⏸ Пауза";
+        startAmbient();
+      }else{
+        // pause
+        medActive.paused = true;
+        medActive.pauseStartedMs = Date.now();
+        medPauseBtn.textContent = "▶️ Продолжить";
+        stopAmbient();
+      }
+    }
+
+    function stopMeditation(markCompleted){
+      if(!medActive) return;
+
+      const endedAtMs = Date.now();
+      const elapsed = getElapsedSec();
+      const actualSec = Math.max(0, Math.round(elapsed));
+      const completed = !!markCompleted;
+
+      medActive.endedAtMs = endedAtMs;
+      medActive.completed = completed;
+
+      cancelMedLoops();
+      stopAmbient();
+      if(completed){ playBell(); }
+
+      // persist
+      const session = {
+        id: medActive.id,
+        style: medActive.style,
+        targetSec: medActive.targetSec,
+        actualSec,
+        startedAt: isoFromMs(medActive.startedAtMs),
+        endedAt: isoFromMs(endedAtMs),
+        completed,
+      };
+      medSessions.push(session);
+      saveMeds();
+
+      // UI summary
+      showMeditationDone(session);
+
+      medActive = null;
+      medCountdown = 0;
+    }
+
+    function showMeditationDone(session){
+      medRun.style.display = "none";
+      medDone.style.display = "block";
+
+      const mins = Math.round(session.actualSec / 60);
+      const sName = (MED.styles[session.style]?.name) || "Медитация";
+      const doneText = session.completed
+        ? `${mins || 1} мин • ${sName}. Отличная работа.`
+        : `Завершено досрочно • ${mins || 1} мин • ${sName}. Всё равно зачёт.`;
+
+      medDoneSub.textContent = doneText;
+
+      // compute week stats quickly
+      const now = Date.now();
+      const weekStart = startOfWeekMs(now);
+      const thisWeek = medSessions.filter(x => new Date(x.startedAt).getTime() >= weekStart);
+      const weekCount = thisWeek.length;
+      const weekMin = Math.round(thisWeek.reduce((a,x)=>a + (Number(x.actualSec)||0),0) / 60);
+
+      const compRate = (() => {
+        if(!thisWeek.length) return 0;
+        const c = thisWeek.filter(x=>x.completed).length;
+        return Math.round((c/thisWeek.length)*100);
+      })();
+
+      medDoneGrid.innerHTML = `
+        <div class="medDoneStat">
+          <div class="medDoneK">Сессий на неделе</div>
+          <div class="medDoneV">${weekCount}</div>
+        </div>
+        <div class="medDoneStat">
+          <div class="medDoneK">Минут на неделе</div>
+          <div class="medDoneV">${weekMin}</div>
+        </div>
+        <div class="medDoneStat">
+          <div class="medDoneK">Текущая сессия</div>
+          <div class="medDoneV">${fmtMMSS(session.actualSec)}</div>
+        </div>
+        <div class="medDoneStat">
+          <div class="medDoneK">Завершение</div>
+          <div class="medDoneV">${compRate}%</div>
+        </div>
+      `;
+
+      // keep tabs visible but no active; allow buttons
+      for(const b of medTabBtns){ b.classList.remove("active"); }
+    }
+
+    function renderMedStats(){
+      // tiles
+      const now = Date.now();
+      const weekStart = startOfWeekMs(now);
+      const last7 = now - 7*24*60*60*1000;
+
+      const week = medSessions.filter(s => new Date(s.startedAt).getTime() >= weekStart);
+      const last7d = medSessions.filter(s => new Date(s.startedAt).getTime() >= last7);
+
+      const total = medSessions.length;
+      const totalMin = Math.round(medSessions.reduce((a,s)=>a + (Number(s.actualSec)||0),0) / 60);
+
+      const weekCount = week.length;
+      const weekMin = Math.round(week.reduce((a,s)=>a + (Number(s.actualSec)||0),0) / 60);
+
+      const compRate = (arr) => {
+        if(!arr.length) return 0;
+        const c = arr.filter(s=>s.completed).length;
+        return Math.round((c/arr.length)*100);
+      };
+
+      const bestHour = (() => {
+        if(!medSessions.length) return "—";
+        const buckets = new Array(24).fill(0);
+        for(const s of medSessions){
+          const h = new Date(s.startedAt).getHours();
+          buckets[h] += (Number(s.actualSec)||0);
+        }
+        let best = 0;
+        for(let i=1;i<24;i++) if(buckets[i] > buckets[best]) best = i;
+        return String(best).padStart(2,"0") + ":00";
+      })();
+
+      const streakDays = (() => {
+        if(!medSessions.length) return 0;
+        // unique day keys of completed sessions
+        const days = Array.from(new Set(medSessions.map(s => dayKeyFromISO(s.startedAt)))).sort();
+        // compute longest consecutive
+        let best = 1, cur = 1;
+        for(let i=1;i<days.length;i++){
+          const prev = new Date(days[i-1]).getTime();
+          const curMs = new Date(days[i]).getTime();
+          const diff = (curMs - prev) / (24*60*60*1000);
+          if(diff === 1){
+            cur += 1;
+            best = Math.max(best, cur);
+          }else{
+            cur = 1;
+          }
+        }
+        return days.length ? best : 0;
+      })();
+
+      medStatsGrid.innerHTML = `
+        <div class="medStatCard">
+          <div class="medStatK">На неделе</div>
+          <div class="medStatV">${weekCount} сессий</div>
+          <div class="medStatS">${weekMin} минут</div>
+        </div>
+        <div class="medStatCard">
+          <div class="medStatK">Завершение (7 дней)</div>
+          <div class="medStatV">${compRate(last7d)}%</div>
+          <div class="medStatS">${last7d.length} сессий</div>
+        </div>
+        <div class="medStatCard">
+          <div class="medStatK">Всего</div>
+          <div class="medStatV">${total} сессий</div>
+          <div class="medStatS">${totalMin} минут</div>
+        </div>
+        <div class="medStatCard">
+          <div class="medStatK">Лучшее время</div>
+          <div class="medStatV">${bestHour}</div>
+          <div class="medStatS">по сумме минут</div>
+        </div>
+        <div class="medStatCard" style="grid-column:1 / -1;">
+          <div class="medStatK">Самая длинная серия дней</div>
+          <div class="medStatV">${streakDays} 🔥</div>
+          <div class="medStatS">по дням с медитацией</div>
+        </div>
+      `;
+
+      // history
+      renderMedHistory();
+    }
+
+    function styleLabel(styleKey){
+      return (MED.styles[styleKey]?.name) || "Медитация";
+    }
+
+    function renderMedHistory(){
+      medHistoryBody.innerHTML = "";
+
+      if(!medSessions.length){
+        const empty = document.createElement("div");
+        empty.className = "emptyBox";
+        empty.innerHTML =
+          `<div style="font-weight:900; color:var(--text); margin-bottom:6px;">Пока нет сессий</div>
+           <div>Сделай первую медитацию — и здесь появится история и статистика.</div>`;
+        medHistoryBody.appendChild(empty);
+        return;
+      }
+
+      const sorted = medSessions.slice().sort((a,b) => (a.startedAt < b.startedAt ? 1 : -1)).slice(0, 14);
+
+      for(const s of sorted){
+        const row = document.createElement("div");
+        row.className = "medHistoryRow";
+
+        const dt = new Date(s.startedAt);
+        const when = dt.toLocaleString();
+
+        const minutes = Math.max(1, Math.round((Number(s.actualSec)||0)/60));
+        const badgeText = s.completed ? "✅ завершено" : "⏹ досрочно";
+
+        row.innerHTML = `
+          <div class="medHistoryLeft">
+            <div class="medHistoryMain">${styleLabel(s.style)} • ${minutes} мин</div>
+            <div class="medHistorySub">${when}</div>
+          </div>
+          <div class="medHistoryRight">
+            <div class="medBadge">${badgeText}</div>
+            <div class="medHistorySub">${fmtMMSS(Number(s.actualSec)||0)}</div>
+          </div>
+        `;
+        medHistoryBody.appendChild(row);
+      }
+    }
+
+    function clearMeditations(){
+      const ok = confirm("Очистить всю статистику медитаций? Это нельзя отменить.");
+      if(!ok) return;
+      medSessions = [];
+      saveMeds();
+      renderMedStats();
+    }
+
+
+
     // --------- Global UX guards ----------
     document.addEventListener("gesturestart", (e) => e.preventDefault());
     document.addEventListener("gesturechange", (e) => e.preventDefault());
@@ -1692,12 +2844,64 @@
     progressClose.addEventListener("click", closeProgress);
     progressModalBg.addEventListener("click", (e) => { if(e.target === progressModalBg) closeProgress(); });
 
+    // Meditation events
+    openMedBtn.addEventListener("click", openMeditation);
+    medClose.addEventListener("click", closeMeditation);
+    medModalBg.addEventListener("click", (e) => { if(e.target === medModalBg) closeMeditation(); });
+
+    for(const b of medTabBtns){
+      b.addEventListener("click", () => switchMedTab(b.dataset.tab));
+    }
+
+    medStyle.addEventListener("change", updateMedPreview);
+
+    medStartBtn.addEventListener("click", beginMeditation);
+
+    medPauseBtn.addEventListener("click", togglePause);
+
+    medStopBtn.addEventListener("click", () => {
+      const ok = confirm("Закончить медитацию досрочно?");
+      if(ok) stopMeditation(false);
+    });
+
+    medDoneBtn.addEventListener("click", () => {
+      medDone.style.display = "none";
+      // back to start tab
+      switchMedTab("start");
+    });
+
+    medDoneToStatsBtn.addEventListener("click", () => {
+      medDone.style.display = "none";
+      switchMedTab("stats");
+    });
+
+    medClearBtn.addEventListener("click", clearMeditations);
+
+    window.addEventListener("resize", () => {
+      if(medModalBg.classList.contains("show")){
+        updateMedCanvasSize();
+      }
+    });
+
+
     // --------- Resize observer ----------
     const ro = new ResizeObserver(() => {
       updateBottomBarHeight();
       layoutSphere();
       if(progressModalBg.classList.contains("show")){
         renderProgressModal();
+      }
+
+      if(medModalBg.classList.contains("show")){
+        updateMedCanvasSize();
+        if(medRun.style.display !== "none" && medActive){
+          // running: canvas loop already
+        }else{
+          drawMedCanvas(0, "idle");
+        }
+        if(medTabStats.style.display !== "none"){
+          renderMedStats();
+        }
       }
     });
 
