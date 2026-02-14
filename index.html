@@ -618,7 +618,7 @@
       <div class="header">
         <div class="brand">
           <div class="h-title">@mind</div>
-          <div class="h-sub">Дневник самопрограммирования.</div>
+          <div class="h-sub">Твой дневник самопрограммирования </div>
         </div>
         <button class="iconBtn noSelect" id="themeBtn" aria-label="Тема" title="Тема">🌓</button>
       </div>
@@ -1076,7 +1076,7 @@
       const r  = Math.min(rect.width, rect.height) / 2;
 
       let x = (clientX - cx) / r;
-      let y = -(clientY - cy) / r; // <- инверсия Y (ключ к "за пальцем" вверх/вниз)
+      let y = (clientY - cy) / r; 
       const d2 = x*x + y*y;
 
       if(d2 <= 1){
@@ -1098,6 +1098,7 @@
       for(let i=0;i<len;i++){
         const item = nodes[i];
 
+        
         // равномерно по сфере
         const phi = Math.acos(-1 + (2*i)/len);
         const theta = Math.sqrt(len * Math.PI) * phi;
