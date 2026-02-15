@@ -1024,9 +1024,9 @@
           <div class="medField">
             <div class="medLabel">Стиль</div>
             <select class="filterSelect medSelect" id="medStyle" aria-label="Стиль медитации">
-              <option value="breath_44">Дыхание 4–4 (вдох/выдох)</option>
-              <option value="box_4444">Box 4–4–4–4 (вдох/задержка/выдох/задержка)</option>
-              <option value="silent">Тишина (таймер)</option>
+              <option value="breath_44">Классика (вдох/выдох)</option>
+              <option value="box_4444">Пранаяма (вдох/задержка/выдох/задержка)</option>
+              <option value="silent">Свободная (таймер)</option>
             </select>
           </div>
 <div class="medField medFieldWide">
@@ -1046,7 +1046,7 @@
       <!-- Stats -->
       <div class="medTab" id="medTabStats" style="display:none;">
         <div class="modalHint" style="margin-top:8px">
-          Неделя считается с понедельника. Сессии сохраняются на устройстве.
+          Неделя считается с понедельника. Сессии сохраняются.
         </div>
 
         <div class="medStatsGrid" id="medStatsGrid"></div>
@@ -2092,9 +2092,9 @@
 
     const MED = {
       styles: {
-        breath_44: { name: "Дыхание 4–4", cycle: [ ["Вдох",4], ["Выдох",4] ], hint: "Следи за движением круга. Вдох — расширение. Выдох — сжатие." },
-        box_4444:  { name: "Box 4–4–4–4", cycle: [ ["Вдох",4], ["Задержка",4], ["Выдох",4], ["Задержка",4] ], hint: "Ровно и спокойно. Если тяжело — дыши мягче, можно без задержек." },
-        silent:    { name: "Тишина", cycle: [ ["Фокус",999999] ], hint: "Просто сиди. Замечай мысли и возвращайся к дыханию." },
+        breath_44: { name: "Классика", cycle: [ ["Вдох",4], ["Выдох",4] ], hint: "Следи за движением круга. Вдох — расширение. Выдох — сжатие." },
+        box_4444:  { name: "Пранаяма", cycle: [ ["Вдох",4], ["Задержка",4], ["Выдох",4], ["Задержка",4] ], hint: "Ровно и спокойно. Если тяжело — дыши мягче, можно без задержек." },
+        silent:    { name: "Свободная", cycle: [ ["Фокус",999999] ], hint: "Просто сиди. Замечай мысли и возвращайся к дыханию." },
       }
     };
 
@@ -2628,7 +2628,7 @@
           <div class="medStatS">${totalMin} минут</div>
         </div>
         <div class="medStatCard">
-          <div class="medStatK">Лучшее время</div>
+          <div class="medStatK">Самое продуктивное время</div>
           <div class="medStatV">${bestHour}</div>
           <div class="medStatS">по сумме минут</div>
         </div>
