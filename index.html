@@ -432,41 +432,26 @@
       color: var(--muted);
     }
 
-    /* Emoji сектора отдельной строкой над текстом */
+    /* Emoji сектора рядом с кнопками (без текста) */
     .entryBadge{
       display:flex;
       align-items:center;
-      gap:10px;
-      margin-top: 10px;         /* отступ от шапки с кнопками */
-      margin-bottom: 6px;       /* отступ до текста */
     }
-    
+
     .entryBadge .segEmoji{
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: rgba(255,255,255,.04);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size: 20px;
+      font-size: 18px;
       line-height: 1;
-      flex: 0 0 34px;
+      flex: 0 0 32px;
     }
-    
-    .entryBadge .segName{
-      font-weight: 950;
-      font-size: 13px;
-      color: var(--text);
-      opacity: .95;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-
-    .entryTag{
+.entryTag{
       display:flex;
       align-items:center;
       gap:8px;
@@ -1868,6 +1853,7 @@
         <div></div> <!-- пустая колонка слева, чтобы кнопки остались справа -->
         
         <div class="entryRight">
+        <div class="entryBadge" title="${e.segmentName}"><span class="segEmoji">${e.segmentEmoji}</span></div>
         <div class="progressPill" style="border-color:${pctColor}33;">
         <span style="color:${pctColor};">${pct}%</span>
         </div>
@@ -1878,13 +1864,7 @@
         </div>
         </div>
 
-  <!-- ✅ эмодзи/название сектора отдельной строкой над текстом -->
-  <div class="entryBadge" title="${e.segmentName}">
-  <span class="segEmoji">${e.segmentEmoji}</span>
-  <span class="segName">${e.segmentEmoji} ${e.segmentName}</span>
-  </div>
-  
-  <div class="entryText"></div>
+          <div class="entryText"></div>
 
   <div class="pop" style="display:${openProgressForId === e.id ? "block" : "none"};">
   <div class="popTop">
