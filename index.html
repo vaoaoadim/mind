@@ -1029,21 +1029,7 @@
               <option value="silent">Тишина (таймер)</option>
             </select>
           </div>
-
-          <div class="medField medFieldWide">
-            <div class="medToggleRow">
-              <label class="medToggle">
-                <input type="checkbox" id="medBell" checked />
-                <span>Звонок в конце</span>
-              </label>
-              <label class="medToggle">
-                <input type="checkbox" id="medAmbient" />
-                <span>Тихий фон</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="medField medFieldWide">
+<div class="medField medFieldWide">
             <div class="medMini">
               <div class="medMiniTitle">Подсказка</div>
               <div class="medMiniText" id="medPreviewHint">Сядь удобно. Расслабь плечи. Дыши спокойно.</div>
@@ -1315,8 +1301,6 @@
 
     const medDuration  = document.getElementById("medDuration");
     const medStyle     = document.getElementById("medStyle");
-    const medBell      = document.getElementById("medBell");
-    const medAmbient   = document.getElementById("medAmbient");
     const medPreviewHint = document.getElementById("medPreviewHint");
 
     const medStartBtn  = document.getElementById("medStartBtn");
@@ -2117,7 +2101,6 @@
     let medActive = null; // {id,targetSec,style,bell,ambient,startedAtMs,paused,totalPausedMs,pauseStartedMs,endedAtMs,completed}
     let medTickRaf = 0;
     let medCanvasRaf = 0;
-    let medAudio = null; // {ctx, osc, gain}
     let medLastCue = "";
     let medCountdown = 0; // 3..0
     let medCanvasState = { t0: 0, w: 0, h: 0, dpr: 1, dots: [] };
@@ -2190,7 +2173,6 @@
       }
       medModalBg.classList.remove("show");
       cancelMedLoops();
-      stopAmbient();
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
@@ -2226,91 +2208,6 @@
         s: 0.15 + Math.random() * 0.55,
         p: 0.3 + Math.random() * 0.7,
       }));
-    }
-
-    function startAmbient(){
-      try{
-        if(!medAmbient.checked) return;
-        if(medAudio) return;
-
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const lfo = ctx.createOscillator();
-        const lfoGain = ctx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.value = 110; // low A
-        gain.gain.value = 0.0001;
-
-        lfo.type = "sine";
-        lfo.frequency.value = 0.08; // slow swell
-        lfoGain.gain.value = 18; // +/- freq
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        lfo.start();
-
-        // gentle fade in
-        gain.gain.setTargetAtTime(0.02, ctx.currentTime, 0.8);
-
-        medAudio = { ctx, osc, gain, lfo, lfoGain };
-      }catch{}
-    }
-
-    function stopAmbient(){
-      try{
-        if(!medAudio) return;
-        const { ctx, osc, gain, lfo } = medAudio;
-        gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.25);
-        setTimeout(() => {
-          try{ osc.stop(); }catch{}
-          try{ lfo.stop(); }catch{}
-          try{ ctx.close(); }catch{}
-        }, 450);
-      }catch{}
-      medAudio = null;
-    }
-
-    function playBell(){
-      try{
-        if(!medBell.checked) return;
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-
-        const ctx = new AudioCtx();
-        const o1 = ctx.createOscillator();
-        const o2 = ctx.createOscillator();
-        const g = ctx.createGain();
-
-        o1.type = "sine"; o2.type = "sine";
-        o1.frequency.value = 880;
-        o2.frequency.value = 1320;
-
-        g.gain.value = 0.0001;
-
-        o1.connect(g); o2.connect(g);
-        g.connect(ctx.destination);
-
-        o1.start(); o2.start();
-
-        const t = ctx.currentTime;
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.linearRampToValueAtTime(0.06, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-
-        o1.stop(t + 1.25);
-        o2.stop(t + 1.25);
-
-        setTimeout(() => { try{ ctx.close(); }catch{} }, 1400);
-      }catch{}
     }
 
     function beginMeditation(){
@@ -2349,9 +2246,6 @@
       medPhase.textContent = "Подготовка…";
       medCue.textContent = "Готовимся";
       medTimer.textContent = fmtMMSS(targetSec);
-
-      startAmbient();
-
       tickMeditation(); // schedules itself
       animateMedCanvas(); // schedules itself
     }
@@ -2576,13 +2470,11 @@
         medActive.totalPausedMs += (now - medActive.pauseStartedMs);
         medActive.pauseStartedMs = 0;
         medPauseBtn.textContent = "⏸ Пауза";
-        startAmbient();
       }else{
         // pause
         medActive.paused = true;
         medActive.pauseStartedMs = Date.now();
         medPauseBtn.textContent = "▶️ Продолжить";
-        stopAmbient();
       }
     }
 
@@ -2598,9 +2490,6 @@
       medActive.completed = completed;
 
       cancelMedLoops();
-      stopAmbient();
-      if(completed){ playBell(); }
-
       // persist
       const session = {
         id: medActive.id,
