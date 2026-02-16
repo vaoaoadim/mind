@@ -1658,30 +1658,23 @@
 
     // ✅ Важно: preventDefault + pointer capture — чтобы не ломалось на мобильных
     sphereWrap.addEventListener("pointerdown", (e) => {
-      // ✅ На ПК клики по чипам должны работать: если нажали по .chip — НЕ начинаем drag
-      if(e.target && e.target.closest && e.target.closest('.chip')) return;
-
-      // только ЛКМ
-      if(typeof e.button === 'number' && e.button !== 0) return;
-
       e.preventDefault();
       sphereWrap.setPointerCapture?.(e.pointerId);
       onDragStart(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointermove", (e) => {
-      if(!isDragging) return;
-      if(dragPointerId != null && e.pointerId !== dragPointerId) return;
       e.preventDefault();
       onDragMove(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointerup", (e) => {
-      if(isDragging) e.preventDefault();
-      onDragEnd();
-    });
+      e.preventDefault();
+      onDragEnd(e);
+    }, { passive:false });
 
-    sphereWrap.addEventListener("pointercancel", () => onDragEnd());
+    sphereWrap.addEventListener("pointercancel", (e) => {
+      e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
@@ -2151,10 +2144,6 @@
     }
 
     function switchMedTab(tab){
-      // ✅ Во время активной медитации запрещаем уходить в другие вкладки
-      if(medActive && tab !== "run" && !medDone){
-        return;
-      }
       for(const b of medTabBtns){
         const is = b.dataset.tab === tab;
         b.classList.toggle("active", is);
@@ -2174,15 +2163,6 @@
       const styleKey = medStyle.value || "silent";
       const st = MED.styles[styleKey] || MED.styles.silent;
       medPreviewHint.textContent = st.hint;
-    }
-
-    function setMedTabsLocked(locked){
-      const dis = !!locked;
-      medTabStartBtn.disabled = dis;
-      medTabStatsBtn.disabled = dis;
-      const op = dis ? '0.55' : '1';
-      medTabStartBtn.style.opacity = op;
-      medTabStatsBtn.style.opacity = op;
     }
 
     function openMeditation(){
@@ -2273,8 +2253,7 @@
         id: crypto.randomUUID(),
         targetSec,
         style: styleKey,
-        startedAtMs: 0, // ✅ старт после обратного отсчёта
-        startPending: true,
+        startedAtMs: Date.now(),
         paused: false,
         totalPausedMs: 0,
         pauseStartedMs: 0,
@@ -2292,7 +2271,6 @@
 
     function getElapsedSec(){
       if(!medActive) return 0;
-      if(!medActive.startedAtMs) return 0;
       const now = Date.now();
       const pausedExtra = medActive.paused ? (now - medActive.pauseStartedMs) : 0;
       const elapsedMs = (now - medActive.startedAtMs) - medActive.totalPausedMs - pausedExtra;
@@ -2303,15 +2281,6 @@
       if(!medActive) return 0;
       const rem = medActive.targetSec - getElapsedSec();
       return rem;
-    }
-
-    function getPhaseState(styleKey, elapsedSec){
-      // ✅ первые MED_WARMUP_SEC секунд — всегда «Вдох»
-      if(elapsedSec < MED_WARMUP_SEC){
-        const d = MED_WARMUP_SEC;
-        return { phase: "inhale", label: "Вдох", dur: d, t: elapsedSec, pct: clamp01(elapsedSec / d), warmup: true };
-      }
-      return getCycleState(styleKey, elapsedSec - MED_WARMUP_SEC);
     }
 
     function getCycleState(styleKey, elapsedSec){
@@ -2365,19 +2334,13 @@
         });
         return;
       }
-      // ✅ стартуем таймер ровно после отсчёта
-      if(medActive && medActive.startPending){
-        medActive.startPending = false;
-        medActive.startedAtMs = Date.now();
-        medActive.totalPausedMs = 0;
-      }
 
       const elapsed = getElapsedSec();
       const rem = getRemainingSec();
 
       medTimer.textContent = fmtMMSS(rem);
 
-      const cyc = getPhaseState(medActive.style, elapsed);
+      const cyc = getCycleState(medActive.style, elapsed);
       medPhase.textContent = (medActive.style === "silent") ? "Фокус на дыхании" : `Сейчас: ${cyc.phase}`;
       medCue.textContent = cyc.label;
 
@@ -2445,7 +2408,7 @@
             s = 0.56 + 0.04 * Math.sin(t*1.2);
             cue = "Фокус";
           }else{
-            const cyc = getPhaseState(stKey, elapsed);
+            const cyc = getCycleState(stKey, elapsed);
             cue = cyc.label;
 
             // map phase to expansion/contraction
