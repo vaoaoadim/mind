@@ -1656,36 +1656,39 @@
       layoutSphere();
     }, { passive:false });
 
-    // ✅ Важно: preventDefault + pointer capture — чтобы не ломалось на мобильных
-    sphereWrap.addEventListener("pointerdown", (e) => {
-      // ✅ На ПК клики по чипам должны работать: если нажали по .chip — НЕ начинаем drag
-      if(e.target && e.target.closest && e.target.closest('.chip')) return;
+    // --- PC + mobile: крутится ТОЛЬКО при зажатии/drag, а клики по chip работают ---
+sphereWrap.addEventListener("pointerdown", (e) => {
+  // ✅ ВАЖНО: если кликнули по самой кнопке-сегменту, НЕ начинаем drag,
+  // иначе setPointerCapture "съедает" клик на ПК
+  if (e.target.closest(".chip")) return;
 
-      // только ЛКМ
-      if(typeof e.button === 'number' && e.button !== 0) return;
+  // только ЛКМ на мышке (на тач-устройствах button обычно 0)
+  if (e.pointerType === "mouse" && e.button !== 0) return;
 
-      e.preventDefault();
-      sphereWrap.setPointerCapture?.(e.pointerId);
-      onDragStart(e);
-    }, { passive:false });
+  e.preventDefault();
+  sphereWrap.setPointerCapture?.(e.pointerId);
+  onDragStart(e.clientX, e.clientY);
+}, { passive: false });
 
-    sphereWrap.addEventListener("pointermove", (e) => {
-      if(!isDragging) return;
-      if(dragPointerId != null && e.pointerId !== dragPointerId) return;
-      e.preventDefault();
-      onDragMove(e);
-    }, { passive:false });
+sphereWrap.addEventListener("pointermove", (e) => {
+  if (!isDragging) return;
+  e.preventDefault();
+  onDragMove(e.clientX, e.clientY);
+}, { passive: false });
 
 sphereWrap.addEventListener("pointerup", (e) => {
-  if (isDragging) {
-    e.preventDefault();
-  }
+  if (!isDragging) return;
+  e.preventDefault();
+  sphereWrap.releasePointerCapture?.(e.pointerId);
   onDragEnd();
 }, { passive: false });
 
-sphereWrap.addEventListener("pointercancel", () => {
+sphereWrap.addEventListener("pointercancel", (e) => {
+  if (!isDragging) return;
+  sphereWrap.releasePointerCapture?.(e.pointerId);
   onDragEnd();
-});
+}, { passive: false });
+
 
 
     // --------- Entry modal ----------
