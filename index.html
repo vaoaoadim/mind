@@ -1656,30 +1656,24 @@
       layoutSphere();
     }, { passive:false });
 
-    // ✅ ПК фикс клика по секторам:
-    // если кликнули по чипу — НЕ включаем drag/capture и НЕ отменяем событие,
-    // чтобы на десктопе срабатывал обычный click на .chip
+    // ✅ Важно: preventDefault + pointer capture — чтобы не ломалось на мобильных
     sphereWrap.addEventListener("pointerdown", (e) => {
-      if(e.target.closest && e.target.closest(".chip")) return;
       e.preventDefault();
       sphereWrap.setPointerCapture?.(e.pointerId);
       onDragStart(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointermove", (e) => {
-      if(!isDragging) return;
       e.preventDefault();
       onDragMove(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointerup", (e) => {
-      if(!isDragging) return;
       e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointercancel", (e) => {
-      if(!isDragging) return;
       e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
