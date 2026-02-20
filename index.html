@@ -1313,7 +1313,8 @@ function insertTextAtCursor(text){
 editor.addEventListener("keydown", (e) => {
   if(e.key === "Tab"){
     e.preventDefault();
-    insertTextAtCursor("\t");
+    // Делает отступ ВИДИМЫМ сразу в редакторе
+    insertTextAtCursor("\u00A0\u00A0\u00A0\u00A0"); // 4 NBSP
   }
 });
 
@@ -1730,21 +1731,51 @@ editor.addEventListener("keydown", (e) => {
       editor.textContent = "";
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
-
+    
     function escapeHtmlToParagraphs(text){
-      // preserve tabs/indentation inside rendered HTML
-      const safe = text
+      const safe = (text || "")
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-      return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
+        .replaceAll(">","&gt;");
+      
+      return safe
+        .split("\n")
+        .map((line) => {
+      // Пустые строки сохраняем
+          if(line === "") return "&nbsp;";
+
+      // 1) Сохраняем лидирующие пробелы/табы/nbsp как визуальный отступ
+      // NBSP уже может быть внутри (из редактора)
+          const m = line.match(/^[\t \u00A0]+/);
+          let out = line;
+          
+          if(m){
+            const lead = m[0];
+            const leadHtml = lead
+              .replaceAll("\t", "\u00A0\u00A0\u00A0\u00A0") // таб = 4 nbsp
+              .replaceAll(" ", "\u00A0")                    // пробел = nbsp
+            .replaceAll("\u00A0", "\u00A0");             // явно оставляем nbsp
+            out = leadHtml + line.slice(lead.length);
+          }
+
+      // 2) На всякий случай: табы внутри строки тоже делаем видимыми
+          out = out.replaceAll("\t", "\u00A0\u00A0\u00A0\u00A0");
+          
+          return out;
+        })
+        .join("<br>");
     }
 
     function saveEntry(){
       if(!activeSegment) return;
-      const text = (editor.textContent || "").trim();
-      if(!text) return;
+     const textRaw = (editor.textContent || "");
+
+// Проверка “пусто ли” без уничтожения отступов:
+// убираем пробелы/переводы строки/NBSP и смотрим, осталось ли что-то
+      const isEmpty = textRaw.replace(/[\s\u00A0]+/g, "") === "";
+      if(isEmpty) return;
+      
+      const text = textRaw; // сохраняем как есть, без trim()
 
       const entry = {
         id: crypto.randomUUID(),
