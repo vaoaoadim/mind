@@ -1732,10 +1732,12 @@ editor.addEventListener("keydown", (e) => {
     }
 
     function escapeHtmlToParagraphs(text){
+      // preserve tabs/indentation inside rendered HTML
       const safe = text
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;");
+        .replaceAll(">","&gt;")
+        .replaceAll("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
       return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
     }
 
@@ -1875,7 +1877,7 @@ editor.addEventListener("keydown", (e) => {
         block.dataset.id = e.id;
 
         const dt = new Date(e.createdAt);
-        const when = dt.toLocaleString();
+        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
         const pct = Math.max(0, Math.min(100, Number(e.progress || 0)));
         const pctColor = progressColor(pct);
@@ -2021,7 +2023,7 @@ editor.addEventListener("keydown", (e) => {
         block.dataset.id = a.id;
 
         const dt = new Date(a.createdAt);
-        const when = dt.toLocaleString();
+        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
         const quoted = `«${escapeText(a.text)}»`;
 
         block.innerHTML = `
@@ -2718,7 +2720,7 @@ editor.addEventListener("keydown", (e) => {
         row.className = "medHistoryRow";
 
         const dt = new Date(s.startedAt);
-        const when = dt.toLocaleString();
+        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 
         const minutes = Math.max(1, Math.round((Number(s.actualSec)||0)/60));
         const badgeText = s.completed ? "✅ завершено" : "⏹ досрочно";
