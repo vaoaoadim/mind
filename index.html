@@ -348,7 +348,10 @@
       overflow:auto;
       -webkit-user-select:text;
       user-select:text;
-    }
+    
+      white-space: pre-wrap;
+      tab-size: 4;
+}
     .editor:empty:before{ content: attr(data-placeholder); color: var(--muted); }
 
     .saveBtn{
@@ -525,7 +528,10 @@
       line-height: 1.4;
       color: var(--text);
       overflow-wrap: anywhere;
-    }
+    
+      white-space: pre-wrap;
+      tab-size: 4;
+}
 
     .pop{
       margin-top:10px;
@@ -666,6 +672,9 @@
       max-width:none;
       height: 42px;
       border-radius: 14px;
+      max-width: 240px;
+      margin: 0 auto;
+      display: block;
     }
     .medToggleRow{
       display:flex;
@@ -1285,6 +1294,29 @@
     const entryClose   = document.getElementById("entryClose");
     const editor       = document.getElementById("editor");
     const saveEntryBtn = document.getElementById("saveEntryBtn");
+
+// ✅ Tabs in editor: insert real tab/indent instead of переключения фокуса
+function insertTextAtCursor(text){
+  const sel = window.getSelection?.();
+  if(!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  const node = document.createTextNode(text);
+  range.insertNode(node);
+  // move caret after inserted text
+  range.setStartAfter(node);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+editor.addEventListener("keydown", (e) => {
+  if(e.key === "Tab"){
+    e.preventDefault();
+    insertTextAtCursor("\t");
+  }
+});
+
 
     const journalModalBg = document.getElementById("journalModalBg");
     const journalModal   = document.getElementById("journalModal");
