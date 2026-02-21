@@ -78,12 +78,15 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color: var(--text);
       touch-action: manipulation;
+      /* растягиваем фон на весь экран, включая safe-area */
+      min-height: calc(100vh + env(safe-area-inset-bottom));
     }
 
     body::before{
       content:"";
       position: fixed;
       inset: 0;
+      bottom: calc(-1 * env(safe-area-inset-bottom));
       z-index: -1;
       background:
         radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
@@ -94,6 +97,7 @@
 
     .app{
       height: calc(var(--vh, 1vh) * 100 + env(safe-area-inset-bottom));
+      min-height: calc(100vh + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
       /* дублируем фон, чтобы на мобильных не было обрыва внизу */
@@ -187,7 +191,7 @@
     @keyframes breathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
 
     .sphere{ position:absolute; inset:0; transform-style:preserve-3d; will-change:transform; }
-    .node{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; will-change:transform; }
+    .node{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; will-change:transform; backface-visibility:hidden; }
 
     .chip{
       display:flex; align-items:center; gap:8px;
@@ -1583,6 +1587,9 @@ editor.addEventListener("keydown", (e) => {
       const radius = Math.min(rect.width, rect.height) * 0.36;
       const len = nodes.length || 1;
 
+      // кэшируем вычисления для оптимизации
+      const scaleMul = sphereScale;
+      
       for(let i=0;i<len;i++){
         const item = nodes[i];
 
@@ -1592,10 +1599,14 @@ editor.addEventListener("keydown", (e) => {
         const theta = Math.sqrt(len * Math.PI) * phi;
 
         // базовая точка на сфере (в "мировых" координатах)
+        const sinPhi = Math.sin(phi);
+        const cosPhi = Math.cos(phi);
+        const cosTheta = Math.cos(theta);
+        const sinTheta = Math.sin(theta);
         const base = [
-          Math.sin(phi) * Math.cos(theta),
-          Math.sin(phi) * Math.sin(theta),
-          Math.cos(phi),
+          sinPhi * cosTheta,
+          sinPhi * sinTheta,
+          cosPhi,
         ];
 
         // применяем текущий поворот trackball
@@ -1608,11 +1619,13 @@ editor.addEventListener("keydown", (e) => {
         const depth = (z2 + radius) / (2*radius);
         const scale = 0.55 + depth * 0.55;
         const opacity = 0.28 + depth * 0.72;
+        const finalScale = scale * scaleMul;
 
+        // используем transform для GPU-ускорения
         item.node.style.transform = `translate3d(calc(-50% + ${x1}px), calc(-50% + ${y1}px), 0)`;
         item.node.style.zIndex = String(Math.floor(scale * 1000));
 
-        item.chip.style.transform = `scale(${(scale * sphereScale).toFixed(4)})`;
+        item.chip.style.transform = `scale(${finalScale.toFixed(4)})`;
         item.chip.style.opacity = opacity.toFixed(3);
         item.chip.style.filter = opacity < 0.42 ? "blur(0.2px)" : "none";
       }
@@ -1661,8 +1674,16 @@ editor.addEventListener("keydown", (e) => {
       }
 
       lastV = v1;
-      layoutSphere();
+      // используем requestAnimationFrame для плавности на мобильных
+      if(!layoutSphereRaf){
+        layoutSphereRaf = requestAnimationFrame(() => {
+          layoutSphere();
+          layoutSphereRaf = null;
+        });
+      }
     }
+    
+    let layoutSphereRaf = null;
 
     function onDragEnd(e){
       if(dragPointerId !== e.pointerId) return;
@@ -1671,18 +1692,31 @@ editor.addEventListener("keydown", (e) => {
       lastV = null;
     }
 
-    function animate(){
+    let lastAnimateTime = 0;
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
+    
+    function animate(currentTime){
+      // ограничиваем частоту кадров для стабильности на мобильных
+      const elapsed = currentTime - lastAnimateTime;
+      if(elapsed < frameInterval && !isDragging){
+        requestAnimationFrame(animate);
+        return;
+      }
+      lastAnimateTime = currentTime - (elapsed % frameInterval);
+      
       if(!isDragging){
         if(inertSpeed > inertMin){
           const rot = rotFromAxisAngle(inertAxis, inertSpeed);
           R = matMul(rot, R);
           inertSpeed *= inertFriction;
+          layoutSphere();
         } else {
           // мягкий автоспин, чтобы сфера "жила"
           const rot = rotFromAxisAngle([0,1,0], 0.00135);
           R = matMul(rot, R);
+          layoutSphere();
         }
-        layoutSphere();
       }
       requestAnimationFrame(animate);
     }
@@ -1702,6 +1736,7 @@ editor.addEventListener("keydown", (e) => {
     }, { passive:false });
 
     sphereWrap.addEventListener("pointermove", (e) => {
+      if(!isDragging) return;
       e.preventDefault();
       onDragMove(e);
     }, { passive:false });
@@ -2012,6 +2047,10 @@ editor.addEventListener("keydown", (e) => {
       saveJSON(LS.affs, affs);
       affInput.value = "";
       renderAffs();
+      
+      // регистрируем активность для счётчика дней
+      registerActivityForStreak();
+      renderMetrics();
     }
 
     function toggleAffPin(id){
@@ -2228,6 +2267,13 @@ editor.addEventListener("keydown", (e) => {
         medDone.style.display = "none";
         renderMedStats();
       }
+      
+      // показываем кнопки только на экранах старт и статистика
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl){
+        const showTabs = (tab === "start" || tab === "stats") && medRun.style.display === "none" && medDone.style.display === "none";
+        medTabsEl.style.display = showTabs ? "flex" : "none";
+      }
     }
 
     function updateMedPreview(){
@@ -2243,6 +2289,11 @@ editor.addEventListener("keydown", (e) => {
       medDone.style.display = "none";
       medTabStart.style.display = "block";
       medTabStats.style.display = "none";
+      
+      // показываем кнопки вкладок при открытии
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "flex";
+      
       switchMedTab("start");
       updateMedPreview();
 
@@ -2311,6 +2362,10 @@ editor.addEventListener("keydown", (e) => {
       medTabStart.style.display = "none";
       medTabStats.style.display = "none";
       for(const b of medTabBtns){ b.classList.remove("active"); }
+      
+      // скрываем кнопки вкладок во время медитации
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "none";
 
       medRun.style.display = "flex";
       medDone.style.display = "none";
@@ -2604,6 +2659,10 @@ editor.addEventListener("keydown", (e) => {
     function showMeditationDone(session){
       medRun.style.display = "none";
       medDone.style.display = "block";
+      
+      // скрываем кнопки вкладок на экране "Готово"
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "none";
 
       const mins = Math.round(session.actualSec / 60);
       const sName = (MED.styles[session.style]?.name) || "Медитация";
