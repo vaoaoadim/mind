@@ -1313,8 +1313,7 @@ function insertTextAtCursor(text){
 editor.addEventListener("keydown", (e) => {
   if(e.key === "Tab"){
     e.preventDefault();
-    // Делает отступ ВИДИМЫМ сразу в редакторе
-    insertTextAtCursor("\u00A0\u00A0\u00A0\u00A0"); // 4 NBSP
+    insertTextAtCursor("\t");
   }
 });
 
@@ -1731,51 +1730,53 @@ editor.addEventListener("keydown", (e) => {
       editor.textContent = "";
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
-    
+
+    /** Из contenteditable получаем текст с сохранением переносов (\n) и табуляции (\t). */
+    function getEditorText(el){
+      let out = "";
+      const blockTags = ["div", "p", "li", "h1", "h2", "h3"];
+      function walk(node, afterBlock){
+        if(!node) return;
+        if(node.nodeType === Node.TEXT_NODE){
+          out += node.textContent;
+          return;
+        }
+        if(node.nodeType !== Node.ELEMENT_NODE) return;
+        const tag = node.tagName ? node.tagName.toLowerCase() : "";
+        if(tag === "br"){
+          out += "\n";
+          return;
+        }
+        if(blockTags.includes(tag)){
+          if(afterBlock && out.length > 0 && !out.endsWith("\n")) out += "\n";
+          for(let i = 0; i < node.childNodes.length; i++){
+            walk(node.childNodes[i], i > 0);
+          }
+          if(!out.endsWith("\n")) out += "\n";
+          return;
+        }
+        for(let i = 0; i < node.childNodes.length; i++){
+          walk(node.childNodes[i], false);
+        }
+      }
+      for(let i = 0; i < el.childNodes.length; i++){
+        walk(el.childNodes[i], i > 0);
+      }
+      return out;
+    }
+
     function escapeHtmlToParagraphs(text){
-      const safe = (text || "")
+      const safe = text
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
         .replaceAll(">","&gt;");
-      
-      return safe
-        .split("\n")
-        .map((line) => {
-      // Пустые строки сохраняем
-          if(line === "") return "&nbsp;";
-
-      // 1) Сохраняем лидирующие пробелы/табы/nbsp как визуальный отступ
-      // NBSP уже может быть внутри (из редактора)
-          const m = line.match(/^[\t \u00A0]+/);
-          let out = line;
-          
-          if(m){
-            const lead = m[0];
-            const leadHtml = lead
-              .replaceAll("\t", "\u00A0\u00A0\u00A0\u00A0") // таб = 4 nbsp
-              .replaceAll(" ", "\u00A0")                    // пробел = nbsp
-            .replaceAll("\u00A0", "\u00A0");             // явно оставляем nbsp
-            out = leadHtml + line.slice(lead.length);
-          }
-
-      // 2) На всякий случай: табы внутри строки тоже делаем видимыми
-          out = out.replaceAll("\t", "\u00A0\u00A0\u00A0\u00A0");
-          
-          return out;
-        })
-        .join("<br>");
+      return safe.split("\n").map(line => line ? line : "&nbsp;").join("<br>");
     }
 
     function saveEntry(){
       if(!activeSegment) return;
-     const textRaw = (editor.textContent || "");
-
-// Проверка “пусто ли” без уничтожения отступов:
-// убираем пробелы/переводы строки/NBSP и смотрим, осталось ли что-то
-      const isEmpty = textRaw.replace(/[\s\u00A0]+/g, "") === "";
-      if(isEmpty) return;
-      
-      const text = textRaw; // сохраняем как есть, без trim()
+      const text = (getEditorText(editor) || "").trim();
+      if(!text) return;
 
       const entry = {
         id: crypto.randomUUID(),
@@ -1908,7 +1909,7 @@ editor.addEventListener("keydown", (e) => {
         block.dataset.id = e.id;
 
         const dt = new Date(e.createdAt);
-        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        const when = dt.toLocaleString();
 
         const pct = Math.max(0, Math.min(100, Number(e.progress || 0)));
         const pctColor = progressColor(pct);
@@ -2054,7 +2055,7 @@ editor.addEventListener("keydown", (e) => {
         block.dataset.id = a.id;
 
         const dt = new Date(a.createdAt);
-        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        const when = dt.toLocaleString();
         const quoted = `«${escapeText(a.text)}»`;
 
         block.innerHTML = `
@@ -2751,7 +2752,7 @@ editor.addEventListener("keydown", (e) => {
         row.className = "medHistoryRow";
 
         const dt = new Date(s.startedAt);
-        const when = dt.toLocaleString(undefined, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        const when = dt.toLocaleString();
 
         const minutes = Math.max(1, Math.round((Number(s.actualSec)||0)/60));
         const badgeText = s.completed ? "✅ завершено" : "⏹ досрочно";
@@ -2855,6 +2856,7 @@ editor.addEventListener("keydown", (e) => {
         updateMedCanvasSize();
       }
     });
+
 
     // --------- Resize observer ----------
     const ro = new ResizeObserver(() => {
