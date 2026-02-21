@@ -93,9 +93,15 @@
     }
 
     .app{
-      height: calc(var(--vh, 1vh) * 100);
+      height: calc(var(--vh, 1vh) * 100 + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
+      /* дублируем фон, чтобы на мобильных не было обрыва внизу */
+      background:
+        radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
+        radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
     }
 
     .top{
@@ -1700,13 +1706,12 @@ editor.addEventListener("keydown", (e) => {
       onDragMove(e);
     }, { passive:false });
 
+    // не блокируем pointerup, чтобы клики по чипам на сфере работали на ПК
     sphereWrap.addEventListener("pointerup", (e) => {
-      e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointercancel", (e) => {
-      e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
@@ -2465,7 +2470,8 @@ editor.addEventListener("keydown", (e) => {
           s = 0.52 + 0.02 * Math.sin(t*2);
           cue = "Пауза";
         }else if(mode === "countdown"){
-          s = 0.50 + 0.03 * Math.sin(t*3.2);
+          // во время отсчёта сфера не «дышит» и не расширяется преждевременно
+          s = 0.52;
           cue = "Готовимся";
         }else{
           const elapsed = getElapsedSec();
