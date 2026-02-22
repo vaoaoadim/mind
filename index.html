@@ -70,9 +70,6 @@
       margin: 0;
       background: var(--bg);
       color-scheme: light dark;
-      overflow: hidden;
-      overflow-y: hidden;
-      overscroll-behavior: none;
     }
 
     body {
@@ -81,12 +78,15 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color: var(--text);
       touch-action: manipulation;
+      /* растягиваем фон на весь экран, включая safe-area */
+      min-height: calc(100vh + env(safe-area-inset-bottom));
     }
 
     body::before{
       content:"";
       position: fixed;
       inset: 0;
+      bottom: calc(-1 * env(safe-area-inset-bottom));
       z-index: -1;
       background:
         radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
@@ -96,13 +96,16 @@
     }
 
     .app{
-      height: calc(var(--vh, 1vh) * 100);
+      height: calc(var(--vh, 1vh) * 100 + env(safe-area-inset-bottom));
+      min-height: calc(100vh + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
-      overflow: hidden;
-      overflow-y: hidden;
-      overscroll-behavior: none;
-      -webkit-overflow-scrolling: auto;
+      /* дублируем фон, чтобы на мобильных не было обрыва внизу */
+      background:
+        radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, rgba(167,139,250,.16), transparent 60%),
+        radial-gradient(900px 700px at 60% 92%, rgba(109,94,252,.10), transparent 70%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
     }
 
     .top{
@@ -177,43 +180,6 @@
       touch-action:none;
     }
 
-    .sphereHint{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      pointer-events:none;
-      z-index:5;
-      opacity:0;
-      transition: opacity .5s ease;
-    }
-    .sphereHint.visible{
-      opacity:1;
-    }
-    .sphereHint.hidden{
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .35s ease;
-    }
-    .sphereHintInner{
-      padding: 10px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border2);
-      background: var(--card2);
-      backdrop-filter: blur(14px);
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--muted);
-      letter-spacing: .02em;
-      box-shadow: 0 8px 24px rgba(2,6,23,.08);
-      white-space: nowrap;
-    }
-    [data-theme="dark"] .sphereHintInner{
-      background: rgba(7,10,26,.5);
-      border-color: rgba(167,139,250,.2);
-    }
-
     .softGlow{
       position:absolute; inset:-40px;
       background: radial-gradient(closest-side, rgba(167,139,250,.18), transparent 70%);
@@ -225,7 +191,7 @@
     @keyframes breathe{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
 
     .sphere{ position:absolute; inset:0; transform-style:preserve-3d; will-change:transform; }
-    .node{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; will-change:transform; }
+    .node{ position:absolute; left:50%; top:50%; transform-style:preserve-3d; will-change:transform; backface-visibility:hidden; }
 
     .chip{
       display:flex; align-items:center; gap:8px;
@@ -392,7 +358,10 @@
       overflow:auto;
       -webkit-user-select:text;
       user-select:text;
-    }
+    
+      white-space: pre-wrap;
+      tab-size: 4;
+}
     .editor:empty:before{ content: attr(data-placeholder); color: var(--muted); }
 
     .saveBtn{
@@ -476,7 +445,26 @@
       color: var(--muted);
     }
 
-    .entryTag{
+    /* Emoji сектора рядом с кнопками (без текста) */
+    .entryBadge{
+      display:flex;
+      align-items:center;
+    }
+
+    .entryBadge .segEmoji{
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 18px;
+      line-height: 1;
+      flex: 0 0 32px;
+    }
+.entryTag{
       display:flex;
       align-items:center;
       gap:8px;
@@ -550,7 +538,10 @@
       line-height: 1.4;
       color: var(--text);
       overflow-wrap: anywhere;
-    }
+    
+      white-space: pre-wrap;
+      tab-size: 4;
+}
 
     .pop{
       margin-top:10px;
@@ -691,6 +682,9 @@
       max-width:none;
       height: 42px;
       border-radius: 14px;
+      max-width: 240px;
+      margin: 0 auto;
+      display: block;
     }
     .medToggleRow{
       display:flex;
@@ -909,56 +903,11 @@
       max-height: min(560px, calc(var(--vh, 1vh) * 100 - 120px));
       overflow: auto;
     }
-
-    .desktopBlock{
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--bg);
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      box-sizing: border-box;
-    }
-    .desktopBlock.show{
-      display: flex;
-    }
-    .desktopBlockInner{
-      max-width: 340px;
-      text-align: center;
-    }
-    .desktopBlockIcon{
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: .9;
-    }
-    .desktopBlockTitle{
-      font-weight: 950;
-      font-size: 20px;
-      color: var(--text);
-      margin: 0 0 12px;
-      letter-spacing: .02em;
-    }
-    .desktopBlockText{
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--muted);
-      margin: 0;
-    }
   </style>
 </head>
 
 <body>
-  <div class="desktopBlock" id="desktopBlock" aria-hidden="false">
-    <div class="desktopBlockInner">
-      <div class="desktopBlockIcon">📱</div>
-      <h2 class="desktopBlockTitle">Только для смартфонов</h2>
-      <p class="desktopBlockText">Это приложение создано для использования на мобильных устройствах. Откройте его на телефоне или планшете — так будет удобнее.</p>
-    </div>
-  </div>
-
-  <div class="app" id="appRoot">
+  <div class="app">
     <div class="top">
       <div class="header">
         <div class="brand">
@@ -983,9 +932,6 @@
     <div class="main">
       <div class="sphereSection">
         <div class="sphereWrap" id="sphereWrap">
-          <div class="sphereHint" id="sphereHint" aria-hidden="true">
-            <span class="sphereHintInner">Проведи пальцем, чтобы вращать</span>
-          </div>
           <div class="softGlow"></div>
           <div class="sphere" id="sphere"></div>
         </div>
@@ -1116,26 +1062,12 @@
           <div class="medField">
             <div class="medLabel">Стиль</div>
             <select class="filterSelect medSelect" id="medStyle" aria-label="Стиль медитации">
-              <option value="breath_44">Дыхание 4–4 (вдох/выдох)</option>
-              <option value="box_4444">Box 4–4–4–4 (вдох/задержка/выдох/задержка)</option>
-              <option value="silent">Тишина (таймер)</option>
+              <option value="breath_44">Классика (вдох/выдох)</option>
+              <option value="box_4444">Пранаяма (вдох/задержка/выдох/задержка)</option>
+              <option value="silent">Свободная (таймер)</option>
             </select>
           </div>
-
-          <div class="medField medFieldWide">
-            <div class="medToggleRow">
-              <label class="medToggle">
-                <input type="checkbox" id="medBell" checked />
-                <span>Звонок в конце</span>
-              </label>
-              <label class="medToggle">
-                <input type="checkbox" id="medAmbient" />
-                <span>Тихий фон</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="medField medFieldWide">
+<div class="medField medFieldWide">
             <div class="medMini">
               <div class="medMiniTitle">Подсказка</div>
               <div class="medMiniText" id="medPreviewHint">Сядь удобно. Расслабь плечи. Дыши спокойно.</div>
@@ -1152,7 +1084,7 @@
       <!-- Stats -->
       <div class="medTab" id="medTabStats" style="display:none;">
         <div class="modalHint" style="margin-top:8px">
-          Неделя считается с понедельника. Сессии сохраняются на устройстве.
+          Неделя считается с понедельника. Сессии сохраняются.
         </div>
 
         <div class="medStatsGrid" id="medStatsGrid"></div>
@@ -1338,7 +1270,6 @@
     // ============================
     let isDragging = false;
     let dragPointerId = null;
-    let sphereHintEverDismissed = false;
 
     // матрица поворота 3x3 (row-major)
     let R = [ 1,0,0,  0,1,0,  0,0,1 ];
@@ -1353,7 +1284,6 @@
     let lastV = null;
 
     let sphereScale = 1.0;
-    let sphereLayoutScheduled = false;
 
     let openProgressForId = null;
     let journalFilterSegId = "";
@@ -1365,7 +1295,6 @@
 
     const sphereWrap = document.getElementById("sphereWrap");
     const sphereEl   = document.getElementById("sphere");
-    const sphereHint = document.getElementById("sphereHint");
 
     const bottomBar = document.getElementById("bottomBar");
 
@@ -1375,6 +1304,29 @@
     const entryClose   = document.getElementById("entryClose");
     const editor       = document.getElementById("editor");
     const saveEntryBtn = document.getElementById("saveEntryBtn");
+
+// ✅ Tabs in editor: insert real tab/indent instead of переключения фокуса
+function insertTextAtCursor(text){
+  const sel = window.getSelection?.();
+  if(!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  const node = document.createTextNode(text);
+  range.insertNode(node);
+  // move caret after inserted text
+  range.setStartAfter(node);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+editor.addEventListener("keydown", (e) => {
+  if(e.key === "Tab"){
+    e.preventDefault();
+    insertTextAtCursor("\t");
+  }
+});
+
 
     const journalModalBg = document.getElementById("journalModalBg");
     const journalModal   = document.getElementById("journalModal");
@@ -1410,8 +1362,6 @@
 
     const medDuration  = document.getElementById("medDuration");
     const medStyle     = document.getElementById("medStyle");
-    const medBell      = document.getElementById("medBell");
-    const medAmbient   = document.getElementById("medAmbient");
     const medPreviewHint = document.getElementById("medPreviewHint");
 
     const medStartBtn  = document.getElementById("medStartBtn");
@@ -1633,55 +1583,52 @@
     }
 
     function layoutSphere(){
-      if(!sphereWrap || !nodes.length) return;
       const rect = sphereWrap.getBoundingClientRect();
       const radius = Math.min(rect.width, rect.height) * 0.36;
-      const len = nodes.length;
+      const len = nodes.length || 1;
 
+      // кэшируем вычисления для оптимизации
+      const scaleMul = sphereScale;
+      
       for(let i=0;i<len;i++){
         const item = nodes[i];
+
+        
+        // равномерно по сфере
         const phi = Math.acos(-1 + (2*i)/len);
         const theta = Math.sqrt(len * Math.PI) * phi;
+
+        // базовая точка на сфере (в "мировых" координатах)
+        const sinPhi = Math.sin(phi);
+        const cosPhi = Math.cos(phi);
+        const cosTheta = Math.cos(theta);
+        const sinTheta = Math.sin(theta);
         const base = [
-          Math.sin(phi) * Math.cos(theta),
-          Math.sin(phi) * Math.sin(theta),
-          Math.cos(phi),
+          sinPhi * cosTheta,
+          sinPhi * sinTheta,
+          cosPhi,
         ];
+
+        // применяем текущий поворот trackball
         const v = matVec(R, base);
+
         const x1 = v[0] * radius;
         const y1 = v[1] * radius;
         const z2 = v[2] * radius;
+
         const depth = (z2 + radius) / (2*radius);
         const scale = 0.55 + depth * 0.55;
         const opacity = 0.28 + depth * 0.72;
+        const finalScale = scale * scaleMul;
 
+        // используем transform для GPU-ускорения
         item.node.style.transform = `translate3d(calc(-50% + ${x1}px), calc(-50% + ${y1}px), 0)`;
         item.node.style.zIndex = String(Math.floor(scale * 1000));
-        item.chip.style.transform = `scale(${(scale * sphereScale).toFixed(4)})`;
+
+        item.chip.style.transform = `scale(${finalScale.toFixed(4)})`;
         item.chip.style.opacity = opacity.toFixed(3);
         item.chip.style.filter = opacity < 0.42 ? "blur(0.2px)" : "none";
       }
-    }
-
-    function scheduleLayoutSphere(){
-      if(sphereLayoutScheduled) return;
-      sphereLayoutScheduled = true;
-      requestAnimationFrame(function(){
-        sphereLayoutScheduled = false;
-        layoutSphere();
-      });
-    }
-
-    function showSphereHint(){
-      if(sphereHintEverDismissed || !sphereHint) return;
-      sphereHint.classList.remove("hidden");
-      sphereHint.classList.add("visible");
-    }
-    function hideSphereHint(){
-      if(!sphereHint) return;
-      sphereHintEverDismissed = true;
-      sphereHint.classList.add("hidden");
-      sphereHint.classList.remove("visible");
     }
 
     function onDragStart(e){
@@ -1689,8 +1636,8 @@
       dragPointerId = e.pointerId;
       lastMoveT = performance.now();
       lastV = projectToTrackball(e.clientX, e.clientY);
-      hideSphereHint();
 
+      // при новом касании — не крутим автоспином мгновенно
       inertSpeed = 0;
     }
 
@@ -1727,8 +1674,16 @@
       }
 
       lastV = v1;
-      scheduleLayoutSphere();
+      // используем requestAnimationFrame для плавности на мобильных
+      if(!layoutSphereRaf){
+        layoutSphereRaf = requestAnimationFrame(() => {
+          layoutSphere();
+          layoutSphereRaf = null;
+        });
+      }
     }
+    
+    let layoutSphereRaf = null;
 
     function onDragEnd(e){
       if(dragPointerId !== e.pointerId) return;
@@ -1737,17 +1692,31 @@
       lastV = null;
     }
 
-    function animate(){
+    let lastAnimateTime = 0;
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
+    
+    function animate(currentTime){
+      // ограничиваем частоту кадров для стабильности на мобильных
+      const elapsed = currentTime - lastAnimateTime;
+      if(elapsed < frameInterval && !isDragging){
+        requestAnimationFrame(animate);
+        return;
+      }
+      lastAnimateTime = currentTime - (elapsed % frameInterval);
+      
       if(!isDragging){
         if(inertSpeed > inertMin){
           const rot = rotFromAxisAngle(inertAxis, inertSpeed);
           R = matMul(rot, R);
           inertSpeed *= inertFriction;
+          layoutSphere();
         } else {
+          // мягкий автоспин, чтобы сфера "жила"
           const rot = rotFromAxisAngle([0,1,0], 0.00135);
           R = matMul(rot, R);
+          layoutSphere();
         }
-        scheduleLayoutSphere();
       }
       requestAnimationFrame(animate);
     }
@@ -1756,7 +1725,7 @@
       e.preventDefault();
       sphereScale += e.deltaY * -0.001;
       sphereScale = Math.min(Math.max(0.6, sphereScale), 1.5);
-      scheduleLayoutSphere();
+      layoutSphere();
     }, { passive:false });
 
     // ✅ Важно: preventDefault + pointer capture — чтобы не ломалось на мобильных
@@ -1767,17 +1736,17 @@
     }, { passive:false });
 
     sphereWrap.addEventListener("pointermove", (e) => {
+      if(!isDragging) return;
       e.preventDefault();
       onDragMove(e);
     }, { passive:false });
 
+    // не блокируем pointerup, чтобы клики по чипам на сфере работали на ПК
     sphereWrap.addEventListener("pointerup", (e) => {
-      e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
     sphereWrap.addEventListener("pointercancel", (e) => {
-      e.preventDefault();
       onDragEnd(e);
     }, { passive:false });
 
@@ -1802,6 +1771,40 @@
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
+    /** Из contenteditable получаем текст с сохранением переносов (\n) и табуляции (\t). */
+    function getEditorText(el){
+      let out = "";
+      const blockTags = ["div", "p", "li", "h1", "h2", "h3"];
+      function walk(node, afterBlock){
+        if(!node) return;
+        if(node.nodeType === Node.TEXT_NODE){
+          out += node.textContent;
+          return;
+        }
+        if(node.nodeType !== Node.ELEMENT_NODE) return;
+        const tag = node.tagName ? node.tagName.toLowerCase() : "";
+        if(tag === "br"){
+          out += "\n";
+          return;
+        }
+        if(blockTags.includes(tag)){
+          if(afterBlock && out.length > 0 && !out.endsWith("\n")) out += "\n";
+          for(let i = 0; i < node.childNodes.length; i++){
+            walk(node.childNodes[i], i > 0);
+          }
+          if(!out.endsWith("\n")) out += "\n";
+          return;
+        }
+        for(let i = 0; i < node.childNodes.length; i++){
+          walk(node.childNodes[i], false);
+        }
+      }
+      for(let i = 0; i < el.childNodes.length; i++){
+        walk(el.childNodes[i], i > 0);
+      }
+      return out;
+    }
+
     function escapeHtmlToParagraphs(text){
       const safe = text
         .replaceAll("&","&amp;")
@@ -1812,7 +1815,7 @@
 
     function saveEntry(){
       if(!activeSegment) return;
-      const text = (editor.textContent || "").trim();
+      const text = (getEditorText(editor) || "").trim();
       if(!text) return;
 
       const entry = {
@@ -1950,36 +1953,36 @@
 
         const pct = Math.max(0, Math.min(100, Number(e.progress || 0)));
         const pctColor = progressColor(pct);
-
+        
         block.innerHTML = `
-          <div class="entryTop">
-            <div class="entryTag" title="${e.segmentName}">
-              <span class="segEmoji">${e.segmentEmoji}</span>
-            </div>
-
-            <div class="entryRight">
-              <div class="progressPill" style="border-color:${pctColor}33;">
-                <span style="color:${pctColor};">${pct}%</span>
-              </div>
-              <button class="miniBtn noSelect progressBtn" title="Прогресс">📈</button>
-              <button class="miniBtn noSelect pinBtn ${e.pinned ? "pinned":""}" title="Закрепить">📌</button>
-              <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
-              <span class="entryDate">${when}</span>
-            </div>
-          </div>
+        <div class="entryTop">
+        <div></div> <!-- пустая колонка слева, чтобы кнопки остались справа -->
+        
+        <div class="entryRight">
+        <div class="entryBadge" title="${e.segmentName}"><span class="segEmoji">${e.segmentEmoji}</span></div>
+        <div class="progressPill" style="border-color:${pctColor}33;">
+        <span style="color:${pctColor};">${pct}%</span>
+        </div>
+        <button class="miniBtn noSelect progressBtn" title="Прогресс">📈</button>
+        <button class="miniBtn noSelect pinBtn ${e.pinned ? "pinned":""}" title="Закрепить">📌</button>
+        <button class="miniBtn noSelect delBtn" title="Удалить">🗑️</button>
+        <span class="entryDate">${when}</span>
+        </div>
+        </div>
 
           <div class="entryText"></div>
 
-          <div class="pop" style="display:${openProgressForId === e.id ? "block" : "none"};">
-            <div class="popTop">
-              <div>Прогресс</div>
-              <div class="popVal"><span style="color:${pctColor};">${pct}%</span></div>
-            </div>
-            <div class="rangeWrap">
-              <input type="range" min="0" max="100" step="1" value="${pct}" data-open="${openProgressForId === e.id ? "1":"0"}">
-            </div>
-          </div>
-        `;
+  <div class="pop" style="display:${openProgressForId === e.id ? "block" : "none"};">
+  <div class="popTop">
+  <div>Прогресс</div>
+  <div class="popVal"><span style="color:${pctColor};">${pct}%</span></div>
+  </div>
+  <div class="rangeWrap">
+  <input type="range" min="0" max="100" step="1" value="${pct}" data-open="${openProgressForId === e.id ? "1":"0"}">
+  </div>
+  </div>
+  `;
+
 
         const textEl = block.querySelector(".entryText");
         textEl.innerHTML = e.html;
@@ -2044,6 +2047,10 @@
       saveJSON(LS.affs, affs);
       affInput.value = "";
       renderAffs();
+      
+      // регистрируем активность для счётчика дней
+      registerActivityForStreak();
+      renderMetrics();
     }
 
     function toggleAffPin(id){
@@ -2214,16 +2221,15 @@
 
     const MED = {
       styles: {
-        breath_44: { name: "Дыхание 4–4", cycle: [ ["Вдох",4], ["Выдох",4] ], hint: "Следи за движением круга. Вдох — расширение. Выдох — сжатие." },
-        box_4444:  { name: "Box 4–4–4–4", cycle: [ ["Вдох",4], ["Задержка",4], ["Выдох",4], ["Задержка",4] ], hint: "Ровно и спокойно. Если тяжело — дыши мягче, можно без задержек." },
-        silent:    { name: "Тишина", cycle: [ ["Фокус",999999] ], hint: "Просто сиди. Замечай мысли и возвращайся к дыханию." },
+        breath_44: { name: "Классика", cycle: [ ["Вдох",4], ["Выдох",4] ], hint: "Следи за движением круга. Вдох — расширение. Выдох — сжатие." },
+        box_4444:  { name: "Пранаяма", cycle: [ ["Вдох",4], ["Задержка",4], ["Выдох",4], ["Задержка",4] ], hint: "Ровно и спокойно. Если тяжело — дыши мягче, можно без задержек." },
+        silent:    { name: "Свободная", cycle: [ ["Фокус",999999] ], hint: "Просто сиди. Замечай мысли и возвращайся к дыханию." },
       }
     };
 
     let medActive = null; // {id,targetSec,style,bell,ambient,startedAtMs,paused,totalPausedMs,pauseStartedMs,endedAtMs,completed}
     let medTickRaf = 0;
     let medCanvasRaf = 0;
-    let medAudio = null; // {ctx, osc, gain}
     let medLastCue = "";
     let medCountdown = 0; // 3..0
     let medCanvasState = { t0: 0, w: 0, h: 0, dpr: 1, dots: [] };
@@ -2261,6 +2267,13 @@
         medDone.style.display = "none";
         renderMedStats();
       }
+      
+      // показываем кнопки только на экранах старт и статистика
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl){
+        const showTabs = (tab === "start" || tab === "stats") && medRun.style.display === "none" && medDone.style.display === "none";
+        medTabsEl.style.display = showTabs ? "flex" : "none";
+      }
     }
 
     function updateMedPreview(){
@@ -2276,6 +2289,11 @@
       medDone.style.display = "none";
       medTabStart.style.display = "block";
       medTabStats.style.display = "none";
+      
+      // показываем кнопки вкладок при открытии
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "flex";
+      
       switchMedTab("start");
       updateMedPreview();
 
@@ -2296,7 +2314,6 @@
       }
       medModalBg.classList.remove("show");
       cancelMedLoops();
-      stopAmbient();
       setTimeout(() => { setVh(); updateBottomBarHeight(); }, 50);
     }
 
@@ -2334,91 +2351,6 @@
       }));
     }
 
-    function startAmbient(){
-      try{
-        if(!medAmbient.checked) return;
-        if(medAudio) return;
-
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const lfo = ctx.createOscillator();
-        const lfoGain = ctx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.value = 110; // low A
-        gain.gain.value = 0.0001;
-
-        lfo.type = "sine";
-        lfo.frequency.value = 0.08; // slow swell
-        lfoGain.gain.value = 18; // +/- freq
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc.frequency);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        lfo.start();
-
-        // gentle fade in
-        gain.gain.setTargetAtTime(0.02, ctx.currentTime, 0.8);
-
-        medAudio = { ctx, osc, gain, lfo, lfoGain };
-      }catch{}
-    }
-
-    function stopAmbient(){
-      try{
-        if(!medAudio) return;
-        const { ctx, osc, gain, lfo } = medAudio;
-        gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.25);
-        setTimeout(() => {
-          try{ osc.stop(); }catch{}
-          try{ lfo.stop(); }catch{}
-          try{ ctx.close(); }catch{}
-        }, 450);
-      }catch{}
-      medAudio = null;
-    }
-
-    function playBell(){
-      try{
-        if(!medBell.checked) return;
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if(!AudioCtx) return;
-
-        const ctx = new AudioCtx();
-        const o1 = ctx.createOscillator();
-        const o2 = ctx.createOscillator();
-        const g = ctx.createGain();
-
-        o1.type = "sine"; o2.type = "sine";
-        o1.frequency.value = 880;
-        o2.frequency.value = 1320;
-
-        g.gain.value = 0.0001;
-
-        o1.connect(g); o2.connect(g);
-        g.connect(ctx.destination);
-
-        o1.start(); o2.start();
-
-        const t = ctx.currentTime;
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.linearRampToValueAtTime(0.06, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-
-        o1.stop(t + 1.25);
-        o2.stop(t + 1.25);
-
-        setTimeout(() => { try{ ctx.close(); }catch{} }, 1400);
-      }catch{}
-    }
-
     function beginMeditation(){
       if(medActive) return;
 
@@ -2430,6 +2362,10 @@
       medTabStart.style.display = "none";
       medTabStats.style.display = "none";
       for(const b of medTabBtns){ b.classList.remove("active"); }
+      
+      // скрываем кнопки вкладок во время медитации
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "none";
 
       medRun.style.display = "flex";
       medDone.style.display = "none";
@@ -2448,17 +2384,13 @@
         totalPausedMs: 0,
         pauseStartedMs: 0,
         completed: false,
-        countdownEndedAtElapsedSec: null, // когда отсчёт закончился — с этого момента начинается дыхание
       };
 
-      // 3-2-1 countdown for calmer start; первый вдох начнётся только после отсчёта
+      // 3-2-1 countdown for calmer start
       medCountdown = 3;
       medPhase.textContent = "Подготовка…";
       medCue.textContent = "Готовимся";
       medTimer.textContent = fmtMMSS(targetSec);
-
-      startAmbient();
-
       tickMeditation(); // schedules itself
       animateMedCanvas(); // schedules itself
     }
@@ -2513,10 +2445,8 @@
         medCue.textContent = String(medCountdown);
         medPhase.textContent = "Подготовка…";
         medCountdown -= 1;
-        if(medCountdown === 0){
-          medActive.countdownEndedAtElapsedSec = getElapsedSec();
-        }
         medTickRaf = requestAnimationFrame(() => {
+          // wait ~1s using time check
           const t0 = performance.now();
           const wait = () => {
             if(!medActive || medActive.paused) return;
@@ -2536,10 +2466,7 @@
 
       medTimer.textContent = fmtMMSS(rem);
 
-      const cycleElapsed = medActive.countdownEndedAtElapsedSec != null
-        ? Math.max(0, elapsed - medActive.countdownEndedAtElapsedSec)
-        : 0;
-      const cyc = getCycleState(medActive.style, cycleElapsed);
+      const cyc = getCycleState(medActive.style, elapsed);
       medPhase.textContent = (medActive.style === "silent") ? "Фокус на дыхании" : `Сейчас: ${cyc.phase}`;
       medCue.textContent = cyc.label;
 
@@ -2598,7 +2525,8 @@
           s = 0.52 + 0.02 * Math.sin(t*2);
           cue = "Пауза";
         }else if(mode === "countdown"){
-          s = 0.50 + 0.03 * Math.sin(t*3.2);
+          // во время отсчёта сфера не «дышит» и не расширяется преждевременно
+          s = 0.52;
           cue = "Готовимся";
         }else{
           const elapsed = getElapsedSec();
@@ -2606,12 +2534,9 @@
           if(stKey === "silent"){
             s = 0.56 + 0.04 * Math.sin(t*1.2);
             cue = "Фокус";
-        }else{
-          const cycleElapsed = medActive.countdownEndedAtElapsedSec != null
-            ? Math.max(0, getElapsedSec() - medActive.countdownEndedAtElapsedSec)
-            : 0;
-          const cyc = getCycleState(stKey, cycleElapsed);
-          cue = cyc.label;
+          }else{
+            const cyc = getCycleState(stKey, elapsed);
+            cue = cyc.label;
 
             // map phase to expansion/contraction
             // Inhale: expand; Exhale: contract; Hold: steady w/ micro pulse
@@ -2691,13 +2616,11 @@
         medActive.totalPausedMs += (now - medActive.pauseStartedMs);
         medActive.pauseStartedMs = 0;
         medPauseBtn.textContent = "⏸ Пауза";
-        startAmbient();
       }else{
         // pause
         medActive.paused = true;
         medActive.pauseStartedMs = Date.now();
         medPauseBtn.textContent = "▶️ Продолжить";
-        stopAmbient();
       }
     }
 
@@ -2713,9 +2636,6 @@
       medActive.completed = completed;
 
       cancelMedLoops();
-      stopAmbient();
-      if(completed){ playBell(); }
-
       // persist
       const session = {
         id: medActive.id,
@@ -2739,6 +2659,10 @@
     function showMeditationDone(session){
       medRun.style.display = "none";
       medDone.style.display = "block";
+      
+      // скрываем кнопки вкладок на экране "Готово"
+      const medTabsEl = document.querySelector('.medTabs');
+      if(medTabsEl) medTabsEl.style.display = "none";
 
       const mins = Math.round(session.actualSec / 60);
       const sName = (MED.styles[session.style]?.name) || "Медитация";
@@ -2854,7 +2778,7 @@
           <div class="medStatS">${totalMin} минут</div>
         </div>
         <div class="medStatCard">
-          <div class="medStatK">Лучшее время</div>
+          <div class="medStatK">Самое продуктивное время</div>
           <div class="medStatV">${bestHour}</div>
           <div class="medStatS">по сумме минут</div>
         </div>
@@ -2926,21 +2850,6 @@
     document.addEventListener("gesturestart", (e) => e.preventDefault());
     document.addEventListener("gesturechange", (e) => e.preventDefault());
     document.addEventListener("gestureend", (e) => e.preventDefault());
-
-    function isAnyModalOpen(){
-      return entryModalBg.classList.contains("show") || journalModalBg.classList.contains("show")
-        || progressModalBg.classList.contains("show") || medModalBg.classList.contains("show") || affModalBg.classList.contains("show");
-    }
-    document.addEventListener("touchmove", (e) => {
-      if(isAnyModalOpen() && e.target.closest(".modal")) return;
-      if(e.target.closest(".sphereWrap")) return;
-      e.preventDefault();
-    }, { passive: false });
-    document.addEventListener("wheel", (e) => {
-      if(isAnyModalOpen() && e.target.closest(".modal")) return;
-      if(e.target.closest(".sphereWrap")) return;
-      e.preventDefault();
-    }, { passive: false });
 
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
@@ -3017,7 +2926,7 @@
     // --------- Resize observer ----------
     const ro = new ResizeObserver(() => {
       updateBottomBarHeight();
-      scheduleLayoutSphere();
+      layoutSphere();
       if(progressModalBg.classList.contains("show")){
         renderProgressModal();
       }
@@ -3035,26 +2944,11 @@
       }
     });
 
-    function isMobileDevice(){
-      return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(max-width: 768px)').matches;
-    }
-
-    const desktopBlockEl = document.getElementById("desktopBlock");
-    const appRootEl = document.getElementById("appRoot");
-    if(desktopBlockEl && !isMobileDevice()){
-      desktopBlockEl.classList.add("show");
-      desktopBlockEl.setAttribute("aria-hidden", "false");
-      if(appRootEl) appRootEl.setAttribute("aria-hidden", "true");
-    } else if(desktopBlockEl){
-      desktopBlockEl.classList.remove("show");
-      desktopBlockEl.setAttribute("aria-hidden", "true");
-    }
-
     // --------- Boot ----------
     initTheme();
     setVh();
-    window.addEventListener("resize", () => { setVh(); updateBottomBarHeight(); scheduleLayoutSphere(); });
-    window.addEventListener("orientationchange", () => { setVh(); updateBottomBarHeight(); scheduleLayoutSphere(); });
+    window.addEventListener("resize", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
+    window.addEventListener("orientationchange", () => { setVh(); updateBottomBarHeight(); layoutSphere(); });
 
     normalizeStreakOnBoot();
     renderMetrics();
@@ -3065,10 +2959,6 @@
       updateBottomBarHeight();
       layoutSphere();
     });
-
-    setTimeout(function tryShowSphereHint(){
-      if(!sphereHintEverDismissed && sphereHint) showSphereHint();
-    }, 1200);
 
     animate();
   </script>
