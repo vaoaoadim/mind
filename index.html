@@ -70,6 +70,9 @@
       margin: 0;
       background: var(--bg);
       color-scheme: light dark;
+      overflow: hidden;
+      overflow-y: hidden;
+      overscroll-behavior: none;
     }
 
     body {
@@ -100,6 +103,9 @@
       min-height: calc(100vh + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
+      overflow: hidden;
+      overflow-y: hidden;
+      overscroll-behavior: none;
       /* дублируем фон, чтобы на мобильных не было обрыва внизу */
       background:
         radial-gradient(900px 700px at 20% 10%, rgba(109,94,252,.18), transparent 60%),
@@ -178,6 +184,37 @@
         radial-gradient(closest-side at 50% 44%, rgba(109,94,252,.14), transparent 68%),
         radial-gradient(closest-side at 60% 60%, rgba(167,139,250,.10), transparent 70%);
       touch-action:none;
+    }
+
+    .sphereHint{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      z-index:5;
+      opacity:0;
+      transition: opacity .5s ease;
+    }
+    .sphereHint.visible{ opacity:1; }
+    .sphereHint.hidden{ opacity:0; pointer-events:none; transition: opacity .35s ease; }
+    .sphereHintInner{
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border2);
+      background: var(--card2);
+      backdrop-filter: blur(14px);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      letter-spacing: .02em;
+      box-shadow: 0 8px 24px rgba(2,6,23,.08);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .sphereHintInner{
+      background: rgba(7,10,26,.5);
+      border-color: rgba(167,139,250,.2);
     }
 
     .softGlow{
@@ -903,11 +940,36 @@
       max-height: min(560px, calc(var(--vh, 1vh) * 100 - 120px));
       overflow: auto;
     }
+
+    .desktopBlock{
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .desktopBlock.show{ display: flex; }
+    .desktopBlockInner{ max-width: 340px; text-align: center; }
+    .desktopBlockIcon{ font-size: 48px; margin-bottom: 16px; opacity: .9; }
+    .desktopBlockTitle{ font-weight: 950; font-size: 20px; color: var(--text); margin: 0 0 12px; letter-spacing: .02em; }
+    .desktopBlockText{ font-size: 14px; line-height: 1.5; color: var(--muted); margin: 0; }
   </style>
 </head>
 
 <body>
-  <div class="app">
+  <div class="desktopBlock" id="desktopBlock" aria-hidden="false">
+    <div class="desktopBlockInner">
+      <div class="desktopBlockIcon">📱</div>
+      <h2 class="desktopBlockTitle">Только для смартфонов</h2>
+      <p class="desktopBlockText">Это приложение создано для использования на мобильных устройствах. Откройте его на телефоне или планшете — так будет удобнее.</p>
+    </div>
+  </div>
+
+  <div class="app" id="appRoot">
     <div class="top">
       <div class="header">
         <div class="brand">
@@ -932,6 +994,9 @@
     <div class="main">
       <div class="sphereSection">
         <div class="sphereWrap" id="sphereWrap">
+          <div class="sphereHint" id="sphereHint" aria-hidden="true">
+            <span class="sphereHintInner">Проведи пальцем, чтобы вращать</span>
+          </div>
           <div class="softGlow"></div>
           <div class="sphere" id="sphere"></div>
         </div>
@@ -1270,6 +1335,7 @@
     // ============================
     let isDragging = false;
     let dragPointerId = null;
+    let sphereHintEverDismissed = false;
 
     // матрица поворота 3x3 (row-major)
     let R = [ 1,0,0,  0,1,0,  0,0,1 ];
@@ -1295,6 +1361,7 @@
 
     const sphereWrap = document.getElementById("sphereWrap");
     const sphereEl   = document.getElementById("sphere");
+    const sphereHint = document.getElementById("sphereHint");
 
     const bottomBar = document.getElementById("bottomBar");
 
@@ -1631,13 +1698,25 @@ editor.addEventListener("keydown", (e) => {
       }
     }
 
+    function showSphereHint(){
+      if(sphereHintEverDismissed || !sphereHint) return;
+      sphereHint.classList.remove("hidden");
+      sphereHint.classList.add("visible");
+    }
+    function hideSphereHint(){
+      if(!sphereHint) return;
+      sphereHintEverDismissed = true;
+      sphereHint.classList.add("hidden");
+      sphereHint.classList.remove("visible");
+    }
+
     function onDragStart(e){
       isDragging = true;
       dragPointerId = e.pointerId;
       lastMoveT = performance.now();
       lastV = projectToTrackball(e.clientX, e.clientY);
+      hideSphereHint();
 
-      // при новом касании — не крутим автоспином мгновенно
       inertSpeed = 0;
     }
 
@@ -2384,9 +2463,10 @@ editor.addEventListener("keydown", (e) => {
         totalPausedMs: 0,
         pauseStartedMs: 0,
         completed: false,
+        countdownEndedAtElapsedSec: null,
       };
 
-      // 3-2-1 countdown for calmer start
+      // 3-2-1 countdown; первый вдох начнётся только после отсчёта
       medCountdown = 3;
       medPhase.textContent = "Подготовка…";
       medCue.textContent = "Готовимся";
@@ -2445,8 +2525,10 @@ editor.addEventListener("keydown", (e) => {
         medCue.textContent = String(medCountdown);
         medPhase.textContent = "Подготовка…";
         medCountdown -= 1;
+        if(medCountdown === 0){
+          medActive.countdownEndedAtElapsedSec = getElapsedSec();
+        }
         medTickRaf = requestAnimationFrame(() => {
-          // wait ~1s using time check
           const t0 = performance.now();
           const wait = () => {
             if(!medActive || medActive.paused) return;
@@ -2466,7 +2548,10 @@ editor.addEventListener("keydown", (e) => {
 
       medTimer.textContent = fmtMMSS(rem);
 
-      const cyc = getCycleState(medActive.style, elapsed);
+      const cycleElapsed = medActive.countdownEndedAtElapsedSec != null
+        ? Math.max(0, elapsed - medActive.countdownEndedAtElapsedSec)
+        : 0;
+      const cyc = getCycleState(medActive.style, cycleElapsed);
       medPhase.textContent = (medActive.style === "silent") ? "Фокус на дыхании" : `Сейчас: ${cyc.phase}`;
       medCue.textContent = cyc.label;
 
@@ -2529,13 +2614,15 @@ editor.addEventListener("keydown", (e) => {
           s = 0.52;
           cue = "Готовимся";
         }else{
-          const elapsed = getElapsedSec();
           const stKey = medActive.style || "silent";
           if(stKey === "silent"){
             s = 0.56 + 0.04 * Math.sin(t*1.2);
             cue = "Фокус";
           }else{
-            const cyc = getCycleState(stKey, elapsed);
+            const cycleElapsed = medActive.countdownEndedAtElapsedSec != null
+              ? Math.max(0, getElapsedSec() - medActive.countdownEndedAtElapsedSec)
+              : 0;
+            const cyc = getCycleState(stKey, cycleElapsed);
             cue = cyc.label;
 
             // map phase to expansion/contraction
@@ -2851,6 +2938,21 @@ editor.addEventListener("keydown", (e) => {
     document.addEventListener("gesturechange", (e) => e.preventDefault());
     document.addEventListener("gestureend", (e) => e.preventDefault());
 
+    function isAnyModalOpen(){
+      return entryModalBg.classList.contains("show") || journalModalBg.classList.contains("show")
+        || progressModalBg.classList.contains("show") || medModalBg.classList.contains("show") || affModalBg.classList.contains("show");
+    }
+    document.addEventListener("touchmove", (e) => {
+      if(isAnyModalOpen() && e.target.closest(".modal")) return;
+      if(e.target.closest(".sphereWrap")) return;
+      e.preventDefault();
+    }, { passive: false });
+    document.addEventListener("wheel", (e) => {
+      if(isAnyModalOpen() && e.target.closest(".modal")) return;
+      if(e.target.closest(".sphereWrap")) return;
+      e.preventDefault();
+    }, { passive: false });
+
     // --------- Events ----------
     themeBtn.addEventListener("click", toggleTheme);
 
@@ -2923,6 +3025,20 @@ editor.addEventListener("keydown", (e) => {
     });
 
 
+    function isMobileDevice(){
+      return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(max-width: 768px)').matches;
+    }
+    const desktopBlockEl = document.getElementById("desktopBlock");
+    const appRootEl = document.getElementById("appRoot");
+    if(desktopBlockEl && !isMobileDevice()){
+      desktopBlockEl.classList.add("show");
+      desktopBlockEl.setAttribute("aria-hidden", "false");
+      if(appRootEl) appRootEl.setAttribute("aria-hidden", "true");
+    } else if(desktopBlockEl){
+      desktopBlockEl.classList.remove("show");
+      desktopBlockEl.setAttribute("aria-hidden", "true");
+    }
+
     // --------- Resize observer ----------
     const ro = new ResizeObserver(() => {
       updateBottomBarHeight();
@@ -2959,6 +3075,10 @@ editor.addEventListener("keydown", (e) => {
       updateBottomBarHeight();
       layoutSphere();
     });
+
+    setTimeout(function(){
+      if(!sphereHintEverDismissed && sphereHint) showSphereHint();
+    }, 1200);
 
     animate();
   </script>
